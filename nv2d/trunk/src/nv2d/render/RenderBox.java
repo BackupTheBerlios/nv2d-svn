@@ -244,7 +244,7 @@ public class RenderBox extends Display {
 		double x1, y1, x2, y2;
 		double theta;
 		g.setPaint(Color.RED);
-		g.setFont(new Font(g.getFont().getName(), g.getFont().getStyle(), 8));
+		g.setFont(new Font(g.getFont().getName(), g.getFont().getStyle(), 10));
 		while(_settings.getBoolean(RenderSettings.SHOW_LENGTH) && i.hasNext()) {
 			if(_empty) return; // TODO: prefuse seems to use threads...?
 			EdgeItem item = (EdgeItem) i.next();
@@ -258,11 +258,13 @@ public class RenderBox extends Display {
 			theta = getTheta((int) x1, (int) y1, (int) x2, (int) y2);
 			String label = "[" + p.e().length() + "]";
 
-			g.translate((x1+x2)/2, (y1+y2)/2);
-			g.rotate(theta);
-			g.drawString(label, 0, 0);
-			g.rotate(-theta);
-			g.translate(-(x1+x2)/2, -(y1+y2)/2);
+			//g.translate((x1+x2)/2, (y1+y2)/2);
+			//g.rotate(theta);
+                        g.drawString(label, (int) (x1 + (x2 - x1) * (3.0 / 5.0)),
+                            (int) (y1 + (y2 - y1) * (3.0 / 5.0)));
+
+			//g.rotate(-theta);
+			//g.translate(-(x1+x2)/2, -(y1+y2)/2);
 		}
 
 		String [][] test = {{"test", "12"},
@@ -390,7 +392,7 @@ public class RenderBox extends Display {
 					fargs[1] = new Integer(1);
 					// this menu item is only shown when a degreefilter is active
 					// so this next line is safe
-					_ctl.runFilter(fargs);
+					_ctl.runFilter(fargs, true);
 				}
 			});
 

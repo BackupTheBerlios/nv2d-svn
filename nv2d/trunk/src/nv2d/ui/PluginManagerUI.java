@@ -48,7 +48,7 @@ public class PluginManagerUI extends javax.swing.JDialog {
     }
     
     /** This method is called from the constructor to fill in the components
-     * from the {@link NPluginManager}.
+     * from the {@link nv2d.plugins.NPluginManager}.
      */
     public void initContent() {
         // clear the panes of interest
@@ -241,21 +241,6 @@ public class PluginManagerUI extends javax.swing.JDialog {
 			_secList.setListData(vals.toArray());
 		}
     }//GEN-LAST:event__secAddActionPerformed
-    
-    /**
-     * @param args the command line arguments
-     */
-    /*
-    public static void main(String args[]) {
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                new PluginManagerUI(new javax.swing.JFrame(), true).setVisible(true);
-            }
-        });
-    }
-    */
-    
-    
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPanel _load;

@@ -152,7 +152,6 @@ public class DGraph extends Graph {
 	public Graph subset(Set graphelements) {
 		// filter for those edges which contain only the vertices we want
 		DGraph g = new DGraph();
-		Hashtable vertices = new Hashtable(); // (cloned)
 		Hashtable edges = new Hashtable(); // originals
 		Iterator i = graphelements.iterator();
 
@@ -161,10 +160,20 @@ public class DGraph extends Graph {
 			Object o = i.next();
 			String id = ((GraphElement) o).id();
 			if(_v.contains(o) || _e.contains(o)) {
-				if(o instanceof Vertex) {
-					vertices.put(id, ((Vertex) o).clone());
+				if(o instanceof Vertex && null == g.findVertex(id)) {
+					g.add(((Vertex) o).clone(g));
 				} else if(o instanceof Edge) {
-					edges.put(id, o);
+					// add the endpoints of the edges if necessary
+					Vertex tsource = (Vertex) ((Edge) o).getEnds().car();
+					Vertex tdest = (Vertex) ((Edge) o).getEnds().cdr();
+					if(null == g.findVertex(tsource.id())) {
+						g.add(tsource.clone(g));
+					}
+					if(null == g.findVertex(tdest.id())) {
+						g.add(tdest.clone(g));
+					}
+					// clone the edge
+					edges.put(id, ((Edge) o).clone(g));
 				}
 				// should never reach this point
 				assert(false);
@@ -178,27 +187,19 @@ public class DGraph extends Graph {
 		i = getEdges().iterator();
 		while(i.hasNext()) {
 			Edge e = (Edge) i.next();
-			if(graphelements.contains(e.getEnds().car()) && graphelements.contains(e.getEnds().cdr())) {
-				edges.put(e.id(), e);
+			if(
+				!edges.containsKey(e.id()) &&
+				null != g.findVertex(((Vertex) e.getEnds().car()).id()) &&
+				null != g.findVertex(((Vertex) e.getEnds().cdr()).id())
+			) {
+				edges.put(e.id(), e.clone(g));
 			}
 		}
 
-		// clone the vertices and insert into the graph
-		i = vertices.values().iterator();
-		while(i.hasNext()) {
-			g.add((Vertex) i.next());
-		}
-
-		// duplicate the edges and lengths
+		// insert cloned edges into graph
 		i = edges.values().iterator();
 		while(i.hasNext()) {
-			Edge e = (Edge) i.next();
-			Vertex source = (Vertex) e.getEnds().car();
-			Vertex dest = (Vertex) e.getEnds().cdr();
-			g.add(new DEdge(
-						(DVertex) vertices.get(source.id()),
-						(DVertex) vertices.get(dest.id()),
-						e.length()));
+			g.add((Edge) i.next());
 		}
 
 		return g;
@@ -206,6 +207,7 @@ public class DGraph extends Graph {
 
 	/** Remove a graph element from the graph. */
 	public boolean remove(GraphElement ge) {
+		// TODO: setParent NULL on removed graph elements
 		_indecized = false;
 		if(ge.getClass() == DVertex.class) {
 			_e.removeAll(((DVertex) ge).inEdges());

@@ -38,7 +38,6 @@ import edu.berkeley.guir.prefuse.NodeItem;
  * Italicized descriptions are taken from from the following text:
  * <p>Wasserman, Stanley and Katherine Faust.  <u>Social Network Analysis:
  * Methods and Applications</u>.  Cambridge University Press, 1994.
- * @see Matrix
  */
 public class SNA implements NV2DPlugin  {
 	private String _desc;

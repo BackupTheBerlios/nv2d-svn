@@ -1,6 +1,6 @@
 package nv2d.graph;
 
-public class GraphElement extends DataStore implements Comparable {
+public abstract class GraphElement extends DataStore implements Comparable {
 	private String _id = null;
 	private DataStore _parent = null;
 
@@ -17,6 +17,13 @@ public class GraphElement extends DataStore implements Comparable {
 		return _id;
 	}
 
+	/** Creates a duplicate GraphElement with the same <code>id</code> and
+	 * the same non-system datums (those whose datum names do not follow the
+	 * format of the string '__[owner]:[name]'.
+	 * @param destGraph Each graph element must have a parent graph to go
+	 *    into. */
+	public abstract GraphElement clone(Graph destGraph);
+
 	final public DataStore getParent() {
 		return _parent;
 	}
@@ -26,7 +33,7 @@ public class GraphElement extends DataStore implements Comparable {
 	}
 
 	/** The default behavior for comparison is the <code>id()</code> method. */
-	public boolean equals(Object o) {
+	final public boolean equals(Object o) {
 		try {
 			if(((GraphElement) o).id().equals(id())) {
 				return true;
@@ -38,7 +45,7 @@ public class GraphElement extends DataStore implements Comparable {
 		return false;
 	}
 
-	public int compareTo(Object o) {
+	final public int compareTo(Object o) {
 		GraphElement ge = (GraphElement) o;
 		return id().compareTo(ge.id());
 	}

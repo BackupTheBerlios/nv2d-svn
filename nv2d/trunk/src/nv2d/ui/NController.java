@@ -62,8 +62,10 @@ public interface NController {
 	/**
 	 * Execute the active filter.
 	 * @param args Implementations of {@link nv2d.graph.FilterInterface} make require different arguments.
+         * @param wholeSet If true, the filter will be run on the original data set loaded.  If false,
+         *        the filter will only be run on the visible graph.
 	 */
-	public void runFilter(Object [] args);
+	public void runFilter(Object [] args, boolean wholeSet);
 
 	// UI controls
 	/**
@@ -96,7 +98,7 @@ public interface NController {
         
         /**
          * Get the instance of the JComponent containing the top level bottom GUI component.
-         * @ return a {@link javax.swing.JPanel} instance */
+         * @return a {@link javax.swing.JPanel} instance */
         public JPanel getBottomPane();
 
 	// plugin controls

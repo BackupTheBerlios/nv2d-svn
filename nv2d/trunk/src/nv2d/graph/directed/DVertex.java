@@ -13,6 +13,7 @@ import nv2d.graph.Vertex;
 import nv2d.graph.Datum;
 import nv2d.graph.Edge;
 import nv2d.graph.Graph;
+import nv2d.graph.GraphElement;
 
 public class DVertex extends Vertex {
 	// the intersection of the following two sets should be null
@@ -48,7 +49,7 @@ public class DVertex extends Vertex {
 		return set;
 	}
 
-	public Vertex clone() {
+	public GraphElement clone(Graph destGraph) {
 		DVertex v = new DVertex(id());
 		Set attr = getDatumSet();
 		Iterator i = attr.iterator();

@@ -18,11 +18,6 @@ public abstract class Vertex extends GraphElement {
 	/** Return all nodes which share an edge with this node. */
 	public abstract Set neighbors();
 
-	/** Creates a duplicate vertex with the same <code>id</code> and
-	 * the same non-system datums (those whose datum names do not follow the
-	 * format of the string '__[owner]:[name]'.  Edges are not copied. */
-	public abstract Vertex clone();
-
 	public String toString() {
 		return id();
 	}

@@ -14,6 +14,7 @@ import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JComboBox;
+import javax.swing.JCheckBox;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -69,7 +70,9 @@ public class DegreeFilterUI {
 		Arrays.sort(vnames);
 		final JComboBox vertices = new JComboBox(vnames);
 		final JComboBox degree = new JComboBox(vlist);
-		JButton confirm = new JButton("Filter");
+		final JButton confirm = new JButton("Filter");
+                final JCheckBox wholeSet = new JCheckBox("Run filter on whole dataset", true);
+                
 		degree.setToolTipText("Vertices will be filtered according to the degree of separation between the vertex and the central vertex.");
 		vertices.setToolTipText("Set the center vertex.");
 
@@ -106,13 +109,14 @@ public class DegreeFilterUI {
 				fargs[0] = selectedVertex;
 				fargs[1] = degree;
 
-				ctl.runFilter(fargs);
+				ctl.runFilter(fargs, wholeSet.isSelected());
 			}
 		});
 
 		// make the jdialog
 		JDialog dialog = new JDialog();
 		dialog.getContentPane().add(ui);
+                dialog.getContentPane().add(wholeSet, "South");
 		dialog.setTitle("Degree Filter");
 		dialog.setModal(true);
 		return dialog;

@@ -5,10 +5,14 @@ import java.io.ObjectOutputStream;
 import java.io.ObjectInputStream;
 import java.io.Serializable;
 import java.lang.IllegalArgumentException;
+import java.util.Set;
+import java.util.Iterator;
 
+import nv2d.graph.Datum;
 import nv2d.graph.Edge;
 import nv2d.graph.Vertex;
 import nv2d.graph.Graph;
+import nv2d.graph.GraphElement;
 import nv2d.utils.Pair;
 
 public class DEdge extends Edge implements Serializable {
@@ -26,6 +30,27 @@ public class DEdge extends Edge implements Serializable {
 
 		_v = new Pair(source, dest);
 		_len = length;
+	}
+
+	public GraphElement clone(Graph destGraph) {
+		// TODO: assert that the destGraph contains source and dest
+		if(destGraph == null) {
+			return null;
+		}
+
+		DEdge e = new DEdge((DVertex) destGraph.findVertex(getSource().id()),
+				(DVertex) destGraph.findVertex(getDest().id()), _len);
+
+		Set attr = getDatumSet();
+		Iterator i = attr.iterator();
+		while(i.hasNext()) {
+			Datum d = (Datum) i.next();
+			if(!d.name().matches("__.*:.*")) {
+				// not a 'reserved' system datum
+				e.setDatum(d);
+			}
+		}
+		return e;
 	}
 
 	public Vertex getSource() {

@@ -35,6 +35,8 @@ public class MainPanel implements NController {
 	private JComponent _outTextBox, _errTextBox;
 
 	private NPrintStream _err, _out;
+        
+        private DegreeFilter _degreeFilter = new DegreeFilter();
 
 	public MainPanel(Container parent) {
 		/* The following font bit is taken from
@@ -137,9 +139,9 @@ public class MainPanel implements NController {
 
 		if(_g != null && _g.numVertices() > DegreeFilterUI.THRESHHOLD) {
 			// filter it to 2 degrees using degree filter
-			setFilter(new DegreeFilter());
+			setFilter(_degreeFilter);
 			// if clause tests for existence of vertices in graph, so next() can be used
-			runFilter(new Object[] {_g.getVertices().iterator().next(), new Integer(1)});
+			runFilter(new Object[] {_g.getVertices().iterator().next(), new Integer(1)}, true);
 			// notify user
 			JOptionPane.showMessageDialog(null,
 				"We don't recommend showing over " + DegreeFilterUI.THRESHHOLD + " vertices at onetime.\nYour graph has been filtered using the degree filter.\nChange the settings to show all vertices at the same time.",
@@ -190,10 +192,26 @@ public class MainPanel implements NController {
 	public JMenuBar getMenu() {
 		return _menu;
 	}
-
-	public void runFilter(Object [] args) {
-		_filter.initialize(_originalGraph, args);
-		_g = _filter.filter(_originalGraph);
+        
+	public void runFilter(Object [] args, boolean wholeSet) {
+		_filter.initialize((wholeSet ? _originalGraph : _g), args);
+		_g = _filter.filter((wholeSet ? _originalGraph : _g));
+                
+                // just in case a filter produces too many nodes, we will break it down using degree filter
+                if(_g != null && _g.numVertices() > DegreeFilterUI.THRESHHOLD) {
+			_filter = _degreeFilter;
+			// if clause tests for existence of vertices in graph, so next() can be used
+			_filter.initialize(_g, new Object[] {_g.getVertices().iterator().next(), new Integer(1)});
+                        _g = _filter.filter(_g);
+                        
+			// notify user
+			JOptionPane.showMessageDialog(null,
+				"We don't recommend showing over " + DegreeFilterUI.THRESHHOLD + " vertices at onetime.\nYour graph has been filtered using the degree filter.\nChange the settings to show all vertices at the same time.",
+				"Too Many Vertices",
+				JOptionPane.WARNING_MESSAGE);
+			// runFilter() runs reinitModules()
+		}
+                
 		reinitModules();
 	}
 
