@@ -50,6 +50,9 @@ public class MainPanel implements NController {
 	private JPanel _historyPane;
 	
 	private DefaultListModel _history;
+
+	/* color legend variables */
+	private LegendMap _legendMap;
 	
 	private JComponent _outTextBox, _errTextBox;
 	
@@ -146,6 +149,12 @@ public class MainPanel implements NController {
 		_r.clear();
 		_originalGraph = h.getModel();
 		_g = h.getSubgraph();
+
+		if(_originalGraph != null) {
+			_legendMap = new LegendMap(_originalGraph);
+			_menu.setLegendMenu(_legendMap);
+		}
+
 		this.reinitModules(false);	// do not save in history
 		getBottomPane().validate();
 	}
@@ -182,6 +191,11 @@ public class MainPanel implements NController {
 				}
 			}
 			_originalGraph = _g;
+
+			if(_originalGraph != null) {
+				_legendMap = new LegendMap(_originalGraph);
+				_menu.setLegendMenu(_legendMap);
+			}
 		}
 		
 		if(_g != null && _g.numVertices() > DegreeFilterUI.THRESHHOLD) {
