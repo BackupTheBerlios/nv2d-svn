@@ -62,6 +62,9 @@
 		description="Jar Classes">
 		<jar jarfile="${dist.dir}/N2.jar"
 			basedir="${build.dir}">
+			<manifest>
+				<attribute name="Main-Class" value="nv2d.ui.NV2DMain"/>
+			</manifest>
 		</jar>
 	</target>
 
