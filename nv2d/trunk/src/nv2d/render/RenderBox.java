@@ -76,6 +76,7 @@ public class RenderBox extends Display {
 	}
 
 	public void clear() {
+		if(_empty) return;
 		_registry.clear();
 		_actions = null;
 		_fsim = null;

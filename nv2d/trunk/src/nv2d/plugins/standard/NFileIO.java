@@ -90,6 +90,9 @@ public class NFileIO implements IOInterface {
 	/* Model, view, controller -> g, view, controller */
 	public void initialize(Graph g, Container view, NController control) {
 		System.out.print("--> initialize()\n");
+		// g is not used because this is an IOModule and it provides g
+		_view = view;
+		_control = control;
 	}
 
 	public void heartbeat() {
@@ -142,7 +145,11 @@ public class NFileIO implements IOInterface {
 
 			//If a string was returned, say so.
 			if ((s != null) && (s.length() > 0)) {
-				System.out.println("Argument provided '" + s + "'");
+				String [] arglist = new String[3];
+				arglist[0] = "nv2d/plugins/standard";
+				arglist[1] = name();
+				arglist[2] = s;
+				_control.initialize(arglist);
 			}
 		}
 	}

@@ -12,18 +12,18 @@ import nv2d.plugins.NPluginLoader;
 import nv2d.plugins.NV2DPlugin;
 
 public class NV2DMain extends JFrame implements NController {
-	static NPluginManager pm;
-	static Graph g;
-	static RenderBox r;
-	static String usage = "Backend [path to plugins] [io_plugin] [io parameters ...]";
-	static NMenu menu;
+	NPluginManager pm;
+	Graph g;
+	RenderBox r;
+	String usage = "Backend [path to plugins] [io_plugin] [io parameters ...]";
+	NMenu menu;
 
 	public NV2DMain(String [] args) {
 		// Important: this must be the order (loadmodules then renderbox as last two)
 		r = new RenderBox();
 		menu = new NMenu(r);
 
-		loadModules(args);
+		initialize(args);
 
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 		getContentPane().add(r);
@@ -34,8 +34,16 @@ public class NV2DMain extends JFrame implements NController {
 	}
 
 	public void initialize(String [] args) {
-		// run all scheduled actions in the RenderBox
+		System.out.println("   1");
+		r.clear();
+		System.out.println("   2");
+		// reload modules
+		loadModules(args);
+
+		// start things up
+		System.out.println("   3");
 		r.initialize(g);
+		System.out.println("   4");
 	}
 
 	/* Current cmd-line:
@@ -67,6 +75,7 @@ public class NV2DMain extends JFrame implements NController {
 		}
 
 		IOInterface io = pm.get(io_mod);
+		io.initialize(null, r, this);
 		System.out.println("Getting data through the [" + io_mod + "] IO-Plugin");
 
 		String [] io_args = new String[args.length - 2];
@@ -114,7 +123,7 @@ public class NV2DMain extends JFrame implements NController {
 		/* load data file if specified, otherwise query user for datafile */
 	}
 
-	public static void errormsg() {
+	void errormsg() {
 		System.err.println(usage);
 	}
 
