@@ -121,9 +121,12 @@ public class NMenu extends JMenuBar {
 
 	public class nmView extends JMenu implements ItemListener {
 		JMenu _visualization;
-		JCheckBoxMenuItem _nlabel = new JCheckBoxMenuItem("Labels", true);
-		JCheckBoxMenuItem _stress = new JCheckBoxMenuItem("Stress", true);
-		JCheckBoxMenuItem _length = new JCheckBoxMenuItem("Length", true);
+		JCheckBoxMenuItem _nlabel = new JCheckBoxMenuItem("Labels",
+				_renderbox.getRenderSettings().getBoolean(RenderSettings.SHOW_LABELS));
+		JCheckBoxMenuItem _stress = new JCheckBoxMenuItem("Stress",
+				_renderbox.getRenderSettings().getBoolean(RenderSettings.SHOW_STRESS));
+		JCheckBoxMenuItem _length = new JCheckBoxMenuItem("Length",
+				_renderbox.getRenderSettings().getBoolean(RenderSettings.SHOW_LENGTH));
 
 		JMenu _filter;
 		JMenuItem _degreeFilter = new JMenuItem("Degree");
@@ -192,7 +195,8 @@ public class NMenu extends JMenuBar {
 	}
 
 	public class nmSettings extends JMenu implements ItemListener {
-		JCheckBoxMenuItem _aa = new JCheckBoxMenuItem("Antialias", false);
+		JCheckBoxMenuItem _aa = new JCheckBoxMenuItem("Antialias",
+				_renderbox.getRenderSettings().getBoolean(RenderSettings.ANTIALIAS));
 
 		public nmSettings() {
 			super("Settings");

@@ -83,6 +83,9 @@ public class RenderBox extends Display {
 		//  representations of different graph elements
 		super(new ItemRegistry(new DefaultGraph(true)));
 
+		// establish settings controller
+		_settings = new RenderSettings();
+
 		_ctl = ctl;
 		// setup the popup menu for vertices
 		_vertexMenu = new PopupMenu();
@@ -130,8 +133,8 @@ public class RenderBox extends Display {
 		_actions.add(new Colorizer()); 		// colors nodes & edges
 		_actions.add(new RepaintAction());
 
-		// establish settings controller
-		_settings = new RenderSettings();
+		// antialias?
+		setHighQuality(_settings.getBoolean(RenderSettings.ANTIALIAS));
 
 		_empty = false;
 

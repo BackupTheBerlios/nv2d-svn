@@ -137,6 +137,7 @@ public class MainPanel implements NController {
 				"We don't recommend showing over " + DegreeFilterUI.THRESHHOLD + " vertices at onetime.\nYour graph has been filtered using the degree filter.\nChange the settings to show all vertices at the same time.",
 				"Too Many Vertices",
 				JOptionPane.WARNING_MESSAGE);
+			// runFilter() runs reinitModules()
 		} else {
 			reinitModules();
 		}

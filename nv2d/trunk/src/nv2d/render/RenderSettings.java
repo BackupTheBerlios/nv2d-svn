@@ -10,7 +10,7 @@ public class RenderSettings {
 
 	/* uniqueID, description, setting */
 	static String [][] _settings = {
-		{/*antialias*/ TYPE_BOOLEAN, "f", "Anti-alias rendering."},
+		{/*antialias*/ TYPE_BOOLEAN, "t", "Anti-alias rendering."},
 		{/*show_arrows*/ TYPE_BOOLEAN, "t", "Show direction arrows on edges."},
 		{/*show_einfo*/ TYPE_BOOLEAN, "t", "Show selected edge information and statistics."},
 		{/*show_vinfo*/ TYPE_BOOLEAN, "t", "Show selected vertex information and statistics."},
