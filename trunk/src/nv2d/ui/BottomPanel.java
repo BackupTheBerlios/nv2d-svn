@@ -104,10 +104,9 @@ public class BottomPanel extends javax.swing.JPanel {
 
         setLayout(new java.awt.FlowLayout(java.awt.FlowLayout.LEFT));
 
-        setBorder(new javax.swing.border.LineBorder(new java.awt.Color(0, 0, 0)));
         setPreferredSize(new java.awt.Dimension(2, 0));
         _start.setText(" Start ");
-        _start.setToolTipText("Start the interactive layout.");
+        _start.setToolTipText("Start the interative layout.");
         _start.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(0, 0, 0)));
         _start.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
