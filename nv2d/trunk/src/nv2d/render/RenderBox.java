@@ -16,6 +16,10 @@ import java.awt.image.BufferedImage;
 import java.awt.image.RenderedImage;
 import java.util.Iterator;
 import javax.imageio.ImageIO;
+import javax.swing.JMenu;
+import javax.swing.JMenuItem;
+import javax.swing.JPopupMenu;
+import javax.swing.JSeparator;
 
 import edu.berkeley.guir.prefuse.Display;
 import edu.berkeley.guir.prefuse.ItemRegistry;
@@ -58,6 +62,8 @@ public class RenderBox extends Display {
 
 	private ForceSimulator _fsim;
 	private ForceDirectedLayout _flayout;
+
+	private PopupMenu _vertexMenu;
 	
 	public RenderBox() {
 		// (1) convert NV2D graph to a data structure usable by Prefuse
@@ -65,6 +71,9 @@ public class RenderBox extends Display {
 		//  the item registry stores all the visual
 		//  representations of different graph elements
 		super(new ItemRegistry(new DefaultGraph(true)));
+
+		// setup the popup menu for vertices
+		_vertexMenu = new PopupMenu();
 
 		// create a new display component to show the data
 		setSize(400,400);
@@ -311,11 +320,33 @@ public class RenderBox extends Display {
 		public void itemPressed(VisualItem item, MouseEvent e) {
 			// first click selects, second click deselects
 			item.setFixed(!item.isFixed());
+			maybeShowPopup(e);
 		}
 
 		public void itemExited(VisualItem item, MouseEvent e) {
 			((Display)e.getSource()).setCursor(Cursor.getDefaultCursor());
 			item.setHighlighted(false);
 		}
+
+		public void maybeShowPopup(MouseEvent e) {
+			if (e.isPopupTrigger()) {
+				_vertexMenu.show(e.getComponent(), e.getX(), e.getY());
+			}
+		}
+	}
+}
+
+class PopupMenu extends JPopupMenu {
+	public PopupMenu() {
+		JMenuItem _centerDegreeFilter = new JMenuItem("Center DegreeFilter here");
+		JMenuItem _setStartPoint = new JMenuItem("Set start vertex");
+		JMenuItem _setEndPoint = new JMenuItem("Highlight APSP");
+
+		//_setEndPoint.setLabel(new JLabel("Calculate and highlight the all-pairs shortest path from the start vertex to this vertex."));
+
+		add(_centerDegreeFilter);
+		add(new JSeparator());
+		add(_setStartPoint);
+		add(_setEndPoint);
 	}
 }
