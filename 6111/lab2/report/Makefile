@@ -10,4 +10,3 @@ default:
 
 	latex report.tex
 	dvips -Pcmz report.dvi -o report.ps
-	pdflatex report.tex
