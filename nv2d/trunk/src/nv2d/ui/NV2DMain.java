@@ -1,6 +1,8 @@
 package nv2d.ui;
 
 import java.io.IOException;
+import java.util.Enumeration;
+import java.util.Hashtable;
 import java.util.Iterator;
 import java.awt.*;
 import javax.swing.*;
@@ -26,10 +28,27 @@ public class NV2DMain extends JFrame implements NController {
 	private NPrintStream _err, _out;
 
 	public NV2DMain() {
+		/* The following font bit is taken from
+		 * http://forum.java.sun.com/thread.jsp?thread=125315&forum=57&message=330309
+		 * Thanks to 'urmasoft' for the post
+		 */
+		Hashtable oUIDefault = UIManager.getDefaults();
+		Enumeration oKey = oUIDefault.keys();
+		String oStringKey = null;
+
+		while (oKey.hasMoreElements()) {
+			oStringKey = oKey.nextElement().toString();
+			if (oStringKey.endsWith("font") || oStringKey.endsWith("acceleratorFont")) {
+				UIManager.put(oStringKey, new Font("Dialog", Font.PLAIN, 10));
+			}
+		}
+
 		// Important: this must be the order (loadmodules then renderbox as last two)
 		_r = new RenderBox();
 		_menu = new NMenu(this, _r);
 		_tabs = new JTabbedPane();
+
+		_tabs.setPreferredSize(new Dimension(700, 500));
 
 		// trap output to standard streams and display them in a text box
 		JTextArea errTxt = new JTextArea();
@@ -42,8 +61,6 @@ public class NV2DMain extends JFrame implements NController {
 		System.setErr(_err);
 		_err.addNotifyClient(errTxt);
 		_out.addNotifyClient(outTxt);
-		sp1.setPreferredSize(new Dimension(500, 500));
-		sp2.setPreferredSize(new Dimension(500, 500));
 		_tabs.add("Display", _r);
 		_tabs.add("Output", sp2);
 		_tabs.add("Errors", sp1);
