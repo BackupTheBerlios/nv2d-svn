@@ -9,6 +9,7 @@ import javax.swing.JTabbedPane;
 import javax.swing.JPanel;
 
 import nv2d.graph.FilterInterface;
+import nv2d.graph.filter.DegreeFilter;
 import nv2d.graph.Graph;
 import nv2d.render.RenderBox;
 import nv2d.plugins.NPluginManager;
@@ -41,6 +42,13 @@ public interface NController {
 	 * @return returns a {@link nv2d.render.RenderBox} object.
 	 */
 	public RenderBox getView();
+	
+	/**
+	 * Get the main DegreeFilter object.  The Degree Filter is used as the
+	 * browsing mechanism for large graphs so it it ubiquitous and no new
+	 * instances should be created.  Instead, use this one
+	 */
+	public DegreeFilter getDegreeFilter();
 	
 	/**
 	 * Returns the parent container for the main panel.

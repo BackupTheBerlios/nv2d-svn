@@ -151,6 +151,12 @@ public class MainPanel implements NController {
 		} else {
 			reinitModules();
 		}
+		
+		// TODO: needs a better mechanism here to update GUI elements
+		// maybe have interface w/ update method
+		// and keep track of all the panels in use and update all of them as needed
+		// ((BottomPanel) getBottomPane()).validate();
+		getBottomPane().validate();
 	}
 	
 	public void errorPopup(String title, String msg, String extra) {
@@ -266,6 +272,10 @@ public class MainPanel implements NController {
 	
 	public RenderBox getView() {
 		return _r;
+	}
+	
+	public DegreeFilter getDegreeFilter() {
+		return _degreeFilter;
 	}
 	
 	public NPluginManager getPluginManager() {
