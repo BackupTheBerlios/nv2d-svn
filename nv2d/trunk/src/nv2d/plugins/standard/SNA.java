@@ -4,6 +4,8 @@ import java.awt.Container;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import java.lang.Integer;
+import java.lang.Double;
+import java.lang.NullPointerException;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Set;
@@ -12,16 +14,23 @@ import java.util.Stack;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
+import javax.swing.JSeparator;
 
 import nv2d.plugins.NPluginLoader;
 import nv2d.plugins.NV2DPlugin;
 
+import nv2d.algorithms.shortestpaths.Dijkstra;
 import nv2d.graph.Datum;
 import nv2d.graph.Edge;
 import nv2d.graph.Graph;
 import nv2d.graph.Vertex;
-import nv2d.algorithms.shortestpaths.Dijkstra;
+import nv2d.render.PGraph;
+import nv2d.render.PNode;
+import nv2d.render.RenderBox;
 import nv2d.ui.NController;
+
+import edu.berkeley.guir.prefuse.ItemRegistry;
+import edu.berkeley.guir.prefuse.NodeItem;
 
 /** Plugin for Social Network Analysis (SNA) calculations.
  *
@@ -55,10 +64,16 @@ public class SNA implements NV2DPlugin  {
 	public static final String DATUM_INDEGREE = "In-Degree";
 	public static final String DATUM_OUTDEGREE = "Out-Degree";
 
+	public static double MAX_VERTEX_RADIUS = 3.0;
+	public static double MIN_VERTEX_RADIUS = 1.0;
+
+	private boolean _inited;
+
 	public SNA() {
 		_desc = new String("This plugin calculates basic social network analysis measures for a graph and it's elements.");
 		_name = new String("SNA");
 		_author= new String("Bo Shi");
+		_inited = false;
 	}
 
 	public void initialize(Graph g, Container view, NController control) {
@@ -70,6 +85,8 @@ public class SNA implements NV2DPlugin  {
 			indecize();
 			calculate();
 		}
+
+		_inited = true;
 	}
 	public void heartbeat() {
 	}
@@ -85,12 +102,47 @@ public class SNA implements NV2DPlugin  {
 	public JMenu menu() {
 		JMenu m = new JMenu("Social Network Analysis");
 		JMenuItem recalc = new JMenuItem("Recalculate Measures");
+		final JMenuItem sizeby_betw = new JMenuItem("Betweenness");
+		final JMenuItem sizeby_close = new JMenuItem("Closeness");
+		final JMenuItem sizeby_degree = new JMenuItem("Degree");
+		final JMenuItem sizeby_indeg = new JMenuItem("Indegree");
+		final JMenuItem sizeby_outdeg = new JMenuItem("Outdegree");
+
 		recalc.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				initialize(_graph, _view, _control);
 			}
 		});
+		ActionListener resizeActions = new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				String s = null;
+				if(e.getSource().equals(sizeby_betw)) {
+					s = DATUM_BETWEENNESS;
+				} else if (e.getSource().equals(sizeby_close)) {
+					s = DATUM_CLOSENESS;
+				} else if (e.getSource().equals(sizeby_degree)) {
+					s = DATUM_DEGREE;
+				} else if (e.getSource().equals(sizeby_indeg)) {
+					s = DATUM_INDEGREE;
+				} else if (e.getSource().equals(sizeby_outdeg)) {
+					s = DATUM_OUTDEGREE;
+				}
+				resizeNodes(s);
+			}
+		};
+		sizeby_betw.addActionListener(resizeActions);
+		sizeby_close.addActionListener(resizeActions);
+		sizeby_degree.addActionListener(resizeActions);
+		sizeby_indeg.addActionListener(resizeActions);
+		sizeby_outdeg.addActionListener(resizeActions);
+
 		m.add(recalc);
+		m.add(new JSeparator());
+		m.add(sizeby_betw);
+		m.add(sizeby_close);
+		m.add(sizeby_degree);
+		m.add(sizeby_indeg);
+		m.add(sizeby_outdeg);
 		return m;
 	}
 
@@ -113,6 +165,45 @@ public class SNA implements NV2DPlugin  {
 	static {
 		// put factory in the hashtable for detector factories.
 		NPluginLoader.reg("SNA", new SNA());
+	}
+	
+	/* ===================================== *
+	      Visualization Functions
+	 * ===================================== */
+	private void resizeNodes(String measure) {
+		if(!_inited || _graph == null) {
+			System.err.println("Error: could not resize nodes because measures have not been calculated.");
+			return;
+		}
+
+		RenderBox r = (RenderBox) _view;
+
+		// find the maximum measure
+		double min = Double.MAX_VALUE;
+		double max = Double.MIN_VALUE;
+		Iterator i = _graph.getVertices().iterator();
+		while(i.hasNext()) {
+			Vertex v = (Vertex) i.next();
+			double value = ((Double) v.getDatum(measure).get()).doubleValue();
+			max = (value > max ? value : max);
+			min = (value < min ? value : min);
+		}
+
+		i = _graph.getVertices().iterator();
+		while(i.hasNext()) {
+			Vertex v = (Vertex) i.next();
+			PNode pn;
+			try {
+				pn = (PNode) v.getDatum(PGraph.DATUM_POBJ).get();
+			} catch(NullPointerException e) {
+				// return
+				System.err.println("Error: cannot resize nodes until the renderer completes initialization.");
+				return;
+			}
+			double value = ((Double) v.getDatum(measure).get()).doubleValue();
+			double size = MIN_VERTEX_RADIUS + (MAX_VERTEX_RADIUS - MIN_VERTEX_RADIUS) * (value - min) / (max - min);
+			r.getRegistry().getNodeItem(pn).setSize(size);
+		}
 	}
 
 	/* ===================================== *
