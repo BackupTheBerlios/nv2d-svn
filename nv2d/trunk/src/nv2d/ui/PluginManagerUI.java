@@ -1,6 +1,8 @@
 /*
  * PluginManagerUI.java
  *
+ * Graphical user interface for manipulating plugins.
+ *
  * Created on February 5, 2005, 2:07 PM
  */
 
@@ -25,13 +27,19 @@ import nv2d.plugins.NV2DPlugin;
 import nv2d.ui.NController;
 
 /**
- *
- * @author  bshi
+ * This class creates the dialog for the GUI which manipulates the plugin manager
+ * for NV2D.  The GUI allows the user to add "secure" or trusted servers from which
+ * plugins can be downloaded and also allows the user to disable or enable plugins.
+ * @author bshi
  */
 public class PluginManagerUI extends javax.swing.JDialog {
-    NController _ctl;
+    private NController _ctl;
     
-    /** Creates new form PluginManagerUI */
+    /**
+     * Creates new form PluginManagerUI
+     * @param parent Parent for this dialog.
+     * @param ctl The controller provides access to the program's plugin manager instance.
+     */
     public PluginManagerUI(java.awt.Frame parent, NController ctl) {
         super(parent, true);
         _ctl = ctl;

@@ -11,9 +11,9 @@ import nv2d.graph.Graph;
 import nv2d.render.RenderBox;
 import nv2d.plugins.NPluginManager;
 
-/* NController contains the graph, renderbox, and filter */
 /**
- * This interface provides access to the internals of NV2D.  Plugins need access in order to extend the program.
+ * This interface provides access to the internals of NV2D.  Plugins need access
+ * in order to extend the program.
  */
 public interface NController {
 	/**
@@ -27,24 +27,73 @@ public interface NController {
 	public void initialize(String [] args);
 
 	// get model/view
+	/**
+	 * Returns the current instance of the model (as per the Model-View-Controller
+	 * paradigm).  The model for NV2D is the {@link Graph} object.
+	 * @return returns a {@link Graph} object.
+	 */
 	public Graph getModel();
+	/**
+	 * Returns the current instance of the view (as per the Model-View-Controller
+	 * paradigm).  The view for NV2D is the {@link RenderBox} object.
+	 * @return returns a {@link RenderBox} object.
+	 */
 	public RenderBox getView();
         
 	// other accessors
+	/**
+	 * Returns the instance of the plugin manager.
+	 * @return returns a {@link NPluginManager} object.
+	 */
 	public NPluginManager getPluginManager();
 
 	// filter controls
+	/**
+	 * Set the active filter for the current {@link Graph} object.
+	 * @param filter an implementation of the {@link FilterInterface} object.
+	 */
 	public void setFilter(FilterInterface filter);
+	/**
+	 * Get the active filter for the program.
+	 * @return a {@link FilterInterface} object.
+	 */
 	public FilterInterface getFilter();
+	/**
+	 * Execute the active filter.
+	 * @param args Implementations of {@link FilterInterface} make require different arguments.
+	 */
 	public void runFilter(Object [] args);
 
 	// UI controls
+	/**
+	 * Toggle the Output tab.
+	 * @param b On/Off
+	 */
 	public void displayOutTextBox(boolean b);
+	/**
+	 * Toggle the Error Messages tab.
+	 * @param b On/Off
+	 */
 	public void displayErrTextBox(boolean b);
+	/**
+	 * Get the instance of the main menu.
+	 * @return a {@link NMenu} object.
+	 */
 	public JMenuBar getMenu();
+	/**
+	 * Get the instance of the JComponent containing the top level GUI components.
+	 * @return a {@link JTabbedPane} instance.
+	 */
 	public JTabbedPane getTabs();
 
 	// plugin controls
+	/**
+	 * Load the default set of plugins.
+	 */
 	public void loadModules();
+	/**
+	 * Load the a set of modules from a given path.
+	 * @param url path to a JAR archvie.
+	 */
 	public void loadModules(String url);
 }

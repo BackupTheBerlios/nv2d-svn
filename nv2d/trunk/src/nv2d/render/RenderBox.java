@@ -92,8 +92,8 @@ public class RenderBox extends Display {
 		_lastItemClicked = null;
 
 		// create a new display component to show the data
-		setSize(400,400);
-		pan(350, 350);
+		// setSize(400,400);
+		// pan(350, 350);
 		// lets users drag nodes around on screen (Display class method)
 		addControlListener(new MouseController());
 		addControlListener(new DragControl());
@@ -412,8 +412,12 @@ public class RenderBox extends Display {
 			_setStartPoint.setToolTipText("Set the starting point for a shortest path calculation.");
 			_setStartPoint.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
+                                    try {
 					Vertex v = ((PNode) _lastItemClicked.getEntity()).v();
 					_apspSource = v;
+                                    } catch (java.lang.ClassCastException err) {
+                                        return;
+                                    }
 				}
 			});
 

@@ -16,30 +16,30 @@ public interface NV2DPlugin {
 	 * View -->  (Container --> RenderBox)
 	 * Controller --> NController (top level program object)
 	 * */
-	void initialize(Graph g, Container view, NController control);
+	public void initialize(Graph g, Container view, NController control);
 
 	/** This method is called periodically by the plugin manager.  If you need
 	 * to schedule actions, use this method.
 	 * */
-	void heartbeat();
+	public void heartbeat();
 
 	/** If this plugin has set any DATUM's, this method should clean them up
 	 * here.
 	 * */
-	void cleanup();
+	public void cleanup();
 
 	/** Return a handle to the user interface for this plugin.  This method may
 	 * return null, in which case the plugin is indicating that it does not
 	 * require a graphical user interface.
 	 * */
-	JPanel ui();
+	public JPanel ui();
 
 	/** Return a handle to the menu for this plugin.  The menu returned will be
 	 * accessible under "Plugins"-->"Plugin Name".  This method may return
 	 * null, in which case the plugin is indicating that it does not require a
 	 * menu.
 	 * */
-	JMenu menu();
+	public JMenu menu();
 
 	/** Provide a list of names (space delimited) of the prerequisite modules
 	 * required by a given plugin. */

@@ -56,6 +56,9 @@ public class MainPanel implements NController {
 		_r = new RenderBox(this);
 		_menu = new NMenu(this, _r);
 		_tabs = new JTabbedPane();
+
+
+		_r.setPreferredSize(new Dimension(700, 500));
 		
 		// trap output to standard streams and display them in a text box
 		JTextArea errTxt = new JTextArea();
