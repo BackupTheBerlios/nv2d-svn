@@ -21,7 +21,6 @@ import java.util.Iterator;
 import javax.imageio.ImageIO;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
 import javax.swing.JSeparator;
 import javax.swing.PopupFactory;
@@ -50,6 +49,7 @@ import edu.berkeley.guir.prefusex.force.SpringForce;
 import edu.berkeley.guir.prefusex.layout.ForceDirectedLayout;
 import edu.berkeley.guir.prefusex.layout.RandomLayout;
 
+import nv2d.graph.Datum;
 import nv2d.graph.Edge;
 import nv2d.graph.Graph;
 import nv2d.graph.Path;
@@ -62,6 +62,7 @@ import nv2d.ui.NController;
  */
 public class RenderBox extends Display {
 	public static final float TRANSPARENCY = 0.7f;
+	public static final String DATUM_LASTLOCATION = "__renderbox:lastloc";
 	
 	private NController _ctl;
 	private ItemRegistry _registry;
@@ -113,6 +114,20 @@ public class RenderBox extends Display {
 	}
 	
 	public void clear() {
+		// when graph is cleared, save the locations of the
+		// current nodes in the Model (MainPanel._originalGraph)
+		// so that if the action taken is a filter action,
+		// we can place the nodes in the same place.
+		if(_registry != null) {
+			Iterator i = _registry.getNodeItems();
+			while(i.hasNext()) {
+				VisualItem item = (VisualItem) i.next();
+				Vertex v = _ctl.getModel().findVertex(((PNode) item.getEntity()).v().id());
+				v.setDatum(new Datum(DATUM_LASTLOCATION, item.getLocation()));
+				System.out.println("Saving " + v + " at point " + item.getLocation());
+			}
+		}
+		
 		if(_empty) return;
 		_registry.clear();
 		_actions = null;
@@ -122,6 +137,7 @@ public class RenderBox extends Display {
 	}
 	
 	public void initialize(Graph g) {
+		System.out.println("----Initializing new view");
 		_g = g;
 		_registry = getRegistry();
 		_registry.setGraph(new PGraph(g));
@@ -149,7 +165,12 @@ public class RenderBox extends Display {
 		
 		// now execute the actions to visualize the graph
 		_actions.runNow();
+		
+		// randomly set all the items
 		doRandomLayout();
+		// now take all the items which have previously been shown
+		// and render them in their old locations
+		doSavedVertexLocations();		
 	}
 	
 	public void startForceDirectedLayout() {
@@ -197,6 +218,7 @@ public class RenderBox extends Display {
 		g.dispose();
 	}
 	
+	/** Randomly place the vertices of a graph on the drawing surface. */
 	public void doRandomLayout() {
 		if(_empty) {
 			return;
@@ -205,6 +227,25 @@ public class RenderBox extends Display {
 		ActionList act = new ActionList(_registry);
 		act.add(new RandomLayout());
 		act.runNow();
+	}
+	
+	/** Saved locations are lost when another graph is loaded.
+	 */
+	public void doSavedVertexLocations() {
+		// old locations are saved in the overall model (getModel())
+		System.out.println("   restoring... (registry size = "+_registry.size() + ")");
+		Iterator i = _registry.getNodeItems(false);
+		// TODO: the registry is empty every time we do this. weird
+		while(i.hasNext()) {
+			VisualItem item = (VisualItem) i.next();
+			Vertex v = _ctl.getModel().findVertex(((PNode) item.getEntity()).v().id());
+			Datum oldloc = v.getDatum(DATUM_LASTLOCATION);
+			System.out.println("   Restoring vertex " + v + " location at " + oldloc.get());
+			if(oldloc != null) {
+				item.setLocation((java.awt.geom.Point2D) oldloc.get());
+			}
+			repaint();
+		}
 	}
 	
 	public RenderSettings getRenderSettings() {
