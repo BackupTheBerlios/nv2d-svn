@@ -12,119 +12,107 @@ import nv2d.plugins.NPluginLoader;
 import nv2d.plugins.NV2DPlugin;
 
 public class NV2DMain extends JFrame implements NController {
-	NPluginManager pm;
-	Graph g;
-	RenderBox r;
-	String usage = "Backend [path to plugins] [io_plugin] [io parameters ...]";
-	NMenu menu;
+	public static final String DEFAULT_PLUGIN_DIR = "build/nv2d/plugins/standard";
+	
+	private NPluginManager _pm;
+	private Graph _g;
+	private RenderBox _r;
+	private NMenu _menu;
 
-	public NV2DMain(String [] args) {
+	public NV2DMain() {
 		// Important: this must be the order (loadmodules then renderbox as last two)
-		r = new RenderBox();
-		menu = new NMenu(r);
+		_r = new RenderBox();
+		_menu = new NMenu(_r);
 
-		initialize(args);
+		loadModules();
+
+		initialize(null);
 
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
-		getContentPane().add(r);
-		setJMenuBar(menu);
+		getContentPane().add(_r);
+		setJMenuBar(_menu);
 		setTitle("NV2D");
 		pack();
 		setVisible(true);
 	}
 
+	/** This method takes in string arguments provided and attempts to
+	 * import data into a Graph.  If <code>args</code> is null or has
+	 * not arguments, the visualization will not load a Graph.  Otherwise,
+	 * the first argument must be the name of the <code>IOInterface</code>
+	 * importer to be used.  Any subsequent arguments will be passed
+	 * to the importer object. */
 	public void initialize(String [] args) {
-		System.out.println("   1");
-		r.clear();
-		System.out.println("   2");
-		// reload modules
-		loadModules(args);
+		if(args == null || args.length < 1) {
+			_g = null;
+		} else {
+			String ioName = args[0];
+			String [] ioArgs = new String[args.length - 1];
+			IOInterface io;
+
+			for(int j = 1; j < args.length; j++) {
+				ioArgs[j - 1] = args[j];
+			}
+
+			if(_pm.type(ioName) != NPluginLoader.PLUGIN_TYPE_IO) {
+				System.err.println("Could not find IO-Plugin '" + ioName + "'");
+				_g = null;
+			} else {
+
+				io = _pm.get(ioName);
+				try {
+					_g = (Graph) io.getData(ioArgs);
+				} catch (IOException ioe) {
+					System.err.println("There was an error importing data.  Perhaps your arguments were invalid.");
+					_g = null;
+				}
+			}
+		}
+
+		_r.clear();
+
+		// we now supposedly have a graph, reinit all modules
+		Iterator j = _pm.pluginIterator();
+		while(j.hasNext()) {
+			((NV2DPlugin) j.next()).initialize(_g, _r, this);
+		}
+
 
 		// start things up
-		System.out.println("   3");
-		r.initialize(g);
-		System.out.println("   4");
+		_r.initialize(_g);
 	}
 
 	/* Current cmd-line:
 	 * Backend [path to plugins] [io_plugin] [io parameters ...]
 	 */
 	public static void main(String [] args) {
-		new NV2DMain(args);
+		new NApplet();
 	}
 
 
-	public void loadModules(String [] args) {
-		pm = new NPluginManager();
+	public void loadModules() {
+		_pm = new NPluginManager();
 
-		if(args.length < 2) {
-			System.err.println("Please provide a plugin directory");
-			errormsg();
-			return;
-		}
-
-		// load all the modules
-		pm.load(args[0]);
-
-		// select io module
-		String io_mod = args[1];
-		if(pm.type(io_mod) != NPluginLoader.PLUGIN_TYPE_IO) {
-			System.err.println("Could not find IO-Plugin '" + io_mod + "'");
-			errormsg();
-			return;
-		}
-
-		IOInterface io = pm.get(io_mod);
-		io.initialize(null, r, this);
-		System.out.println("Getting data through the [" + io_mod + "] IO-Plugin");
-
-		String [] io_args = new String[args.length - 2];
-
-
-		// fill out IO arguments (= all but first two)
-		for(int i = 2; i < args.length; i++) {
-			io_args[i - 2] = args[i];
-		}
-		String [] reqArgs = io.requiredArgs();
-		if(reqArgs.length != io_args.length) {
-			System.err.println("This IO-Plugin requires " + reqArgs.length + " arguments.");
-			for(int j = 0; j < reqArgs.length; j++) {
-				System.err.println("   [" + j + "] " + reqArgs[j]);
-			}
-			errormsg();
-			return;
-		}
-		try {
-			g = (Graph) io.getData(io_args);
-		} catch (IOException ioe) {
-			System.err.println("There was an error importing data from this IO-Plugin.");
-			System.err.print("-> " + ioe.toString());
-			errormsg();
-			return;
-		}
-
-		/* initialize modules */
-		pm.all_initialize(g, r, this);
+		_pm.load(DEFAULT_PLUGIN_DIR);
 
 		/* add module UI to top level UI */
-		Iterator j = pm.iterator();
+		Iterator j = _pm.pluginIterator();
 		while(j.hasNext()) {
 			NV2DPlugin plugin = (NV2DPlugin) j.next();
+			plugin.initialize(_g, _r, this);
 			if(plugin.menu() != null) {
-				System.out.println("Adding menu from module " + plugin.name());
-				menu.addModuleMenu(plugin.menu());
+				_menu.addModuleMenu(plugin.menu());
 			}
 		}
-		// finally, add module menu
-		if(io.menu() != null) {
-			menu.addModuleMenu(io.menu());
+
+		/* initialize IO plugins */
+		j = _pm.ioIterator();
+		while(j.hasNext()) {
+			IOInterface io = (IOInterface) j.next();
+			io.initialize(null, _r, this);
+			if(io.menu() != null) {
+				_menu.addModuleMenu(io.menu());
+			}
 		}
-
-		/* load data file if specified, otherwise query user for datafile */
 	}
-
-	void errormsg() {
-		System.err.println(usage);
-	}
-
 }

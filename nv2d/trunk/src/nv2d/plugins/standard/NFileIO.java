@@ -108,7 +108,7 @@ public class NFileIO implements IOInterface {
 	}
 
 	public JMenu menu() {
-		JMenu mod = new JMenu("NFileIO");
+		JMenu mod = new JMenu(name());
 		JMenuItem open = new JMenuItem("Open");
 		mod.add(open);
 		open.addActionListener(new MenuListener());
@@ -145,10 +145,9 @@ public class NFileIO implements IOInterface {
 
 			//If a string was returned, say so.
 			if ((s != null) && (s.length() > 0)) {
-				String [] arglist = new String[3];
-				arglist[0] = "nv2d/plugins/standard";
-				arglist[1] = name();
-				arglist[2] = s;
+				String [] arglist = new String[2];
+				arglist[0] = name();
+				arglist[1] = s;
 				_control.initialize(arglist);
 			}
 		}

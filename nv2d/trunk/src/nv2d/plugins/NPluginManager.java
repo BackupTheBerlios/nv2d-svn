@@ -20,21 +20,13 @@ public class NPluginManager extends NPluginLoader
 		return ((NV2DPlugin) pluginRegistry.get(name));
 	}
 
-	public void all_initialize(Graph g, Container view, NController control) {
-		/* TODO: check that requirements are met */
-
-		/* init all the valid plugins */
-		System.out.println("Initializing all plugins:");
-		for ( Enumeration e = pluginRegistry.keys() ; e.hasMoreElements() ; ) {
-			String pname = (String) e.nextElement();
-			System.out.print("[" + pname + "] ");
-			getp(pname).initialize(g, view, control);
-		}
+	/* Iterator for all plugin modules */
+	public Iterator pluginIterator() {
+		return pluginRegistry.values().iterator();
 	}
 
-	/* Iterator for all plugin modules */
-	public Iterator iterator() {
-		return pluginRegistry.values().iterator();
+	public Iterator ioIterator() {
+		return ioRegistry.values().iterator();
 	}
 
 	public void all_heartbeat() {

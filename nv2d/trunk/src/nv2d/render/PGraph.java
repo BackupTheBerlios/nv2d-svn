@@ -16,9 +16,13 @@ public class PGraph extends DefaultGraph {
 	private Graph _g;
 
 	public PGraph(Graph g) {
-		super(g instanceof DGraph);
+		super(g == null || g instanceof DGraph);
 
 		_g = g;
+
+		if(g == null) {
+			return;
+		}
 
 		Iterator vi = g.getVertices().iterator();
 		while(vi.hasNext()) {

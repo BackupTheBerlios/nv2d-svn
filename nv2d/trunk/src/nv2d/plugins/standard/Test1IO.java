@@ -1,8 +1,11 @@
 package nv2d.plugins.standard;
 
 import java.awt.Container;
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
 import java.io.IOException;
 import javax.swing.JMenu;
+import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 
 import nv2d.plugins.NPluginLoader;
@@ -20,6 +23,8 @@ public class Test1IO implements IOInterface {
 	String _desc;
 	String _name;
 	String _author;
+
+	NController _control;
 
 	public Test1IO() {
 		_desc = new String("This gives us a test Graph to work with.");
@@ -42,6 +47,7 @@ public class Test1IO implements IOInterface {
 
 	public void initialize(Graph g, Container view, NController control) {
 		// io-plugins can ignore this
+		_control = control;
 	}
 
 	public void heartbeat() {
@@ -57,7 +63,11 @@ public class Test1IO implements IOInterface {
 	}
 
 	public JMenu menu() {
-		return null;
+		JMenu mod = new JMenu(name());
+		JMenuItem open = new JMenuItem("Open Test Graph 1");
+		mod.add(open);
+		open.addActionListener(new MenuListener());
+		return mod;
 	}
 
 	public String require() {
@@ -154,5 +164,14 @@ public class Test1IO implements IOInterface {
 		graph.add(e22);
 
 		return graph;
+	}
+
+	private class MenuListener implements ActionListener {
+		public void actionPerformed(ActionEvent e) {
+			String [] arg = new String[1];
+			arg[0] = name();
+
+			_control.initialize(arg);
+		}
 	}
 }

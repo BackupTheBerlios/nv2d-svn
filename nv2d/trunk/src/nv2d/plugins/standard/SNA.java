@@ -60,8 +60,10 @@ public class SNA implements NV2DPlugin  {
 		System.out.print("--> initialize()\n");
 		_graph = g;
 
-		indecize();
-		calculate();
+		if(g != null) {
+			indecize();
+			calculate();
+		}
 	}
 	public void heartbeat() {
 		System.out.print("--> heartbeat()\n");

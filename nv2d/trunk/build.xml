@@ -71,6 +71,16 @@
 		</java>
 	</target>
 
+	<target name="empty" depends="build">
+		<java fork="yes" classname="nv2d.ui.NApplet">
+            <classpath>
+                <pathelement location="./build" />
+				<pathelement location="./lib/prefuse.jar" />
+				<pathelement location="./lib/prefusex.jar" />
+            </classpath>
+		</java>
+	</target>
+
 	<target name="test1" depends="build">
 		<java fork="yes" classname="nv2d.ui.NV2DMain">
 			<arg value="build/nv2d/plugins/standard" />
