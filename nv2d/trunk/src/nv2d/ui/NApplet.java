@@ -50,6 +50,7 @@ public class NApplet extends JApplet {
 		panel = new MainPanel(this, getContentPane());
 		getContentPane().add(panel.getCenterPane(), "Center");
 		getContentPane().add(panel.getBottomPane(), "South");
+		getContentPane().add(panel.getHistoryPane(), "East");
 		setJMenuBar(panel.getMenu());
 		setVisible(true);
 	}

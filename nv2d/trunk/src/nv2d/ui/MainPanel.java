@@ -79,11 +79,12 @@ public class MainPanel implements NController {
 		_historyPane = new HistoryUI(_history);
 		_historyPane.setVisible(false);
 		
+		/* save pointers to the applet/frame object and the contentplane */
 		_parentContainer = parent;
 		_topLevelContainer = topLevel;
 		_bottomPane = new BottomPanel(this);
 		
-		// Important: this must be the order (loadmodules then renderbox as last two)
+		/* Important: this must be the order (loadmodules then renderbox as last two) */
 		_pm = new NPluginManager();
 		_filter = new DefaultFilter();
 		_r = new RenderBox(this);
@@ -138,7 +139,7 @@ public class MainPanel implements NController {
 		return _historyPane;
 	}
 	
-	public void initialize(HistoryElement h) {
+	public void initializeHistoryElement(HistoryElement h) {
 		if(h == null) {
 			return;
 		}
@@ -275,7 +276,6 @@ public class MainPanel implements NController {
 			errorPopup("Too Many Vertices",
 					"We don't recommend showing over " + DegreeFilterUI.THRESHHOLD + " vertices at onetime.\nYour graph has been filtered using the degree filter.\nChange the settings to show all vertices at the same time.",
 					null);
-			// runFilter() runs reinitModules()
 		}
 		
 		reinitModules(true);

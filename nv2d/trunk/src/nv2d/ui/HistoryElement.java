@@ -77,4 +77,8 @@ public class HistoryElement {
 	public Graph getSubgraph() {
 		return _subGraph;
 	}
+	
+	public void load() {
+		_ctl.initializeHistoryElement(this);
+	}
 }

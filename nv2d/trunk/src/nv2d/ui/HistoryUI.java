@@ -1,7 +1,20 @@
-/*
- * HistoryUI.java
- *
- * Created on March 2, 2005, 3:10 PM
+/**
+ * NV2D - Social Network Visualization
+ * Copyright (C) 2005 Bo Shi
+ * 
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
 package nv2d.ui;
@@ -28,6 +41,8 @@ public class HistoryUI extends javax.swing.JPanel {
         _scrollPane = new javax.swing.JScrollPane();
         _jlist = new javax.swing.JList(_historyElements);
         _jlist.setCellRenderer(new HistoryListRenderer());
+        jPanel1 = new javax.swing.JPanel();
+        _loadHistoryElement = new javax.swing.JButton();
 
         setLayout(new java.awt.BorderLayout());
 
@@ -36,12 +51,36 @@ public class HistoryUI extends javax.swing.JPanel {
 
         add(_scrollPane, java.awt.BorderLayout.CENTER);
 
+        jPanel1.setLayout(new java.awt.FlowLayout(java.awt.FlowLayout.RIGHT));
+
+        _loadHistoryElement.setText("Load");
+        _loadHistoryElement.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(0, 0, 0)));
+        _loadHistoryElement.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                _loadHistoryElementActionPerformed(evt);
+            }
+        });
+
+        jPanel1.add(_loadHistoryElement);
+
+        add(jPanel1, java.awt.BorderLayout.SOUTH);
+
     }//GEN-END:initComponents
+
+	private void _loadHistoryElementActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event__loadHistoryElementActionPerformed
+		if(_jlist.getSelectedValue() == null) {
+			return;
+		}
+		HistoryElement h = (HistoryElement) _jlist.getSelectedValue();
+		h.load();
+	}//GEN-LAST:event__loadHistoryElementActionPerformed
 	
 	
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JList _jlist;
+    private javax.swing.JButton _loadHistoryElement;
     private javax.swing.JScrollPane _scrollPane;
+    private javax.swing.JPanel jPanel1;
     // End of variables declaration//GEN-END:variables
 	
 }

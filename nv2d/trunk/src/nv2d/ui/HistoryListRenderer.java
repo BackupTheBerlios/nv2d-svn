@@ -33,25 +33,21 @@ public class HistoryListRenderer extends DefaultListCellRenderer {
 			int index,
 			boolean isSelected,
 			boolean hasFocus) {
-		JLabel label =
+		final JLabel label =
 				(JLabel)super.getListCellRendererComponent(list,
 				value,
 				index,
 				isSelected,
 				hasFocus);
-		if (value instanceof HistoryElement) {
-			HistoryElement h = (HistoryElement) value;
-			label.setIcon(h.getIcon());
-			label.setText(h.getDesc());
-		} else {
-			// Clear old icon; needed in 1st release of JDK 1.2
-			label.setIcon(null);
-			label.setText("History Corrupted");
-		}
+		
+		assert(value instanceof HistoryElement);
+		
+		final HistoryElement h = (HistoryElement) value;
+		label.setIcon(h.getIcon());
+		label.setText(h.getDesc());
 		
 		label.setVerticalTextPosition(SwingConstants.TOP);
 		label.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(0, 0, 0), 1, true));
 		return(label);
 	}
-	
 }

@@ -50,9 +50,11 @@ public interface NController {
 	
 	/**
 	 * This method takes a {@link nv2d.ui.HistoryElement} object and loads the
-	 * snapshot.
+	 * snapshot.  This method performs essentially the same task as
+	 * <code>initialize(String [] args)</code> except that the graphs have
+	 * been loaded already.
 	 */
-	public void initialize(HistoryElement h);
+	public void initializeHistoryElement(HistoryElement h);
 	
 	// get model/view
 	/**
