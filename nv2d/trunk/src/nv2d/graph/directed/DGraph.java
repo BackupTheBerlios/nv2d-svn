@@ -142,11 +142,6 @@ public class DGraph extends Graph {
 		throw new IllegalArgumentException("You must add a Directed graph element to a Directed Graph.");
 	}
 
-	/* TODO: need to create new instances of the graph object and copy over
-	 * the user attributes (perhaps a clone() method in Vertex and Edge?) 
-	 * Algorithm:
-	 * 	
-	 * 	use hashmap */
 	public Graph subset(Set graphelements) {
 		// filter for those edges which contain only the vertices we want
 		DGraph g = new DGraph();
