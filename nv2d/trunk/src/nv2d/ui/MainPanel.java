@@ -51,7 +51,7 @@ public class MainPanel implements NController {
 
 		// Important: this must be the order (loadmodules then renderbox as last two)
 		_filter = new DefaultFilter();
-		_r = new RenderBox();
+		_r = new RenderBox(this);
 		_menu = new NMenu(this, _r);
 		_tabs = new JTabbedPane();
 		

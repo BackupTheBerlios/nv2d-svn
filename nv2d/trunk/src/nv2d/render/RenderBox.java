@@ -51,6 +51,8 @@ import nv2d.graph.Edge;
 import nv2d.graph.Graph;
 import nv2d.graph.Path;
 import nv2d.graph.Vertex;
+import nv2d.graph.filter.DegreeFilter;
+import nv2d.ui.NController;
 
 /**
  * Creates a new graph and draws it on the screen.
@@ -58,6 +60,7 @@ import nv2d.graph.Vertex;
 public class RenderBox extends Display {
 	public static final float TRANSPARENCY = 0.7f;
 
+	private NController _ctl;
 	private ItemRegistry _registry;
 	private ActionList _actions;
 	private RenderSettings _settings;
@@ -73,13 +76,14 @@ public class RenderBox extends Display {
 	// for the mouse interface
 	private static VisualItem _lastItemClicked;
 	
-	public RenderBox() {
+	public RenderBox(NController ctl) {
 		// (1) convert NV2D graph to a data structure usable by Prefuse
 		// (2) create a new item registry
 		//  the item registry stores all the visual
 		//  representations of different graph elements
 		super(new ItemRegistry(new DefaultGraph(true)));
 
+		_ctl = ctl;
 		// setup the popup menu for vertices
 		_vertexMenu = new PopupMenu();
 		_lastItemClicked = null;
@@ -345,12 +349,12 @@ public class RenderBox extends Display {
 
 		private void maybeShowPopup(MouseEvent e) {
 			if (e.isPopupTrigger()) {
-				_vertexMenu.show(e.getComponent(), e.getX(), e.getY());
+				_vertexMenu.getMenu().show(e.getComponent(), e.getX(), e.getY());
 			}
 		}
 	}
 
-	class PopupMenu extends JPopupMenu {
+	class PopupMenu {
 		private Vertex _apspSource;
 		private JMenuItem _centerDegreeFilter = new JMenuItem("Center DegreeFilter here");
 		private JMenuItem _setStartPoint = new JMenuItem("Set start vertex");
@@ -359,7 +363,23 @@ public class RenderBox extends Display {
 		public PopupMenu() {
 			_apspSource = null;
 
-			//_setEndPoint.setLabel(new JLabel("Calculate and highlight the all-pairs shortest path from the start vertex to this vertex."));
+			_centerDegreeFilter.setToolTipText("Set this vertex as the center vertex for the degree filter");
+			_centerDegreeFilter.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					// the current graph does not point to the same (i.e. filter runs
+					// on _originalGraph while we are grabbing a node from _g
+					String id = ((PNode) _lastItemClicked.getEntity()).v().id();
+
+					Object [] fargs = new Object[2];
+					fargs[0] = _ctl.getModel().findVertex(id);
+					fargs[1] = new Integer(1);
+					// this menu item is only shown when a degreefilter is active
+					// so this next line is safe
+					_ctl.runFilter(fargs);
+				}
+			});
+
+			_setStartPoint.setToolTipText("Set the starting point for a shortest path calculation.");
 			_setStartPoint.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
 					Vertex v = ((PNode) _lastItemClicked.getEntity()).v();
@@ -367,6 +387,7 @@ public class RenderBox extends Display {
 				}
 			});
 
+			_setEndPoint.setToolTipText("Calculate and highlight the all-pairs shortest path from the start vertex to this vertex.");
 			_setEndPoint.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
 					Vertex v = ((PNode) _lastItemClicked.getEntity()).v();
@@ -410,14 +431,17 @@ public class RenderBox extends Display {
 					}
 				}
 			});
-				
+		}
 
-
-
-			add(_centerDegreeFilter);
-			add(new JSeparator());
-			add(_setStartPoint);
-			add(_setEndPoint);
+		public JPopupMenu getMenu() {
+			JPopupMenu m = new JPopupMenu();
+			if(_ctl.getFilter() instanceof DegreeFilter) {
+				m.add(_centerDegreeFilter);
+				m.add(new JSeparator());
+			}
+			m.add(_setStartPoint);
+			m.add(_setEndPoint);
+			return m;
 		}
 	}
 }
