@@ -207,8 +207,8 @@ public class DGraph extends Graph {
 
 	/** Remove a graph element from the graph. */
 	public boolean remove(GraphElement ge) {
+		_indecized = false;
 		if(_e.contains(ge) || _v.contains(ge)) {
-			_indecized = false;
 			ge.setParent(null);
 		} else {
 			return false;
@@ -285,6 +285,7 @@ public class DGraph extends Graph {
 	private void indecize() {
 		_vertexIndex = getVertices().toArray();
 		Arrays.sort(_vertexIndex);
+		_indecized = true;
 	}
 
 	public void clear() {
