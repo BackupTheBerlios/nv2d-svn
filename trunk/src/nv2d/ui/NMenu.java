@@ -350,8 +350,7 @@ public class NMenu extends JMenuBar {
 	}
 
 	private void _viewHistoryPanelActionPerformed(ActionEvent e) {
-		_ctl.getHistoryPane().setVisible(_viewHistoryPanel.getState());
-		_ctl.getWindow().validate();
+		// TODO
 	}
 		
 	private void _settingsAntialiasItemStateChanged(ItemEvent e) {

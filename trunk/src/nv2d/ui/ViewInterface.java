@@ -7,11 +7,8 @@ public interface ViewInterface {
 	public static final int MAIN_PANEL = 0;
 	public static final int SIDE_PANEL = 1;
 	public static final int BOTTOM_PANEL = 2;
-	/**
-	 * Returns the parent container for the main panel.
-	 * @return returns a content pane object which holds this controller.
-	 */
-	public Container getParent();
+
+	public Container gui();
 	
 	/**
 	 * Returns a Frame or Applet depending on the top level container.
@@ -23,7 +20,7 @@ public interface ViewInterface {
 	 * Get the instance of the main menu.
 	 * @return a {@link NMenu} object.
 	 */
-	public JMenuBar getMenu();
+	public NMenu getMenu();
 
 	/**
 	 * Get the instance of the JComponent containing the top level center GUI component.

@@ -25,10 +25,10 @@ package nv2d.ui;
  * @author  bshi
  */
 public class HistoryUI extends javax.swing.JPanel {
-	private javax.swing.DefaultListModel _historyElements;
+	private javax.swing.ListModel _historyElements;
 	
 	/** Creates new form HistoryUI */
-	public HistoryUI(javax.swing.DefaultListModel historyElements) {
+	public HistoryUI(javax.swing.ListModel historyElements) {
 		_historyElements = historyElements;
 		initComponents();
 	}

@@ -32,9 +32,7 @@ public class NApplet extends JApplet {
 		_dataFile = getParameter(PARAM_DATAFILE);
 
 		panel = new MainPanel(this, getContentPane());
-		getContentPane().add(panel.getCenterPane(), "Center");
-		getContentPane().add(panel.getBottomPane(), "South");
-		getContentPane().add(panel.getHistoryPane(), "East");
+		setContentPane(panel.getView().gui());
 		setJMenuBar(panel.getMenu());
 		setVisible(true);
 	}

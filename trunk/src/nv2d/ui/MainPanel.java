@@ -36,27 +36,21 @@ import nv2d.plugins.NPluginLoader;
 import nv2d.plugins.NV2DPlugin;
 
 public class MainPanel implements NController {
-	private Container _parentContainer;
-	private Container _topLevelContainer;
 	private NPluginManager _pm;
 	private Graph _g;	// current view
 	private Graph _originalGraph;	// original full set
 	private RenderBox _r;
-	private NMenu _menu;
-	private JTabbedPane _tabs;
+	private ViewInterface _view;
+
+	private Container _topLevelContainer;
+
 	private FilterInterface _filter;
 	private Set _allowedURLs;
-	private JPanel _bottomPane;
-	private JPanel _historyPane;
 	
 	private DefaultListModel _history;
 
 	/* color legend variables */
 	private LegendMap _legendMap;
-	
-	private JComponent _outTextBox, _errTextBox;
-	
-	private NPrintStream _err, _out;
 	
 	private DegreeFilter _degreeFilter = new DegreeFilter();
 	
@@ -78,67 +72,36 @@ public class MainPanel implements NController {
 		
 		/* initialize the history mechanism */
 		_history = new DefaultListModel();
-		_historyPane = new HistoryUI(_history);
-		_historyPane.setVisible(false);
 		
 		/* save pointers to the applet/frame object and the contentplane */
-		_parentContainer = parent;
 		_topLevelContainer = topLevel;
-		_bottomPane = new BottomPanel(this);
 		
 		/* Important: this must be the order (loadmodules then renderbox as last two) */
 		_pm = new NPluginManager();
 		_filter = new DefaultFilter();
 		_r = new RenderBox(this);
-		_menu = new NMenu(this, _r);
-		_tabs = new JTabbedPane();
+
+		_view = new NGUI(this, _topLevelContainer);
 		
+		_view.gui().setPreferredSize(new Dimension(700, 500));
 		
-		_parentContainer.setPreferredSize(new Dimension(700, 500));
-		
-		// trap output to standard streams and display them in a text box
-		JTextArea errTxt = new JTextArea();
-		JTextArea outTxt = new JTextArea();
-		JScrollPane sp1 = new JScrollPane(errTxt);
-		JScrollPane sp2 = new JScrollPane(outTxt);
-		_err = new NPrintStream(System.err);
-		_out = new NPrintStream(System.out);
-		System.setOut(_out);
-		System.setErr(_err);
-		_err.addNotifyClient(errTxt);
-		_out.addNotifyClient(outTxt);
-		_tabs.add("Display", _r);
-		_tabs.add("Output", sp2);
-		_tabs.add("Errors", sp1);
-		_outTextBox = sp2;
-		_errTextBox = sp1;
-		
-		try {
-			loadModules();
-		} catch (java.security.AccessControlException e) {
-			_tabs.add("Fatal Error", new JLabel("Due to security restrictions, this applet cannot load the appropriate plugins."));
-			return;
-		}
-	}
-	
-	public Container getParent() {
-		return _parentContainer;
+		loadModules();
 	}
 	
 	public Container getWindow() {
 		return _topLevelContainer;
 	}
 	
-	public JTabbedPane getCenterPane() {
-		return _tabs;
+	public Container getCenterPane() {
+		return _view.getCenterPane();
 	}
 	
-	public JPanel getBottomPane() {
-		return _bottomPane;
+	public Container getBottomPane() {
+		return _view.getBottomPane();
 	}
 	
-	public JPanel getHistoryPane() {
-		return _historyPane;
+	public ListModel getHistory() {
+		return _history;
 	}
 	
 	public void initializeHistoryElement(HistoryElement h) {
@@ -152,7 +115,7 @@ public class MainPanel implements NController {
 
 		if(_originalGraph != null) {
 			_legendMap = new LegendMap(_originalGraph);
-			_menu.setLegendMenu(_legendMap);
+			_view.getMenu().setLegendMenu(_legendMap);
 		}
 
 		this.reinitModules(false);	// do not save in history
@@ -194,7 +157,7 @@ public class MainPanel implements NController {
 
 			if(_originalGraph != null) {
 				_legendMap = new LegendMap(_originalGraph);
-				_menu.setLegendMenu(_legendMap);
+				_view.getMenu().setLegendMenu(_legendMap);
 			}
 		}
 		
@@ -220,37 +183,16 @@ public class MainPanel implements NController {
 	}
 	
 	public void errorPopup(String title, String msg, String extra) {
-		System.err.println(msg);
-		JOptionPane.showMessageDialog(null,
-			msg,
-			title,
-			JOptionPane.WARNING_MESSAGE);
+		_view.errorPopup(title, msg, extra);
 	}
 	
 	public void displayOutTextBox(boolean b) {
-		if(b) {
-			_tabs.add("Output", _outTextBox);
-		} else {
-			_tabs.remove(_outTextBox);
-		}
-		_tabs.validate();
-		_tabs.repaint();
 	}
 	
 	public void displayErrTextBox(boolean b) {
-		if(b) {
-			_tabs.add("Errors", _errTextBox);
-		} else {
-			_tabs.remove(_errTextBox);
-		}
-		_tabs.validate();
-		_tabs.repaint();
 	}
 	
 	public void displayBottomPane(boolean b) {
-		_bottomPane.setVisible(b);
-		_parentContainer.validate();
-		_parentContainer.repaint();
 	}
 	
 	public void setFilter(FilterInterface filter) {
@@ -264,7 +206,7 @@ public class MainPanel implements NController {
 	}
 	
 	public JMenuBar getMenu() {
-		return _menu;
+		return _view.getMenu();
 	}
 	
 	public void runFilter(Object [] args, boolean wholeSet) {
@@ -307,8 +249,8 @@ public class MainPanel implements NController {
 			errorPopup("Could not load plugins", exception.toString(), null);
 		}
 
-		_menu.resetPluginMenu();
-		_menu.resetImporterMenu();
+		_view.getMenu().resetPluginMenu();
+		_view.getMenu().resetImporterMenu();
 		
 		/* add module UI to top level UI */
 		Iterator j = _pm.pluginIterator();
@@ -316,7 +258,7 @@ public class MainPanel implements NController {
 			NV2DPlugin plugin = (NV2DPlugin) j.next();
 			plugin.initialize(_g, _r, this);
 			if(plugin.menu() != null) {
-				_menu.addPluginMenu(plugin.menu());
+				_view.getMenu().addPluginMenu(plugin.menu());
 			}
 		}
 		
@@ -326,7 +268,7 @@ public class MainPanel implements NController {
 			IOInterface io = (IOInterface) j.next();
 			io.initialize(null, _r, this);
 			if(io.menu() != null) {
-				_menu.addImporterMenu(io.menu());
+				_view.getMenu().addImporterMenu(io.menu());
 			}
 		}
 	}
@@ -344,8 +286,7 @@ public class MainPanel implements NController {
 	}
 
 	public ViewInterface getView() {
-		// TODO
-		return null;
+		return _view;
 	}
 	
 	public DegreeFilter getDegreeFilter() {

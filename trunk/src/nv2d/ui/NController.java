@@ -19,11 +19,8 @@
 
 package nv2d.ui;
 
-import java.awt.Container;
-import java.lang.String;
-import javax.swing.JMenuBar;
-import javax.swing.JTabbedPane;
-import javax.swing.JPanel;
+import java.awt.*;
+import javax.swing.*;
 
 import nv2d.graph.FilterInterface;
 import nv2d.graph.filter.DegreeFilter;
@@ -89,13 +86,6 @@ public interface NController {
 	public DegreeFilter getDegreeFilter();
 	
 	/**
-	 * Returns the parent container for the main panel.
-	 * @return returns a content pane object which holds this controller.
-	 * @deprecated Please use <code>getView().getParent()</code>
-	 */
-	public Container getParent();
-	
-	/**
 	 * Returns a Frame or Applet depending on the top level container.
 	 * @param returns a {@link java.awt.Frame} or {@link java.awt.Applet} object
 	 * @deprecated Please use <code>getView().getWindow()</code>
@@ -159,24 +149,23 @@ public interface NController {
 	public JMenuBar getMenu();
 	/**
 	 * Get the instance of the JComponent containing the top level center GUI component.
-	 * @return a {@link javax.swing.JTabbedPane} instance.
+	 * @return the center container in the GUI
 	 * @deprecated Please use <code>getView().getCenterPane()</code>
 	 */
-	public JTabbedPane getCenterPane();
+	public Container getCenterPane();
 	
 	/**
 	 * Get the instance of the JComponent containing the top level bottom GUI component.
-	 * @return a {@link javax.swing.JPanel} instance
+	 * @return the bottom container of the GUI
 	 * @deprecated Please use <code>getView().getBottomPane()</code>
 	 */
-	public JPanel getBottomPane();
+	public Container getBottomPane();
 	
 	/**
-	 * Get the {@link javax.swing.JPanel} component containing the graph history list.
-	 * @return a {@link javax.swing.JPanel} instance
+	 * Get the Graph history
 	 * @deprecated This method is scheduled for removal
 	 */
-	public JPanel getHistoryPane();
+	public ListModel getHistory();
 	
 	// plugin controls
 	/**
