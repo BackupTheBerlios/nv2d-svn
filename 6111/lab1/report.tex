@@ -1,0 +1,205 @@
+\documentclass{article}
+
+\author{Bo Shi}
+
+\begin{document}
+
+\section{Exercise 1}
+For the 74HC00, the signal measured oscillated quite a bit.  The approximate
+time average is listed as is the minimum and maximum values measured.
+
+\begin{quote}
+Low voltage measurement (In = 1) for 74LS00: 0.06 V
+
+High Voltage Measurement (In = 0) for 74LS00: 4.38 V
+
+Low Voltage Measurement (In = 1) for 74HC00: 0 V (min = -.42 V, max = .42 V)
+
+High Voltage Measurement (In = 0) for 74HC00: 4.85 V (min = 4.10 V, max = 5.69 V)
+\end{quote}
+
+Each of these measurements satisfies the ranges specified in their respective
+data sheets.  For the LS chip, $V_{OH-min} = 2.7 V <$ measured high and $V_{OL-max}
+= 0.5 V >$ measured low.  Similarly, for the HC chip, $V_{OH-min} = 3.98 V <$
+measured high and $V_{OL-max} = 0.26 V <$ measured low.
+
+Using LS series with HC series would not work.  The allowed voltage levels are
+not identical, so valid outputs for one chip may not be valid outputs for the
+other.  For example:
+\begin{quote}
+$V_{OH-min} = 2.7 V$ for LS family
+
+$V_{IH-min} = 3.15 V$ for HC family
+\end{quote}
+An output of 2.8 V is a valid high for the LS family but not a valid high for
+the HC series, so you break the static discipline by combining these logic
+families.
+
+
+\section{Exercise 2}
+See attachment 1 for the waveform output.
+
+The average TTL inverter propagation delay is 4.87 ns.  The signal must travel
+through the ring twice for one full period.  The propagation delay is therefore
+the measured period (48.72 ns) divided by the number of gates that the signal
+travels through.
+
+The propagation delay for a 3--inverter ring should be
+\[
+t_{pd} \times 6 = 29.232
+\]
+This is confirmed by the measured period of my 3-inverter ring (29.38 ns).
+
+If a long wire is added to the 3-inverter ring, the wire will introduce a
+capacitance and resistance.  The capacitance resists changes in V and so the
+period should increase.  The measured period using a long wire was 36.49 ns.
+
+Since the circuit is a single inverter with output fed back to itself, the signal oscillates because it has no time to settle.
+\begin{quote}
+minimum measured voltage: -.16 V
+
+maximum measured voltage: 2.24 V
+
+period: ~10 ns
+\end{quote}
+
+\section{Exercise 3}
+The logic analyzer measured the glitch at 16 ns.
+
+The glitch occurs because the signals at pins 9 and10 arrive at different times
+due to the different t$_{pd}$'s of the two paths converging on the last gate.
+The lesson is that one should try to make sure that signals arrive at
+approximately the same time.  Glitchy signals are bad any time edge triggered
+logic is used.
+
+
+\section{Exercise 4}
+See attachment 2 for the asynchronous counter flip--flop arrangement.  The
+t--flip--flop changes state every time the input is a down--edge.
+
+There is a delay of 60 ns through all the flip--flops.  Since the signal
+travels through eight flip--flops, the clock--to--MSB delay is:
+\[
+delay = \frac{60}{8} ns = 11.25 ns
+\]
+
+\section{Exercise 5}
+See attachment 3 for the synchronous counter flip--flop arrangement.
+
+It takes approximately 16 ns after the rising edge of the clock for the
+flip-flops in the low-order counter to change state.  This time is increased on
+the order of 10 ns for the high-order counter.  Since only one clock was used,
+and the clock wire to the high-order counter was twice as long, the
+discrepancies in propagation time can be explained by differences in the arrival
+time of the clock signal to the flip-flops.
+
+The RCO output is the ripple carry--out port.  This pin gets pulled high every
+time the MSB is pulled high.  This pin is connected to the
+enable--P pin of the second chip so that it is only able to increment the
+counter on every rising edge of the MSB of the first chip.  This creates the
+effect of having one 8--bit counter.
+
+ENP and ENT must be high to count.  T is used to construct ripple counters.  P
+is used to disable all counting (power down/up).
+
+The 163 is considerably more complex than the 393.
+
+
+\section{Exercise 6}
+See attachment 4 for the SR--latch circuit diagram.
+
+\begin{table}
+\begin{center}
+\begin{tabular}{|c|c|c||c|c|}
+\hline
+Clock & S & R & Q & $\overline{Q}$ \\ \hline
+1 & 0 & 0 & 1 & 1 \\ \hline
+1 & 0 & 1 & 0 & 1 \\ \hline
+1 & 1 & 0 & 1 & 0 \\ \hline
+1 & 1 & 1 & * & * \\ \hline
+0 & X & X & * & * \\ \hline
+\end{tabular}
+\end{center}
+\caption{SR--Latch truth table}
+\end{table}
+
+The SR--Latch is able to save state.  It can be used as a memory element in a
+circuit, or a simple application would be a light switch.
+
+
+\section{Exercise 7}
+See attachment 5-8 for the Karnaugh maps and source code.  The source code is
+very long because I was essentially writing the netlist for the circuit.  I
+realized (too late to go back) that this could have been implemented in only
+a few lines of Verilog code.
+
+\begin{table}
+\begin{center}
+\begin{tabular}{|r|l|}
+\hline
+Pin & MSP Eq. \\ \hline
+2 & $b_3 \cdot \overline{b_2} + \overline{b_1} \cdot \overline{b_0} \cdot \overline{b_3} + b_1 \cdot \overline{b_0} \cdot b_2 + \overline{b_3} \cdot b_2 \cdot \overline{b_1} + b_1 \cdot b_2 \cdot b_3$ \\ \hline
+3 & $b_3 + b_1 \cdot \overline{b_0} + b_1 \cdot \overline{b_2} + \overline{b_1} \cdot b_2$ \\ \hline
+4 & $\overline{b_0} \cdot b_1 + b_2 \cdot b_3 + b_1 \cdot \overline{b_2} \cdot b_3 + \overline{b_0} \cdot \overline{b_1} \cdot \overline{b_2}$ \\ \hline
+5 & $\overline{b_2} \cdot b_3 + b_2 \cdot \overline{b_3} + b_0 \cdot \overline{b_1} + \overline{b_1} \cdot \overline{b_2} \cdot \overline{b_3} + b_0 \cdot \overline{b_2} \cdot \overline{b_3}$ \\ \hline
+8 & $\overline{b_0} \cdot \overline{b_1} \cdot \overline{b_2} + \overline{b_0} \cdot \overline{b_1} \cdot b_3 + b_0 \cdot \overline{b_1} \cdot b_2 + bo \cdot \overline{b_2} \cdot b_3 + b_1 \cdot \overline{b_2} \cdot \overline{b_3} + \overline{b_0} \cdot b_1 \cdot b_2$ \\ \hline
+9 & $\overline{b_0} \cdot \overline{b_1} \cdot (\overline{b_2} + \overline{b_3}) + \overline{b_2} \cdot \overline{b_3} + b_0 \cdot \overline{b_1} \cdot b_3 + b_0 \cdot b_1 \cdot \overline{b_3} + \overline{b_0} \cdot b_1 \cdot \overline{b_2}$ \\ \hline
+10 & $\overline{b_0} \cdot \overline{b_1} \cdot \overline{b_2} + \overline{b_1} \cdot \overline{b_2} \cdot b_3 + b_0 \cdot \overline{b_2} \cdot b_3 + b_0 \cdot b_1 \cdot (\overline{b_3} + b_2) + \overline{b_0} \cdot b_1$\\ \hline
+\end{tabular}
+\end{center}
+\caption{The Minimal Sum of Products equations}
+\end{table}
+
+
+
+\section{Exercise 8}
+See attachment 9 for the code listing.
+
+The specifications for the synchronous counter say that the counters should be
+incremented on each rising clock edge.  When ENP and ENT are grounded, counting
+should stop.  This was simulated and the PAL was tested.  When LD is grounded,
+all outputs should reflect the levels at pins a-d.  When CLR is pulled down,
+all outputs should be zero until it gets to logic 1 again.  All these
+situations were simulated in the simulator and physically.  The outputs were
+checked to make sure that the programmed PAL conformed to the specification.
+
+
+\section{Exercise 9}
+The hold time is the amount of time that the input signal to a flip-flop must
+remain stable before the rising clock edge.  If this condition is not met, the
+flip-flop cannot guarantee that the logic level will be saved.
+
+To measure the delay time, the first step I took was to try to find a range to
+test in.  For all these tests, I used a 74LS74A clocked with the standard clock
+that has been used for this lab.
+
+The idea is to search for a hold-time which causes erroneous outputs.  The
+first input signal used was a clock signal inverted through a LS04 NAND gate.
+This simulates a hold time of ~8 ns (the t$_{pd}$ of the NAND gate).  The output
+of the flip-flop under these conditions was consistently wrong. (See figure at
+the end of this section)
+
+The second input signal was generated using the same method as above but this
+time with a 3-NAND inverter, effectively simulating a hold time of ~20 ns.
+The output was valid.
+
+At this point, I needed to be able to control hold times much better.  With
+a signal generated from a 5-NAND ring oscillator, I was able to sample rising
+edges of the clock and examine the hold-time and output of each case.  The ring-oscillator and
+the clock seem to sync well, and I was able to get hold times of 8 ns and 12 ns only.
+Interestingly enough, 12 ns hold times produced correct output.  The 8 ns hold-time
+only generated correct output occasionally.
+
+The results lead me to conclude that the minimum hold time is somewhere between
+8 and 12 ns.  I would have like to have more control over testing conditions.
+I was never able to get the granularity ideal enough for more fine
+measurements.  Of course, since my testing method is sampling different cases,
+I cannot be sure that my conclusions are true in general.
+
+The data sheet reports the hold time to be on the order of 5 ns.  When dealing
+with times in the nanoseconds, capacitance introduced in the wires are enough
+to significantly affect results.  Perhaps the testing conditions under which the
+data sheet was produced were much more ideal than mine (i.e. a circuit-board
+instead of a bread-board, less noise, etc).  This is the main source of error.
+
+\end{document}
