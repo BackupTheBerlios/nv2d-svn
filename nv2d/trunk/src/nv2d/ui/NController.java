@@ -55,6 +55,14 @@ public interface NController {
 	 * @return returns a {@link nv2d.graph.Graph} object.
 	 */
 	public Graph getModel();
+
+	/**
+	 * Returns the viewable subgraph of the model.
+	 * @return returns a {@link nv2d.graph.Graph} object or <code>null</code>
+	 *  if no graph has been loaded yet.
+	 */
+	public Graph getSubgraph();
+
 	/**
 	 * Returns the current instance of the view (as per the Model-View-Controller
 	 * paradigm).  The view for NV2D is the {@link nv2d.render.RenderBox} object.
@@ -140,6 +148,8 @@ public interface NController {
 	 * Get the instance of the JComponent containing the top level bottom GUI component.
 	 * @return a {@link javax.swing.JPanel} instance */
 	public JPanel getBottomPane();
+	
+	public JPanel getHistoryPane();
 	
 	// plugin controls
 	/**

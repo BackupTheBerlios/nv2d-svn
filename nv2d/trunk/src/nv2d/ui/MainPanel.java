@@ -51,6 +51,9 @@ public class MainPanel implements NController {
 	private FilterInterface _filter;
 	private Set _allowedURLs;
 	private JPanel _bottomPane;
+	private JPanel _historyPane;
+	
+	private DefaultListModel _history;
 	
 	private JComponent _outTextBox, _errTextBox;
 	
@@ -73,6 +76,15 @@ public class MainPanel implements NController {
 				UIManager.put(oStringKey, new Font("Dialog", Font.PLAIN, 11));
 			}
 		}
+		
+		/* initialize the history mechanism */
+		_historyPane = new JPanel();
+		_historyPane.setBorder(new javax.swing.border.TitledBorder("History"));
+		_history = new DefaultListModel();
+		JList _historyList = new JList(_history);
+		_historyList.setCellRenderer(new HistoryListRenderer());
+		_historyPane.add(_historyList);
+		_historyPane.setVisible(false);
 		
 		_parentContainer = parent;
 		_topLevelContainer = topLevel;
@@ -127,6 +139,10 @@ public class MainPanel implements NController {
 	
 	public JPanel getBottomPane() {
 		return _bottomPane;
+	}
+	
+	public JPanel getHistoryPane() {
+		return _historyPane;
 	}
 	
 	public void initialize(String [] args) {
@@ -297,6 +313,10 @@ public class MainPanel implements NController {
 	public Graph getModel() {
 		return _originalGraph;
 	}
+
+	public Graph getSubgraph() {
+		return _g;
+	}
 	
 	public RenderBox getView() {
 		return _r;
@@ -318,5 +338,10 @@ public class MainPanel implements NController {
 		}
 		// start things up
 		_r.initialize(_g);
+		
+		// save this graph in the history list
+		if(_g != null && _originalGraph != null) {
+			_history.addElement(new HistoryElement(this));
+		}
 	}
 }

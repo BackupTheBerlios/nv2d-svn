@@ -43,6 +43,7 @@ public class NV2DMain extends JFrame {
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 		getContentPane().add(panel.getCenterPane(), "Center");
 		getContentPane().add(panel.getBottomPane(), "South");
+		getContentPane().add(panel.getHistoryPane(), "East");
 		setJMenuBar(panel.getMenu());
 		setTitle("NV2D");
 		pack();
