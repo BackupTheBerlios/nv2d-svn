@@ -1,6 +1,7 @@
 module divider(clk, reset_sync, out);
 	parameter CLOCK_FREQ = 1843200;
-	// parameter CLOCK_FREQ = 10;			// for simulation and debugging
+	// for simulation and debugging
+	// parameter CLOCK_FREQ = 10;
 
 	input clk, reset_sync;
 	output out;

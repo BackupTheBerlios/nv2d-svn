@@ -17,8 +17,10 @@ module timer(clk, rst, divider, value, start_timer, expired);
 		if (expired == 1) expired <= 0;
 
 		if (rst) ct <= 3;
-		// note: the time_value is being read one clock cycle too early.
-		// to correct this, we will pass it through another register (start_timer_delay).
+		// note: the time_value is being read one clock
+		// cycle too early.  to correct this, we will
+		// pass it through another register
+		// (start_timer_delay).
 		else if (start_timer_delay) ct <= value;
 		else if (divider) begin
 			ct <= ct - 1;
@@ -26,5 +28,3 @@ module timer(clk, rst, divider, value, start_timer, expired);
 		end
 	end
  endmodule
-
-			

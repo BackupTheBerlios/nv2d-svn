@@ -1,15 +1,18 @@
-// This module can be divided into two components, the programming portion
-// and the portion controlling the FSM.  Internally, it maintains a 3 banks
-// of registers (4 bits wide).  The registers can be programmed (which
-// causes FSM to reset).
-
-module time_params(clk, rst, s_prog, interval[1:0], tpsel[1:0], tv[3:0],
-	value[3:0]);
+// This module can be divided into two components, the programming
+// portion and the portion controlling the FSM.  Internally, it
+// maintains a 3 banks of registers (4 bits wide).  The registers
+// can be programmed (which causes FSM to reset).
+module time_params(clk, rst, s_prog, interval[1:0], tpsel[1:0],
+	tv[3:0], value[3:0]);
 
 	input clk, rst, s_prog;	// standard vars
-	input[1:0] interval;		// the interval the current FSM state is interested in
-	input[1:0] tpsel;			// for programming; the time selector
-	input[3:0] tv;				// for programming; the time value
+	
+	// the interval the current FSM state is interested in
+	input[1:0] interval;
+	// for programming; the time selector
+	input[1:0] tpsel;
+	// for programming; the time value
+	input[3:0] tv;
 	output[3:0] value;
 
 	reg[3:0] t_base, t_yel, t_ext, value;

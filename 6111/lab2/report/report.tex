@@ -1,0 +1,88 @@
+\documentclass{article}
+\usepackage{lgrind}
+
+\author{Bo Shi}
+\title{Lab Report 2: Traffic Light Controller}
+
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+This report details the design and implementation of the traffic light controller.
+\end{abstract}
+
+\newpage
+\tableofcontents
+
+\newpage
+\listoffigures 
+\listoftables 
+
+\newpage
+\section{Design Overview}
+	blah abalha aga og
+
+	\subsection{Setup}
+		The four inputs to the controller were push buttons.  The output was a 7-bit
+		value ordered as the figure shows.
+	
+
+	\subsection{Module Overview}
+		What the hell do I do here?
+
+\section{Module Implementation}
+
+\section{Conclusions}
+
+\newpage
+\section{Appendix: Source Code Listing}
+	\subsection{Step to Pulse Module}
+		\begin{lgrind}
+		\input exsync.v.latex
+		\end{lgrind}
+
+	\newpage
+	\subsection{Synchronizer}
+		\begin{lgrind}
+		\input synchronizer.v.latex
+		\end{lgrind}
+
+	\newpage
+	\subsection{Walk Register}
+		\begin{lgrind}
+		\input walkregister.v.latex
+		\end{lgrind}
+
+	\newpage
+	\subsection{Finite State Machine}
+		\begin{lgrind}
+		\input fsm.v.latex
+		\end{lgrind}
+
+	\newpage
+	\subsection{Time Parameters}
+		\begin{lgrind}
+		\input timeparams.v.latex
+		\end{lgrind}
+
+	\newpage
+	\subsection{Timer}
+		\begin{lgrind}
+		\input timer.v.latex
+		\end{lgrind}
+
+	\newpage
+	\subsection{Divider}
+		\begin{lgrind}
+		\input divider.v.latex
+		\end{lgrind}
+
+	\newpage
+	\subsection{Top Level Module}
+		\begin{lgrind}
+		\input controller.v.latex
+		\end{lgrind}
+
+\end{document}
