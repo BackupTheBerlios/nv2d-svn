@@ -334,12 +334,16 @@ public class RenderBox extends Display {
 			maybeShowPopup(e);
 		}
 
+		public void itemReleased(VisualItem item, MouseEvent e) {
+			maybeShowPopup(e);
+		}
+
 		public void itemExited(VisualItem item, MouseEvent e) {
 			((Display)e.getSource()).setCursor(Cursor.getDefaultCursor());
 			item.setHighlighted(false);
 		}
 
-		public void maybeShowPopup(MouseEvent e) {
+		private void maybeShowPopup(MouseEvent e) {
 			if (e.isPopupTrigger()) {
 				_vertexMenu.show(e.getComponent(), e.getX(), e.getY());
 			}
