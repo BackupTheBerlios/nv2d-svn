@@ -1,6 +1,10 @@
 import MySQLdb
 import string
 
+_site = "mysql.com"
+_login = "foo"
+_passw = "bar"
+
 def enclose(s):
 	return '"' + str(s) + '"'
 
@@ -11,7 +15,7 @@ def stringify(edges):
 
 	return string.rstrip(rval, ',')
 
-db = MySQLdb.connect('idi.mit.edu', 'ra', 'e52590')
+db = MySQLdb.connect(_site, _login, _passw)
 
 cursor = db.cursor()
 
