@@ -69,10 +69,12 @@ public class SNA implements NV2DPlugin  {
    Temple Place, Suite 330, Boston, MA 02111-1307 USA.
 */
 
+/*
 package nvg;
 
 import java.util.Vector;
 import java.util.Stack;
+*/
 
 
 /** Routines for Social Network Analysis (SNA) calculations.  This class makes
@@ -83,71 +85,21 @@ import java.util.Stack;
  * Methods and Applications</u>.  Cambridge University Press, 1994.
  * @see Matrix
  */
+
+/*
 public class Mod_SNA extends CalcModule {
     Network _n;		// pointer to the network
 
     int[][] ADJ;
     int[][] PATHS;
+*/
 
 	/** Run through calculations. This is used on startup and whenever the
 	 * graph changes; i.e. the graph was made directed/undirected or a node or
 	 * edge was added/removed)
-     */    
+     */
+/*
     public void populate(Network n) {
-        int i;
-
-        _n = n;
-
-        // initialize some stuff
-        init_vars(n);
-
-        // get the Graph stats
-        n.MEASURES.set("Density", grp_density(ADJ));
-        n.MEASURES.set("Transitivity", grp_transitivity(ADJ));
-        n.MEASURES.set("Closeness", grp_closeness(PATHS));
-        n.MEASURES.set("Degree", grp_degree(ADJ));
-        n.MEASURES.set("Betweenness", grp_betweenness(ADJ));
-
-        // get ego stats
-        double[] betw = compute_betweenness(ADJ);
-		
-		/* now we need to normalize betweenness */
-		double max = -1;
-		for(i = 0; i < betw.length; i++) {
-			if(betw[i] > max) {
-				max = betw[i];
-			}
-		}
-		// normalize
-		for(i = 0; i < betw.length; i++) {
-			betw[i] = betw[i] / max;
-		}
-
-		int maxdegree = -1;
-        for (i = 0; i < _n.numn(); i++) {
-			_n.n(i).totaldegree = ego_totaldegree(ADJ, i);
-			_n.n(i).MEASURES.set("Closeness", ego_closeness(PATHS, i),
-                    true);
-			_n.n(i).MEASURES.set("Indegree", ego_indegree(ADJ, i), true);
-			_n.n(i).MEASURES.set("Outdegree", ego_outdegree(ADJ, i), true);
-            _n.n(i).MEASURES.set("Betweenness", betw[i], true);
-
-			if(_n.n(i).totaldegree > maxdegree) {
-				maxdegree = _n.n(i).totaldegree;
-			}
-        }
-
-		// get degree centrality into node
-		for(i = 0; i < _n.numn(); i++) {
-			double index = (double) _n.n(i).totaldegree / (double) maxdegree;
-			_n.n(i).MEASURES.set("Degree Centrality", index, true);
-		}
-
-		System.out.println("Mod_SNA:\t\t [Betweenness]");
-		for(i = 0; i < _n.numn(); i++) {
-			System.out.print("[" + _n.n(i).name + "]\t\t");
-			System.out.print(betw[i] + "\t\t\n");
-		}
     }
 
     public String output(short mode) {
@@ -158,6 +110,7 @@ public class Mod_SNA extends CalcModule {
         ADJ = N.getAdjacency();
 		PATHS = geodist2(ADJ);
     }
+*/
 
     /** Calculate the density measure for a group.
      *
@@ -173,6 +126,7 @@ public class Mod_SNA extends CalcModule {
      * @param m adjacency matrix for a group
      * @return group density
      */    
+/*
     public static double grp_density(int[][] m) {
         int sum = 0;
         int total = m.length * (m.length - 1);
@@ -187,6 +141,7 @@ public class Mod_SNA extends CalcModule {
         }
         return ((double) sum / (double) total);
     }
+*/
 
     /** Calculates the transitivity measure for a group.
      *
@@ -194,7 +149,8 @@ public class Mod_SNA extends CalcModule {
 	 * actors in a etwork or triples of nodes in a graph. (165).</i>
      * @param m adjacency matrix for a group
      * @return transitivity
-     */    
+     */
+/*
     public static double grp_transitivity(int[][] m) {
         int count = 0;
         // count triads, and transitive triads
@@ -305,6 +261,7 @@ public class Mod_SNA extends CalcModule {
 		return rval;
 
 	}
+*/
 
     /** Compute the betweenness measure for the nodes of a graph using Brandes'
      * algorithm.
@@ -319,6 +276,7 @@ public class Mod_SNA extends CalcModule {
 	 * index of each value corresponds with the index of the node for which it
 	 * applies.
      */
+/*
     public static double[] compute_betweenness(int[][] m) {
         int v, w, t;
         double[] betw = new double[m.length];
@@ -393,6 +351,7 @@ public class Mod_SNA extends CalcModule {
 
         return betw;
     }
+*/
 			
 	/** Support function for Stack/Queue operations in
 	 * <b>compute_betweenness()</b>
@@ -401,60 +360,72 @@ public class Mod_SNA extends CalcModule {
      * @param v value to push onto stack <b>s</b>
      * @see Stack
      */
+/*
     private static void push(Stack s, int v) {
         s.push(new Integer(v));
     }
+*/
 
 	/** Support function for Stack/Queue operations in
 	 * <b>compute_betweenness()</b> @param s stack from which to pop
      * @return the value popped from the stack
      * @see Stack
      */    
+/*
     private static int pop(Stack s) {
         return ((Integer) (s.pop())).intValue();
     }
+*/
 
 	/** Support function for Stack/Queue operations in
 	 * <b>compute_betweenness()</b> @param q enqueue a value
      * @param v value to place into queue
      * @see Vector
      */    
+/*
     private static void enq(Vector q, int v) {
         q.addElement(new Integer(v));
     }
+*/
 
 	/** Support function for Stack/Queue operations in
 	 * <b>compute_betweenness()</b> @param q enqueue a value
      * @return the value removed from the queue
      * @see Vector
      */    
+/*
     private static int deq(Vector q) {
         return ((Integer) (q.remove(0))).intValue();
     }
+*/
 
 	/** Support function for Stack/Queue operations in
 	 * <b>compute_betweenness()</b> @param P a vector of vectors
      * @param where the index of the vector to append to
      * @param val the value to place into the vector
      * @see Vector
-     */    
+     */
+/*
     private static void appendP(Vector P, int where, int val) {
         Vector V = (Vector) (P.elementAt(where));
 
         V.addElement(new Integer(val));
     }
+*/
 
 	/** Support function for Stack/Queue operations in
 	 * <b>compute_betweenness()</b> @param P a vector of vectors
      * @param where the index of one particular vector
      * @return the size of the vector at <b>where</b>
      * @see Vector
-     */    
+     */
+/*
     private static int sizeP(Vector P, int where) {
         Vector V = (Vector) (P.elementAt(where));
 
         return V.size();
     }
+*/
 
 	/** Support function for Stack/Queue operations in
 	 * <b>compute_betweenness()</b> @param P a vector of vectors
@@ -462,18 +433,21 @@ public class Mod_SNA extends CalcModule {
      * @param col the index of the value on the vector at <b>P[row]</b>
      * @return the value at <b>P[row][col]</b>
      * @see Vector
-     */    
+     */
+/*
     private static int getP(Vector P, int row, int col) {
         Vector V = (Vector) (P.elementAt(row));
         Integer i = (Integer) V.elementAt(col);
 
         return i.intValue();
     }
+*/
 
 	/** A measure of the variability of betweenness measures among the nodes of
 	 * a group.  @param m adjacency matrix for a group
      * @return group betweenness
-     */    
+     */
+/*
     public static double grp_betweenness(int[][] m) {
         int nn = m.length;
         int i;
@@ -503,6 +477,7 @@ public class Mod_SNA extends CalcModule {
 
         return (grp_betweenness / denom);
     }
+*/
 
     /** Calculate the closeness centrality of a node.
      *
@@ -514,7 +489,8 @@ public class Mod_SNA extends CalcModule {
      * @param paths a matrix containing the shortest paths between each pair of nodes in a network.
      * @param ego the index of the node in the matrix
      * @return ego (or actor) centrality
-     */    
+     */
+/*
     public static double ego_closeness(int[][] paths, int ego) {
         int clo = 0;
         int len = paths.length;
@@ -536,6 +512,7 @@ public class Mod_SNA extends CalcModule {
         }
         return ((double) (paths.length - 1) / (double) clo);
     }
+*/
 
     /* takes the geodesics matrix of a graph */
     
@@ -543,6 +520,7 @@ public class Mod_SNA extends CalcModule {
      * @param paths a matrix containing the geodesics for each pair of nodes in a group.
      * @return group closeness
      */    
+/*
     public static double grp_closeness(int[][] paths) {
         int i;
         double nn = (double) paths.length;
@@ -568,6 +546,7 @@ public class Mod_SNA extends CalcModule {
         }
         return (group_clo / denom);
     }
+*/
 
 	/** A measure of the variability of degree measures among the nodes of a
 	 * group.
@@ -575,6 +554,7 @@ public class Mod_SNA extends CalcModule {
      * @param m adjacency matrix for a group
      * @return group degree
      */    
+/*
     public static double grp_degree(int[][] m) {
         int i;
         int nn = m.length;
@@ -604,6 +584,7 @@ public class Mod_SNA extends CalcModule {
 
         return ((double) group_deg / (double) denom);
     }
+*/
 
     /** Calculate the indegree measure for a node.
      *
@@ -616,6 +597,7 @@ public class Mod_SNA extends CalcModule {
      * @param ego the index of the node in the matrix
      * @return indegree
      */    
+/*
     public static int ego_indegree(int[][] m, int ego) {
         int count = 0;
 
@@ -626,6 +608,7 @@ public class Mod_SNA extends CalcModule {
         }
         return count;
     }
+*/
 
     /** Calculate the outdegree measure for a node.
      *
@@ -636,6 +619,7 @@ public class Mod_SNA extends CalcModule {
      * @param ego the index of the node in the matrix
      * @return outdegreer 
      */    
+/*
     public static int ego_outdegree(int[][] m, int ego) {
         int count = 0;
 
@@ -646,6 +630,7 @@ public class Mod_SNA extends CalcModule {
         }
         return count;
     }
+*/
 
     /** Calculate the total degree of a node.  Higher degree indicates higher
      * interaction with others in the group.
@@ -657,7 +642,9 @@ public class Mod_SNA extends CalcModule {
      * @param ego the index of the node in the matrix
      * @return total degree 
      */
+/*
     public static int ego_totaldegree(int[][] m, int ego) {
         return ego_indegree(m, ego) + ego_outdegree(m, ego);
     }
 }
+*/
