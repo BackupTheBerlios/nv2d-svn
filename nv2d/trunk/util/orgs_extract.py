@@ -1,3 +1,7 @@
+'''
+This is a little datamining script that gathers coauthor frequency and time
+data from the orgstudies database.
+'''
 import MySQLdb
 import string
 
@@ -38,7 +42,7 @@ for entry in data:
 
 	# go through coauthors
 	lengths = []
-	year = 0
+	years = []
 	coauthors = entry[4].split(';')
 	for author2 in coauthors:
 		#name = name.replace("'", "\\'")
@@ -51,8 +55,9 @@ for entry in data:
 		artl_common = cursor.fetchall();
 		if len(artl_common) < 1:
 			print "Error for " + name + " and " + author2 + " pair -- no articles found"
+			years.append(0)
 		else:
-			year = artl_common[0][1]
+			years.append(artl_common[0][1])
 
 		lengths.append(len(artl_common))
 
@@ -67,14 +72,12 @@ for entry in data:
 	#output.append(lengths)		# tie lengths
 	#output.append(entry[5])		# organization
 	#output.append(entry[6])		# department
-	#output.append(year)			# last published
+	#output.append(years)			# last published
 
 	# so here is what we've got
 
+	fullname = entry[1] + ' ' + entry[2] + ' ' + entry[3]
+
 	buf = enclose(entry[0]) + ';' + enclose(edges) + ';' + enclose(stringify(lengths)) + ';'\
-		+ enclose(entry[5]) + ';' + enclose(entry[6]) + ';' + enclose(year)
+		+ enclose(fullname) + ';' + enclose(entry[5]) + ';' + enclose(entry[6]) + ';' + enclose(stringify(years))
 	print buf
-
-
-
-
