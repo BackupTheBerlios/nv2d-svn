@@ -7,6 +7,9 @@ import nv2d.exceptions.PluginNotCreatedException;
 
 public abstract class NPluginLoader
 {
+	public static final int PLUGIN_TYPE_PLAIN = 1;
+	public static final int PLUGIN_TYPE_IO = 2;
+
 	// This is the list of loaded plug-ins
 	protected static Hashtable pluginRegistry = new Hashtable();
 	protected static Hashtable ioRegistry = new Hashtable();
@@ -20,6 +23,22 @@ public abstract class NPluginLoader
 		} catch(ClassCastException e) {
 			pluginRegistry.put(name, plug);
 		}
+	}
+
+	/** Get a module type.  If the module has not been loaded, a
+	 * zero (or false) is returned.  Otherwise, the type of the module is
+	 * returned (see the PLUGIN_TYPE_* fields). */
+	public int type(String name) {
+		if(pluginRegistry.containsKey(name)) {
+			return PLUGIN_TYPE_PLAIN;
+		} else if (ioRegistry.containsKey(name)) {
+			return PLUGIN_TYPE_IO;
+		}
+		return 0;
+	}
+
+	public IOInterface get(String name) {
+		return (IOInterface) ioRegistry.get(name);
 	}
 
 	protected static NV2DPlugin createPlugin(String name, String path)

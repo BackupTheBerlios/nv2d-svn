@@ -26,12 +26,8 @@ public class NFileIO implements IOInterface {
 		return null;
 	}
 
-	/** Return an array of strings describing the arguments which this plugin
-	 * needs to establish a connection and to get the data to build the graph.
-	 * A user supplied list of arguments (properly mapped to the array supplied
-	 * by this method) needs to be supplied to the method
-	 * <code>getData()</code>.  This method allows plugin writers some freedom
-	 * in implementing the features they need.
+	/** 
+	 * Requires a URL location to read a file.
 	 * */
 	public String [] requiredArgs() {
 		String [] r = new String[1];

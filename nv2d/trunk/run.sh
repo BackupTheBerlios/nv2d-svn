@@ -12,7 +12,7 @@ if [ "$1" = "piccolo" ]; then
 	fi
 
 if [ "$1" = "backend" ]; then
-	/mit/java/current/bin/java nv2d/ui/Backend build/nv2d/plugins/standard
+	/mit/java/current/bin/java nv2d/ui/Backend build/nv2d/plugins/standard Test1IO
 	exit
 	fi
 
