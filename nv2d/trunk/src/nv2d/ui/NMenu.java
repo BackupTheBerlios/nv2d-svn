@@ -13,6 +13,7 @@ import javax.swing.JSeparator;
 
 import edu.berkeley.guir.prefuse.VisualItem;
 
+import nv2d.graph.filter.DegreeFilter;
 import nv2d.render.RenderBox;
 import nv2d.render.RenderSettings;
 
@@ -119,10 +120,13 @@ public class NMenu extends JMenuBar {
 
 	public class nmView extends JMenu implements ItemListener {
 		JMenu _visualization;
-		JMenu _filter;
 		JCheckBoxMenuItem _nlabel = new JCheckBoxMenuItem("Labels", true);
 		JCheckBoxMenuItem _stress = new JCheckBoxMenuItem("Stress", true);
 		JCheckBoxMenuItem _length = new JCheckBoxMenuItem("Length", true);
+
+		JMenu _filter;
+		JMenuItem _degreeFilter = new JMenuItem("Degree");
+		JMenuItem _measureFilter = new JMenuItem("Measure");
 
 		JCheckBoxMenuItem _errTxt = new JCheckBoxMenuItem("Error Messages", true);
 		JCheckBoxMenuItem _outTxt = new JCheckBoxMenuItem("Program Output", true);
@@ -139,6 +143,13 @@ public class NMenu extends JMenuBar {
 			_length.addItemListener(this);
 			_errTxt.addItemListener(this);
 			_outTxt.addItemListener(this);
+			_degreeFilter.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					_topLevelUI.setFilter(new DegreeFilter());
+					// dialog to get initialization arguments
+					// TODO
+				}
+			});
 
 			// visualization submenu
 			_visualization.add(_nlabel);
@@ -146,15 +157,14 @@ public class NMenu extends JMenuBar {
 			_visualization.add(_length);
 
 			// filter submenu
-			_filter.add(new JMenuItem("Degree"));
-			_filter.add(new JMenuItem("Measure"));
+			_filter.add(_degreeFilter);
+			_filter.add(_measureFilter);
 
-			add(_filter);
-			add(new JSeparator());
 			add(_errTxt);
 			add(_outTxt);
 			add(new JSeparator());
 			add(_visualization);
+			add(_filter);
 		}
 
 		public void itemStateChanged(ItemEvent e) {

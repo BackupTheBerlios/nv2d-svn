@@ -7,7 +7,9 @@ import java.util.Iterator;
 import java.awt.*;
 import javax.swing.*;
 
+import nv2d.graph.FilterInterface;
 import nv2d.graph.Graph;
+import nv2d.graph.filter.DefaultFilter;
 import nv2d.render.RenderBox;
 import nv2d.plugins.IOInterface;
 import nv2d.plugins.NPluginManager;
@@ -22,6 +24,7 @@ public class NV2DMain extends JFrame implements NController {
 	private RenderBox _r;
 	private NMenu _menu;
 	private JTabbedPane _tabs;
+	private FilterInterface _filter;
 
 	private JComponent _outTextBox, _errTextBox;
 
@@ -44,6 +47,7 @@ public class NV2DMain extends JFrame implements NController {
 		}
 
 		// Important: this must be the order (loadmodules then renderbox as last two)
+		_filter = new DefaultFilter();
 		_r = new RenderBox();
 		_menu = new NMenu(this, _r);
 		_tabs = new JTabbedPane();
@@ -112,18 +116,23 @@ public class NV2DMain extends JFrame implements NController {
 				}
 			}
 		}
+		reinitModules();
+	}
 
-		_r.clear();
-
-		// we now supposedly have a graph, reinit all modules
-		Iterator j = _pm.pluginIterator();
-		while(j.hasNext()) {
-			((NV2DPlugin) j.next()).initialize(_g, _r, this);
+	public void setFilter(FilterInterface filter) {
+		if(filter != null) {
+			_filter = filter;
 		}
+	}
 
+	public FilterInterface getFilter() {
+		return _filter;
+	}
 
-		// start things up
-		_r.initialize(_g);
+	public void runFilter(Object [] args) {
+		_filter.initialize(_g, args);
+		_g = _filter.filter(_g);
+		reinitModules();
 	}
 
 	public void displayOutTextBox(boolean b) {
@@ -150,7 +159,7 @@ public class NV2DMain extends JFrame implements NController {
 		new NV2DMain();
 	}
 
-	public void loadModules() {
+	private void loadModules() {
 		_pm = new NPluginManager();
 
 		// pass in parent class loader (necessary for Applets)
@@ -175,5 +184,19 @@ public class NV2DMain extends JFrame implements NController {
 				_menu.addImporterMenu(io.menu());
 			}
 		}
+	}
+
+	private void reinitModules() {
+		_r.clear();
+
+		// we now supposedly have a graph, reinit all modules
+		Iterator j = _pm.pluginIterator();
+		while(j.hasNext()) {
+			((NV2DPlugin) j.next()).initialize(_g, _r, this);
+		}
+
+
+		// start things up
+		_r.initialize(_g);
 	}
 }

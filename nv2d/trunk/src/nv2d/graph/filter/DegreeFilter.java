@@ -1,5 +1,6 @@
 package nv2d.graph.filter;
 
+import java.lang.Integer;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
@@ -19,31 +20,16 @@ public class DegreeFilter implements FilterInterface {
 		_inited = false;
 	}
 
-	public void initialize(Graph g, Vertex center, int i) {
-		if(g == null) {
-			System.err.println("Error: Graph is null.");
-			_inited = false;
+	public void initialize(Graph g, Object [] args) {
+		if(args == null || args.length != 2) {
+			System.err.println("Error: wrong number of arguments for the degree filter.");
 			return;
 		}
-		if(i > 1) {
-			_deg = i;
-		} else {
-			System.err.println("Error: attempted to set degree less than 1 (setting to 1)");
-			_deg = 1;
+		if(args[0] instanceof Vertex && args[1] instanceof Integer) {
+			initialize(g, (Vertex) args[0], ((Integer) args[1]).intValue());
+			return;
 		}
-		if(g.getVertices().contains(center)) {
-			_center = center;
-		} else {
-			System.err.println("Error: attempted to set a center Vertex which does not exist in this graph.  Using random center");
-			Iterator iter = g.getVertices().iterator();
-			if(iter.hasNext()) {
-				_center = (Vertex) iter.next();
-			} else {
-				_inited = false;
-				return;
-			}
-		}
-		_inited = true;
+		System.err.println("Error: Arguments do no match required class type (Vector, Integer)");
 	}
 
 	public Graph filter(Graph g) {
@@ -75,5 +61,32 @@ public class DegreeFilter implements FilterInterface {
 			outSet.addAll(((Vertex) i.next()).outEdges());
 		}
 		return outSet;
+	}
+
+	private void initialize(Graph g, Vertex center, int i) {
+		if(g == null) {
+			System.err.println("Error: Graph is null.");
+			_inited = false;
+			return;
+		}
+		if(i > 1) {
+			_deg = i;
+		} else {
+			System.err.println("Error: attempted to set degree less than 1 (setting to 1)");
+			_deg = 1;
+		}
+		if(g.getVertices().contains(center)) {
+			_center = center;
+		} else {
+			System.err.println("Error: attempted to set a center Vertex which does not exist in this graph.  Using random center");
+			Iterator iter = g.getVertices().iterator();
+			if(iter.hasNext()) {
+				_center = (Vertex) iter.next();
+			} else {
+				_inited = false;
+				return;
+			}
+		}
+		_inited = true;
 	}
 }

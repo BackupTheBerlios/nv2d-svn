@@ -7,7 +7,9 @@ import java.util.Hashtable;
 import java.util.Iterator;
 import javax.swing.*;
 
+import nv2d.graph.FilterInterface;
 import nv2d.graph.Graph;
+import nv2d.graph.filter.DefaultFilter;
 import nv2d.render.RenderBox;
 import nv2d.plugins.IOInterface;
 import nv2d.plugins.NPluginManager;
@@ -22,6 +24,7 @@ public class NApplet extends JApplet implements NController {
 	private RenderBox _r;
 	private NMenu _menu;
 	private JTabbedPane _tabs;
+	private FilterInterface _filter;
 
 	private JComponent _outTextBox, _errTextBox;
 
@@ -44,6 +47,7 @@ public class NApplet extends JApplet implements NController {
 		}
 
 		// Important: this must be the order (loadmodules then renderbox as last two)
+		_filter = new DefaultFilter();
 		_r = new RenderBox();
 		_menu = new NMenu(this, _r);
 		_tabs = new JTabbedPane();
@@ -122,17 +126,7 @@ public class NApplet extends JApplet implements NController {
 			}
 		}
 
-		_r.clear();
-
-		// we now supposedly have a graph, reinit all modules
-		Iterator j = _pm.pluginIterator();
-		while(j.hasNext()) {
-			((NV2DPlugin) j.next()).initialize(_g, _r, this);
-		}
-
-
-		// start things up
-		_r.initialize(_g);
+		reinitModules();
 	}
 
 	public void displayOutTextBox(boolean b) {
@@ -154,7 +148,23 @@ public class NApplet extends JApplet implements NController {
 		_tabs.validate();
 		_tabs.repaint();
 	}
-	
+
+	public void setFilter(FilterInterface filter) {
+		if(filter != null) {
+			_filter = filter;
+		}
+	}
+
+	public FilterInterface getFilter() {
+		return _filter;
+	}
+
+	public void runFilter(Object [] args) {
+		_filter.initialize(_g, args);
+		_g = _filter.filter(_g);
+		reinitModules();
+	}
+
 	public void loadModules() {
 		_pm = new NPluginManager();
 
@@ -180,5 +190,19 @@ public class NApplet extends JApplet implements NController {
 				_menu.addImporterMenu(io.menu());
 			}
 		}
+	}
+
+	private void reinitModules() {
+		_r.clear();
+
+		// we now supposedly have a graph, reinit all modules
+		Iterator j = _pm.pluginIterator();
+		while(j.hasNext()) {
+			((NV2DPlugin) j.next()).initialize(_g, _r, this);
+		}
+
+
+		// start things up
+		_r.initialize(_g);
 	}
 }
