@@ -55,9 +55,9 @@ for entry in data:
 		artl_common = cursor.fetchall();
 		if len(artl_common) < 1:
 			print "Error for " + name + " and " + author2 + " pair -- no articles found"
-			years.append(0)
+			years.append(author2+'=0')
 		else:
-			years.append(artl_common[0][1])
+			years.append(author2 + '=' + str(artl_common[0][1]))
 
 		lengths.append(len(artl_common))
 
