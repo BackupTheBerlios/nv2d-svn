@@ -1,0 +1,104 @@
+<?xml version="1.0"?>
+
+<project name="NV2D" default="build" basedir=".">
+	<!-- project wide settings -->
+	<property name="build.compiler" value="jikes"/>
+	
+	<!-- directories and files -->
+	<property name="build.dir" value="./build"/>
+	<property name="src.dir" value="./src"/>
+	<property name="dist.dir" value="./dist"/>
+	<property name="ctags.file" value="./src/.tags"/>
+
+
+	<target name="help">
+		<echo message="Build NV2D"/>
+		<echo message="   build - build the project JAR archives"/>
+		<echo message="   clean - clean up class files"/>
+		<echo message="   ctags - build tags database"/>
+		<echo message="   help - display target descriptions"/>
+		<echo message="   prepare - prepare the necesasry directories and files necessary for build"/>
+	</target>
+
+	<target name="ctags">
+		<exec executable="ctags">
+			<arg line="--recurse=yes"/>
+			<arg line="--links=yes"/>
+			<arg line="--java-types=cimp"/>
+			<arg line="-f ${ctags.file}"/>
+		</exec>
+	</target>
+
+	<target name="prepare">
+		<mkdir dir="${build.dir}"/>
+		<mkdir dir="${dist.dir}"/>
+		<tstamp/>
+			<echo message="${TSTAMP}"/>
+	</target>
+
+	<target name="build" depends="prepare">
+		<!-- classpath="./lib/colt.jar:./lib/commons-collections-3.0.jar:./lib/junit.jar:./lib/piccolo.jar:./lib/piccolox.jar" -->
+		<!-- classpath="./lib/commons-collections-3.0.jar:./lib/junit.jar:./lib/prefuse.jar:./lib/prefusex.jar" -->
+		<javac srcdir="${src.dir}"
+			classpath="./lib/junit.jar:./lib/prefuse.jar:./lib/prefusex.jar"
+			destdir="${build.dir}"
+			debug="on">
+		</javac>
+	</target>
+
+	<target name="clean">
+		<delete>
+			<fileset dir="${build.dir}" includes="**/*.class"/>
+			<fileset dir="${dist.dir}" includes="**/*"/>
+		</delete>
+		<delete dir="${build.dir}"/>
+		<delete dir="${dist.dir}"/>
+		<delete file="${ctags.file}"/>
+	</target>
+
+	<!-- =============== RUN TESTS ==================== -->
+
+	<target name="nv2d" depends="build">
+		<java fork="yes" classname="nv2d.ui.NApplet">
+            <classpath>
+                <pathelement location="./build" />
+				<pathelement location="./lib/prefuse.jar" />
+				<pathelement location="./lib/prefusex.jar" />
+            </classpath>
+		</java>
+	</target>
+
+	<target name="test1" depends="build">
+		<java fork="yes" classname="nv2d.ui.NV2DMain">
+			<arg value="build/nv2d/plugins/standard" />
+			<arg value="Test1IO" />
+            <classpath>
+                <pathelement location="./build" />
+				<pathelement location="./lib/prefuse.jar" />
+				<pathelement location="./lib/prefusex.jar" />
+            </classpath>
+		</java>
+	</target>
+
+	<target name="unittest" depends="build">
+        <java fork="yes" classname="nv2d.testsuit.graph.DataStoreTest">
+            <classpath>
+                <pathelement location="./lib/junit.jar" />
+                <pathelement location="./build" />
+            </classpath>
+        </java>
+        <java fork="yes" classname="nv2d.testsuit.graph.DatumTest">
+            <classpath>
+                <pathelement location="./lib/junit.jar" />
+                <pathelement location="./build" />
+            </classpath>
+        </java>
+        <java fork="yes" classname="nv2d.testsuit.algorithms.DijkstraTest">
+            <classpath>
+                <pathelement location="./lib/junit.jar" />
+                <pathelement location="./build" />
+            </classpath>
+        </java>
+    </target>
+
+</project>
