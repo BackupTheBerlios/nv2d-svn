@@ -11,9 +11,12 @@ import java.util.Iterator;
 import java.awt.Color;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseEvent;
+import java.net.URI;
+import java.net.URL;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JCheckBox;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
 
@@ -106,6 +109,8 @@ public class PluginManagerUI extends javax.swing.JDialog {
             // add it to _managerListPanel
             _managerListPanel.add(label);
         }
+
+		_managerListPanel.repaint();
 
         // fill in default security list
         _secList.setListData(_ctl.getPluginManager().secureLocations());
@@ -200,14 +205,33 @@ public class PluginManagerUI extends javax.swing.JDialog {
 
     private void _loadExecActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event__loadExecActionPerformed
         // TODO add your handling code here:
+		String url = _loadURI.getText();
+		_ctl.loadModules(url);
+
+		// show new content
+		initContent();
     }//GEN-LAST:event__loadExecActionPerformed
 
     private void _secRemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event__secRemActionPerformed
-        // TODO add your handling code here:
+		// update the plugin manager
+		_ctl.getPluginManager().remSecureLocation((String) _secList.getSelectedValue());
+
+        // update the UI
+		java.util.Set vals = new java.util.HashSet(java.util.Arrays.asList(_ctl.getPluginManager().secureLocations()));
+		vals.remove(_secList.getSelectedValue());
+		_secList.setListData(vals.toArray());
     }//GEN-LAST:event__secRemActionPerformed
 
     private void _secAddActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event__secAddActionPerformed
         // TODO add your handling code here:
+		String s = JOptionPane.showInputDialog(
+			null,
+			"Add a trusted server for plugins.");
+		if(s != null && (s.length() > 0)) {
+			java.util.Set vals = new java.util.HashSet(java.util.Arrays.asList(_ctl.getPluginManager().secureLocations()));
+			vals.add(s);
+			_secList.setListData(vals.toArray());
+		}
     }//GEN-LAST:event__secAddActionPerformed
     
     /**

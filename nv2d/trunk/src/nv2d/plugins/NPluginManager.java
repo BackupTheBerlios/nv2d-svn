@@ -132,7 +132,6 @@ public class NPluginManager extends NPluginLoader
                 // the java load classes have some syntax peculiarties, namely that 
                 // to load a jar file, the URL must begin with 'jar:' and end with '!/'
 		if(!url.startsWith("jar:")) {
-			System.out.println("Foo!");
 			url = new String("jar:" + url);
 		}
                 

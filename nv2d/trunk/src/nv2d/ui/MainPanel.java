@@ -165,21 +165,6 @@ public class MainPanel implements NController {
 		}
 	}
 
-	public Set findPlugins(String url) {
-		// URL loc = new URL(url);
-		// TODO
-		return null;
-	}
-
-	public void allowURL(URL url) {
-		// TODO
-	}
-
-	public boolean isURLAllowed(URL url) {
-		// TODO
-		return false;
-	}
-
 	public FilterInterface getFilter() {
 		return _filter;
 	}
@@ -195,9 +180,14 @@ public class MainPanel implements NController {
 	}
 
 	public void loadModules() {
+		// loadModules("jar:http://web.mit.edu/bshi/www/N2.jar!/");
+		loadModules("jar:http://web.mit.edu/bshi/www/N2.jar!/");
+	}
+
+	public void loadModules(String url) {
 		// pass in parent class loader (necessary for Applets)
 		try {
-			_pm.loadFromJar(getClass().getClassLoader(), "jar:http://web.mit.edu/bshi/www/N2.jar!/");
+			_pm.loadFromJar(getClass().getClassLoader(), url);
 		} catch (JARAccessException exception) {
 			JOptionPane.showMessageDialog(null,
 				exception.toString(),

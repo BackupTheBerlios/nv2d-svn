@@ -72,8 +72,8 @@ public class NMenu extends JMenuBar {
                         
                         _load.addActionListener(new ActionListener() {
                             public void actionPerformed(ActionEvent e) {
-                                _pluginManagerUI.setVisible(true);
                                 _pluginManagerUI.initContent();
+                                _pluginManagerUI.setVisible(true);
                             }
                         });
 		}

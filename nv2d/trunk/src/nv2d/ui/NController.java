@@ -30,8 +30,8 @@ public interface NController {
 	public Graph getModel();
 	public RenderBox getView();
         
-        // other accessors
-        public NPluginManager getPluginManager();
+	// other accessors
+	public NPluginManager getPluginManager();
 
 	// filter controls
 	public void setFilter(FilterInterface filter);
@@ -45,7 +45,6 @@ public interface NController {
 	public JTabbedPane getTabs();
 
 	// plugin controls
-	public Set findPlugins(String url);
-	public void allowURL(URL url);
-	public boolean isURLAllowed(URL url);
+	public void loadModules();
+	public void loadModules(String url);
 }
