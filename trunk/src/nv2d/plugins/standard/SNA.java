@@ -305,34 +305,58 @@ public class SNA implements NV2DPlugin  {
 		_graph.setDatum(new Datum(DATUM_GRP_DEGREE, new Double(m_grpDegree)));
 		System.out.println("   Group Degree = " + m_grpDegree);
 
+
+		String [] vtx_names = new String[_vtx_index_tbl.length];
+		for(v = 0; v < _graph.numVertices(); v++) {
+			String name = _vtx_index_tbl[v].id();
+			name = (name.length() > 7 ? new String(name.substring(0, 7)) : name);
+			vtx_names[v] = name;
+		}
+
+		System.out.print("\n\n");
+
+		System.out.println("Adjacency Matrix (row->col):");
+		for(int r = 0; r < _graph.numVertices(); r++) {
+			System.out.print("[" + vtx_names[r] + "]\t");
+			for(int c = 0; c < _graph.numVertices(); c++) {
+				System.out.print("" + edgeLen(r, c));
+				if(c != _graph.numVertices() - 1) {
+					System.out.print("\t");
+				}
+			}
+			System.out.print("\n");
+		}
+
+		System.out.print("\n\n\nMeasures:\n");
+
 		System.out.println("   Betweenness:");
 		for(v = 0; v < _graph.numVertices(); v++) {
 			_vtx_index_tbl[v].setDatum(new Datum(DATUM_BETWEENNESS, new Double(m_betweenness[v])));
-			System.out.println("      [" + v + "] " + m_betweenness[v]);
+			System.out.println("      [" + vtx_names[v] + "]\t" + m_betweenness[v]);
 		}
 
 		System.out.println("   Closeness:");
 		for(v = 0; v < _graph.numVertices(); v++) {
 			_vtx_index_tbl[v].setDatum(new Datum(DATUM_CLOSENESS, new Double(m_closeness[v])));
-			System.out.println("      [" + v + "] " + m_closeness[v]);
+			System.out.println("      [" + vtx_names[v] + "]\t" + m_closeness[v]);
 		}
 
 		System.out.println("   Degree:");
 		for(v = 0; v < _graph.numVertices(); v++) {
 			_vtx_index_tbl[v].setDatum(new Datum(DATUM_DEGREE, new Double(m_degree[v])));
-			System.out.println("      [" + v + "] " + m_degree[v]);
+			System.out.println("      [" + vtx_names[v] + "]\t" + m_degree[v]);
 		}
 
 		System.out.println("   In-Degree:");
 		for(v = 0; v < _graph.numVertices(); v++) {
 			_vtx_index_tbl[v].setDatum(new Datum(DATUM_INDEGREE, new Double(m_indegree[v])));
-			System.out.println("      [" + v + "] " + m_indegree[v]);
+			System.out.println("      [" + vtx_names[v] + "]\t" + m_indegree[v]);
 		}
 
 		System.out.println("   Out-Degree:");
 		for(v = 0; v < _graph.numVertices(); v++) {
 			_vtx_index_tbl[v].setDatum(new Datum(DATUM_OUTDEGREE, new Double(m_outdegree[v])));
-			System.out.println("      [" + v + "] " + m_outdegree[v]);
+			System.out.println("      [" + vtx_names[v] + "]\t" + m_outdegree[v]);
 		}
 	}
 
