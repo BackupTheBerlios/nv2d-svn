@@ -8,15 +8,18 @@ import nv2d.graph.Edge;
 import nv2d.graph.Vertex;
 import nv2d.graph.directed.DEdge;
 
-public class PEdge extends DefaultEdge {
+public class PEdge extends DefaultEdge implements PElement {
 	private Edge _e;
-	private boolean _isPathElement; // is this edge part of a path?
+	private boolean _isPathElement, _isSelected; // is this edge part of a path?
 
 	public PEdge(Edge e, DefaultNode car, DefaultNode cdr) {
 		// Directed edges must be created through constructor.
 		super(car, cdr, (e instanceof DEdge));
 		_e = e;
 		e.setDatum(new Datum(PGraph.DATUM_POBJ, this));
+
+		_isPathElement = false;
+		_isSelected = false;
 	}
 	
 	public Edge e() {
@@ -29,5 +32,13 @@ public class PEdge extends DefaultEdge {
 
 	public boolean isPathElement() {
 		return _isPathElement;
+	}
+
+	public void setSelected(boolean b) {
+		_isSelected = b;
+	}
+
+	public boolean isSelected() {
+		return _isSelected;
 	}
 }

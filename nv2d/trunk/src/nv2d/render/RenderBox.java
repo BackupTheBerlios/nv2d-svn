@@ -333,10 +333,13 @@ public class RenderBox extends Display {
 			item.setHighlighted(true);
 		}
 
-		// TODO: does not behave exactly as it should for vertices
 		public void itemPressed(VisualItem item, MouseEvent e) {
 			// first click selects, second click deselects
-			item.setFixed(!item.isFixed());
+			if(checkMask(e.getModifiers(), MouseEvent.BUTTON1_MASK) && item.getEntity() instanceof PElement) {
+				PElement p = (PElement) item.getEntity();
+				p.setSelected(!p.isSelected());
+			}
+			
 			_lastItemClicked = item;
 			maybeShowPopup(e);
 		}
@@ -355,13 +358,18 @@ public class RenderBox extends Display {
 				_vertexMenu.getMenu().show(e.getComponent(), e.getX(), e.getY());
 			}
 		}
+
+		private boolean checkMask(int value, int mask) {
+			return (value & (~ mask)) == 0;
+		}
 	}
 
 	class PopupMenu {
 		private Vertex _apspSource;
 		private JMenuItem _centerDegreeFilter = new JMenuItem("Center DegreeFilter here");
-		private JMenuItem _setStartPoint = new JMenuItem("Set start vertex");
-		private JMenuItem _setEndPoint = new JMenuItem("Highlight APSP");
+		private JMenuItem _clearPath = new JMenuItem("Clear Path");
+		private JMenuItem _setStartPoint = new JMenuItem("Start Path");
+		private JMenuItem _setEndPoint = new JMenuItem("End Path");
 
 		public PopupMenu() {
 			_apspSource = null;
@@ -379,6 +387,25 @@ public class RenderBox extends Display {
 					// this menu item is only shown when a degreefilter is active
 					// so this next line is safe
 					_ctl.runFilter(fargs);
+				}
+			});
+
+			_clearPath.setToolTipText("Clear any highlighted paths.");
+			_clearPath.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					Iterator i = _registry.getNodeItems();
+					while(i.hasNext()) {
+						PNode pnode = (PNode) ((VisualItem) i.next()).getEntity();
+						pnode.setPathElement(false);
+						pnode.setStartPoint(false);
+						pnode.setEndPoint(false);
+					}
+
+					i = _registry.getEdgeItems();
+					while(i.hasNext()) {
+						PEdge pedge = (PEdge) ((VisualItem) i.next()).getEntity();
+						pedge.setPathElement(false);
+					}
 				}
 			});
 
@@ -442,6 +469,7 @@ public class RenderBox extends Display {
 				m.add(_centerDegreeFilter);
 				m.add(new JSeparator());
 			}
+			m.add(_clearPath);
 			m.add(_setStartPoint);
 			m.add(_setEndPoint);
 			return m;

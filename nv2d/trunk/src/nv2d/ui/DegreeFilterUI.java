@@ -114,6 +114,7 @@ public class DegreeFilterUI {
 		JDialog dialog = new JDialog();
 		dialog.getContentPane().add(ui);
 		dialog.setTitle("Degree Filter");
+		dialog.setModal(true);
 		return dialog;
 	}
 }

@@ -5,15 +5,16 @@ import edu.berkeley.guir.prefuse.graph.DefaultNode;
 import nv2d.graph.Datum;
 import nv2d.graph.Vertex;
 
-public class PNode extends DefaultNode {
+public class PNode extends DefaultNode implements PElement {
 	private Vertex _v;
-	private boolean _isStartPoint, _isEndPoint, _isPathElement;
+	private boolean _isStartPoint, _isEndPoint, _isPathElement, _isSelected;
 
 	public PNode(Vertex v) {
 		_v = v;
 		_isStartPoint = false;
 		_isEndPoint = false;
 		_isPathElement = false;
+		_isSelected = false;
 		v.setDatum(new Datum(PGraph.DATUM_POBJ, this));
 	}
 
@@ -48,5 +49,13 @@ public class PNode extends DefaultNode {
 
 	public void setPathElement(boolean b) {
 		_isPathElement = b;
+	}
+
+	public void setSelected(boolean b) {
+		_isSelected = b;
+	}
+
+	public boolean isSelected() {
+		return _isSelected;
 	}
 }
