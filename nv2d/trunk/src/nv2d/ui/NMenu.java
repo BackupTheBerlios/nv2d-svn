@@ -18,6 +18,7 @@ import nv2d.render.RenderSettings;
 public class NMenu extends JMenuBar {
 	RenderBox _renderbox;
 	nmMods _menu_mods;
+
 	public NMenu(RenderBox r) {
 		_renderbox = r;
 		_menu_mods = new nmMods();
@@ -33,8 +34,18 @@ public class NMenu extends JMenuBar {
 	}
 
 	public class nmMods extends JMenu {
+		private JMenuItem _clear = new JMenuItem("Clear Graph");
 		public nmMods() {
 			super("Modules");
+
+			_clear.addActionListener(new ClearAction());
+			add(_clear);
+		}
+
+		private class ClearAction implements ActionListener {
+			public void actionPerformed(ActionEvent e) {
+				_renderbox.clear();
+			}
 		}
 	}
 

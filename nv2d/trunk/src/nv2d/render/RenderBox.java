@@ -51,6 +51,8 @@ public class RenderBox extends Display {
 	private ActionList _actions;
 	private RenderSettings _settings;
 
+	private boolean _empty;
+
 	private ForceSimulator _fsim;
 	private ForceDirectedLayout _flayout;
 	
@@ -69,14 +71,16 @@ public class RenderBox extends Display {
 		addControlListener(new DragControl());
         addControlListener(new PanControl());
         addControlListener(new ZoomControl());
+
+		_empty = true;
 	}
 
 	public void clear() {
 		_registry.clear();
 		_actions = null;
-		_settings = null;
 		_fsim = null;
 		_flayout = null;
+		_empty = true;
 	}
 
 	public void initialize(Graph g) {
@@ -105,17 +109,28 @@ public class RenderBox extends Display {
 		// now execute the actions to visualize the graph
 		_actions.runNow();
 		doRandomLayout();
+
+		_empty = false;
 	}
 
 	public void startForceDirectedLayout() {
+		if(_empty) {
+			return;
+		}
 		_actions.add(_flayout);
 	}
 
 	public void stopForceDirectedLayout() {
+		if(_empty) {
+			return;
+		}
 		_actions.remove(_flayout);
 	}
 
 	public void doRandomLayout() {
+		if(_empty) {
+			return;
+		}
 		// run once action list
 		ActionList act = new ActionList(_registry);
 		act.add(new RandomLayout());
@@ -131,6 +146,10 @@ public class RenderBox extends Display {
 	}
 
 	public void postPaint(java.awt.Graphics2D g) {
+		if(_empty) {
+			return;
+		}
+
 		// overridden method to paint stuff _after_ graph elements
 		// have been drawn
 		FontMetrics fm = g.getFontMetrics();
@@ -140,6 +159,7 @@ public class RenderBox extends Display {
 		// show node name/id
 		Iterator i =_registry.getNodeItems();
 		while(_settings.getBoolean(RenderSettings.SHOW_LABELS) && i.hasNext()) {
+			if(_empty) return; // TODO: prefuse seems to use threads...?
 			NodeItem item = (NodeItem) i.next();
 			PNode n = (PNode) item.getEntity();
 			Vertex v = n.v();
@@ -163,6 +183,7 @@ public class RenderBox extends Display {
 		g.setPaint(Color.RED);
 		g.setFont(new Font(g.getFont().getName(), g.getFont().getStyle(), 8));
 		while(_settings.getBoolean(RenderSettings.SHOW_LENGTH) && i.hasNext()) {
+			if(_empty) return; // TODO: prefuse seems to use threads...?
 			EdgeItem item = (EdgeItem) i.next();
 			PEdge p = (PEdge) item.getEntity();
 			PNode v1 = PNode.v2p((Vertex) p.e().getEnds().car());
