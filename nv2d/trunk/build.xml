@@ -51,7 +51,7 @@
 		<!-- classpath="./lib/colt.jar:./lib/commons-collections-3.0.jar:./lib/junit.jar:./lib/piccolo.jar:./lib/piccolox.jar" -->
 		<!-- classpath="./lib/commons-collections-3.0.jar:./lib/junit.jar:./lib/prefuse.jar:./lib/prefusex.jar" -->
 		<javac srcdir="${src.dir}"
-			classpath="./lib/junit.jar:./lib/prefuse.jar:./lib/prefusex.jar"
+			classpath="./lib/junit.jar:./lib/prefuse.jar"
 			destdir="${build.dir}"
 			debug="on">
 		</javac>
@@ -83,7 +83,6 @@
             <classpath>
                 <pathelement location="./build" />
 				<pathelement location="./lib/prefuse.jar" />
-				<pathelement location="./lib/prefusex.jar" />
             </classpath>
 		</java>
 	</target>
@@ -93,7 +92,6 @@
             <classpath>
                 <pathelement location="./build" />
 				<pathelement location="./lib/prefuse.jar" />
-				<pathelement location="./lib/prefusex.jar" />
             </classpath>
 		</java>
 	</target>
