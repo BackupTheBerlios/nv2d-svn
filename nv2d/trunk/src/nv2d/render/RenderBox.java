@@ -9,6 +9,7 @@ import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Line2D;
+import java.awt.geom.Point2D;
 import java.io.File;
 import java.io.IOException;
 import java.lang.Math;
@@ -78,6 +79,8 @@ public class RenderBox extends Display {
 	
 	private ForceSimulator _fsim;
 	private ForceDirectedLayout _flayout;
+	private RandomLayout _randomLayout;
+	private SemiRandomLayout _semiRandomLayout;
 	
 	private PopupMenu _vertexMenu;
 	
@@ -93,7 +96,7 @@ public class RenderBox extends Display {
 		
 		// establish settings controller
 		_settings = new RenderSettings();
-		_pFactory = (PopupFactory) new PopupFactory().getSharedInstance();
+		_pFactory = PopupFactory.getSharedInstance();
 		
 		_ctl = ctl;
 		// setup the popup menu for vertices
@@ -114,21 +117,11 @@ public class RenderBox extends Display {
 	}
 	
 	public void clear() {
-		// when graph is cleared, save the locations of the
-		// current nodes in the Model (MainPanel._originalGraph)
-		// so that if the action taken is a filter action,
-		// we can place the nodes in the same place.
-		if(_registry != null) {
-			Iterator i = _registry.getNodeItems();
-			while(i.hasNext()) {
-				VisualItem item = (VisualItem) i.next();
-				Vertex v = _ctl.getModel().findVertex(((PNode) item.getEntity()).v().id());
-				// v.setDatum(new Datum(DATUM_LASTLOCATION, item.getLocation()));
-				// System.out.println("Saving " + v + " at point " + item.getLocation());
-			}
+		if(_empty) {
+			return;
 		}
 		
-		if(_empty) return;
+		doSaveVertexLocations();
 		_registry.clear();
 		_actions = null;
 		_fsim = null;
@@ -150,7 +143,6 @@ public class RenderBox extends Display {
 	}
 	
 	public void initialize(Graph g) {
-		System.out.println("----Initializing new view");
 		_g = g;
 		_registry = getRegistry();
 		_registry.setGraph(new PGraph(g));
@@ -161,6 +153,10 @@ public class RenderBox extends Display {
 		_fsim.addForce(new SpringForce(4E-5f, 75f));
 		_fsim.addForce(new DragForce(-0.005f));
 		_flayout = new ForceDirectedLayout(_fsim, false, false);
+		
+		// other layouts
+		_randomLayout = new RandomLayout();
+		_semiRandomLayout = new SemiRandomLayout(_ctl);
 		
 		// create a new action list that
 		// (a) filters visual representations from the original graph
@@ -180,11 +176,7 @@ public class RenderBox extends Display {
 		_actions.runNow();
 		
 		// randomly set all the items
-		doRandomLayout();
-		// now take all the items which have previously been shown
-		// and render them in their old locations
-		// TODO
-		// doSavedVertexLocations();		
+		doSemiRandomLayout();
 	}
 	
 	public void startForceDirectedLayout() {
@@ -203,7 +195,7 @@ public class RenderBox extends Display {
 		_layoutRunning = false;
 	}
 	
-	/** Saves the current visualization to a PNG or JPEG file.
+	/** TODO: Saves the current visualization to a PNG or JPEG file.
 	 *
 	 * @param filename	the name of the file to save to.
 	 */
@@ -239,28 +231,58 @@ public class RenderBox extends Display {
 		}
 		// run once action list
 		ActionList act = new ActionList(_registry);
-		act.add(new RandomLayout());
+		act.add(_randomLayout);
+		// act.add(_semiRandomLayout);
 		act.runNow();
+	}
+	
+	public void doSemiRandomLayout() {
+		if(_empty) {
+			return;
+		}
+		// run once action list
+		ActionList act = new ActionList(_registry);
+		act.add(_semiRandomLayout);
+		act.runNow();		
 	}
 	
 	/** Saved locations are lost when another graph is loaded.
 	 */
-	public void doSavedVertexLocations() {
+	/*
+	public void doRestoreVertexLocations() {
 		// old locations are saved in the overall model (getModel())
-		System.out.println("   restoring... (registry size = "+_registry.size() + ")");
-		// Iterator i = _registry.getNodeItems(false);
 		Iterator i = _registry.getNodeItems();
-		// TODO: the registry is empty every time we do this. weird
 		while(i.hasNext()) {
 			VisualItem item = (VisualItem) i.next();
 			Vertex v = _ctl.getModel().findVertex(((PNode) item.getEntity()).v().id());
-			Datum oldloc = v.getDatum(DATUM_LASTLOCATION);
-			// System.out.println("   Restoring vertex " + v + " location at " + oldloc.get());
-			if(oldloc != null) {
-				item.setLocation((java.awt.geom.Point2D) oldloc.get());
+			if(null != v) {
+				Datum oldloc = v.getDatum(DATUM_LASTLOCATION);
+				if(oldloc != null) {
+					System.out.println("   Restoring vertex " + v + " location at " + oldloc.get());
+					java.awt.geom.Point2D oldp = (java.awt.geom.Point2D) oldloc.get();
+					item.setLocation(oldp.getX() - getDisplayX(), oldp.getY() - getDisplayY());
+				}
 			}
-			repaint();
 		}
+		repaint();
+	}
+	*/
+	public void doSaveVertexLocations() {
+		// when graph is cleared, save the locations of the
+		// current nodes in the Model (MainPanel._originalGraph)
+		// so that if the action taken is a filter action,
+		// we can place the nodes in the same place.
+		if(_registry != null) {
+			Iterator i = _registry.getNodeItems();
+			while(i.hasNext()) {
+				VisualItem item = (VisualItem) i.next();
+				Vertex v = _ctl.getModel().findVertex(((PNode) item.getEntity()).v().id());
+				if(null != v) {
+					Point2D.Float loc = new Point2D.Float((float) item.getLocation().getX(), (float) item.getLocation().getY());
+					v.setDatum(new Datum(DATUM_LASTLOCATION, loc));
+				}
+			}
+		}		
 	}
 	
 	public RenderSettings getRenderSettings() {

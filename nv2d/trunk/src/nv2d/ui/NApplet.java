@@ -20,6 +20,7 @@ import nv2d.plugins.NV2DPlugin;
 
 public class NApplet extends JApplet {
 	public static final String PARAM_DATAFILE = "NFileIO";
+	public static final String PARAM_DEGREEFILTER = "DegreeFilter";
 	MainPanel panel;
 
 	String _dataFile;
@@ -34,6 +35,7 @@ public class NApplet extends JApplet {
 		setVisible(true);
 	}
 	
+	/* TODO: figure out a scheme for command line arguments which are passed in*/
 	public void start() {
 		if(_dataFile == null) {
 			panel.initialize(null);

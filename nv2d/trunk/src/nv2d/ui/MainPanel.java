@@ -111,6 +111,10 @@ public class MainPanel implements NController {
 	}
 	
 	public void initialize(String [] args) {
+		// This MUST be run here so that old locations can be saved before
+		// _originalGraph changes.
+		_r.clear();
+		
 		if(args == null || args.length < 1) {
 			_g = null;
 		} else {
@@ -118,6 +122,8 @@ public class MainPanel implements NController {
 			String [] ioArgs = new String[args.length - 1];
 			IOInterface io;
 			
+			// first argument [0] is the importer name, all others are
+			// all following arguments get sent into the importer (ioArgs)
 			for(int j = 1; j < args.length; j++) {
 				ioArgs[j - 1] = args[j];
 			}
@@ -211,6 +217,9 @@ public class MainPanel implements NController {
 		if(_originalGraph == null) {
 			errorPopup("No Graph Loaded", "You must load a graph before using a filter.", null);
 		}
+		// save vertex locations
+		_r.doSaveVertexLocations();
+		
 		// if _originalGraph exists, pick it
 		_filter.initialize((wholeSet ? _originalGraph : _g), args);
 		_g = _filter.filter();
@@ -283,15 +292,11 @@ public class MainPanel implements NController {
 	}
 	
 	private void reinitModules() {
-		_r.clear();
-		
 		// we now supposedly have a graph, reinit all modules
 		Iterator j = _pm.pluginIterator();
 		while(j.hasNext()) {
 			((NV2DPlugin) j.next()).initialize(_g, _r, this);
 		}
-		
-		
 		// start things up
 		_r.initialize(_g);
 	}

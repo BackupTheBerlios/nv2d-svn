@@ -19,6 +19,7 @@ public class BottomPanel extends javax.swing.JPanel {
 	Graph _g;
 	
 	public static final int BUTTON_HEIGHT = 17;
+	public static final int BUTTON_MAXWIDTH = 150;
 	
 	/** Creates new form BottomPanel */
 	public BottomPanel(NController ctl) {
@@ -53,10 +54,12 @@ public class BottomPanel extends javax.swing.JPanel {
 			width = javax.swing.SwingUtilities.computeStringWidth(getFontMetrics(getFont()), vnames[i].toString());
 			maxStrLength = (width > maxStrLength ? width : maxStrLength);
 		}
+		// do not go over max width
+		maxStrLength = (maxStrLength > BUTTON_MAXWIDTH ? BUTTON_MAXWIDTH : maxStrLength);
 		
 		if(maxStrLength > 0) {
 			// resize the width of the component
-			_dfVertices.setPreferredSize(new java.awt.Dimension(maxStrLength, BUTTON_HEIGHT));
+			_dfVertices.setPreferredSize(new java.awt.Dimension(maxStrLength + 25, BUTTON_HEIGHT));
 		}
 		
 		_dfVertices.validate();
@@ -185,12 +188,10 @@ public class BottomPanel extends javax.swing.JPanel {
 	}//GEN-LAST:event__doFilterActionPerformed
 	
     private void _startActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event__startActionPerformed
-		// TODO add your handling code here:
 		_ctl.getView().startForceDirectedLayout();
     }//GEN-LAST:event__startActionPerformed
 	
     private void _stopActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event__stopActionPerformed
-		// TODO add your handling code here:
 		_ctl.getView().stopForceDirectedLayout();
     }//GEN-LAST:event__stopActionPerformed
 	
@@ -200,7 +201,6 @@ public class BottomPanel extends javax.swing.JPanel {
     }//GEN-LAST:event__centerActionPerformed
 	
     private void _resetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event__resetActionPerformed
-		// TODO add your handling code here:
 		_ctl.getView().stopForceDirectedLayout();
 		_ctl.getView().doRandomLayout();
     }//GEN-LAST:event__resetActionPerformed
