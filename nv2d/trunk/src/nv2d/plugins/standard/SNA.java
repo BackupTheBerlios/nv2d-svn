@@ -32,6 +32,11 @@ public class SNA implements NV2DPlugin  {
 	public JMenu menu() {
 		return null;
 	}
+
+	public String require() {
+		return "";
+	}
+
 	public String name() {
 		return _name;
 	}

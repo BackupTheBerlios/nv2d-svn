@@ -8,10 +8,16 @@ import nv2d.exceptions.PluginNotCreatedException;
 
 public class NPluginManager extends NPluginLoader
 {
-	public static final String PLUGIN_DIRECTORY = "nv2d/plugins/standard";
+	// public static final String PLUGIN_DIRECTORY = "nv2d/plugins/standard";
+	// public static final String PLUGIN_DIRECTORY = "./standard/";
+	public static String PLUGIN_DIRECTORY = "./standard/";
 
 	public static void main(String args[])
 	{
+		if (args.length > 0) {
+			PLUGIN_DIRECTORY = args[0];
+		}
+
 		// Look for *.class files in a particular directory
 		// and load them in using createPlugin
 		File dir = new File(PLUGIN_DIRECTORY);
@@ -51,6 +57,12 @@ public class NPluginManager extends NPluginLoader
 		// Now print some info about the loaded plug-ins
 		System.out.println(pluginRegistry.size() + " plug-in(s) loaded. Names are:");
 		for ( Enumeration e = pluginRegistry.keys() ; e.hasMoreElements() ; ) {
+			System.out.println(e.nextElement());
+		}
+
+		// Now print some info about the loaded IO plug-ins
+		System.out.println(ioRegistry.size() + " IO plug-in(s) loaded. Names are:");
+		for ( Enumeration e = ioRegistry.keys() ; e.hasMoreElements() ; ) {
 			System.out.println(e.nextElement());
 		}
 	}

@@ -1,5 +1,7 @@
 package nv2d.render;
 
+import java.lang.ClassCastException;
+
 import edu.umd.cs.piccolo.PNode;
 import edu.umd.cs.piccolo.event.PBasicInputEventHandler;
 import edu.umd.cs.piccolo.event.PInputEvent;
@@ -11,10 +13,17 @@ public class MouseHandler extends PBasicInputEventHandler {
 	private PNode _grabbed = null;
 
 	public void mouseClicked(PInputEvent event) {
-		super.mouseClicked(event);
+		// super.mouseClicked(event);
 
 		_grabbed = event.getPickedNode();
-		if(_grabbed.getClass() != RElement.class) {
+
+		try
+		{
+			_grabbed = (VertexNode) _grabbed;
+			System.out.println("_grabbed = " + _grabbed);
+		}
+		catch(ClassCastException err)
+		{
 			_grabbed = null;
 		}
 	}

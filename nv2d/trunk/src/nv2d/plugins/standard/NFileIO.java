@@ -41,18 +41,27 @@ public class NFileIO implements IOInterface {
 	public void initialize(/* Model, View */) {
 		System.out.print("\n--> initialize()\n");
 	}
+
 	public void heartbeat() {
 		System.out.print("\n--> heartbeat()\n");
 	}
+
 	public void cleanup() {
 		System.out.print("\n--> cleanup()\n");
 	}
+
 	public JPanel ui() {
 		return null;
 	}
+
 	public JMenu menu() {
 		return null;
 	}
+
+	public String require() {
+		return "";
+	}
+
 	public String name() {
 		return _name;
 	}

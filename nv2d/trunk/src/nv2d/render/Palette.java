@@ -24,8 +24,9 @@ public class Palette extends PCanvas {
 		double dtheta = 2.0 * Math.PI / g.numVertices();
 		double theta = 0.0;
 
-		Iterator itv = g.getVertices().iterator();
+		/* Nodes must be added before edges */
 
+		Iterator itv = g.getVertices().iterator();
 		while(itv.hasNext()) {
 			// pick a random spot for the Piccolo Node object
 			VertexNode cn = new VertexNode(RenderConstants.DEFAULT_VERTEX_RADIUS, (Vertex) itv.next());

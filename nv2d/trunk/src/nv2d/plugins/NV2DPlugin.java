@@ -33,6 +33,10 @@ public interface NV2DPlugin {
 	 * */
 	JMenu menu();
 
+	/** Provide a list of names (space delimited) of the prerequisite modules
+	 * required by a given plugin. */
+	public String require();
+
 	/** Provide a short name for this plugin. */
 	public String name();
 
