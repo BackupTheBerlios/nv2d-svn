@@ -20,7 +20,10 @@ public class DataStore {
 		_store = new Hashtable();
 	}
 
-	/** Get a Datum from storage. */
+	/** Get a Datum from storage.
+	 * @param name the datum name
+	 * @return null if the datum is not defined.
+	 */
 	public Datum getDatum(String name) {
 		return (Datum) _store.get(name);
 	}

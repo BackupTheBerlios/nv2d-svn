@@ -32,14 +32,22 @@ public class Datum implements Comparable {
 		_value = value;
 	}
 
+	/** Get the value for this datum.
+	 * @return null if a value has not been set.
+	 */
 	public Object get() {
 		return _value;
 	}
 
+	/** Get the identifier for this datum.
+	 */
 	public String name() {
 		return _name;
 	}
 
+	/** Set the value for this datum.
+	 * @param value null values are accepted.
+	 */
 	public void set(Object value) {
 		_value = value;
 	}
