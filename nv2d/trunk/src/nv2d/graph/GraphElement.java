@@ -39,12 +39,7 @@ public class GraphElement extends DataStore implements Comparable {
 	}
 
 	public int compareTo(Object o) {
-		GraphElement ge;
-		try {
-			ge = (GraphElement) o;
-		} catch (ClassCastException e) {
-			throw new IllegalArgumentException("Tried to compare a Vertex with anon-vertex object.");
-		}
+		GraphElement ge = (GraphElement) o;
 		return id().compareTo(ge.id());
 	}
 }
