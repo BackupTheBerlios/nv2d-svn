@@ -29,12 +29,9 @@ public class DegreeFilterUI {
 	public static JDialog getJDialog(NController nctl) {
 		final Graph g = nctl.getModel();
 		final NController ctl = nctl;
+		
 		if(g == null) {
-			JOptionPane.showMessageDialog(null,
-					"You must load a graph before using this filter",
-					"Filter Message",
-					JOptionPane.WARNING_MESSAGE);
-			return null;
+			nctl.errorPopup("No Graph Loaded", "You must load a graph before using a filter.", null);
 		}
 		
 		JPanel ui;

@@ -21,6 +21,7 @@ public class DegreeFilter implements FilterInterface {
 	}
 
 	public void initialize(Graph g, Object [] args) {
+		_g = g;
 		if(args == null || args.length != 2) {
 			System.err.println("Error: wrong number of arguments for the degree filter.");
 			return;
@@ -29,10 +30,11 @@ public class DegreeFilter implements FilterInterface {
 			initialize(g, (Vertex) args[0], ((Integer) args[1]).intValue());
 			return;
 		}
+
 		System.err.println("Error: Arguments do no match required class type (Vertex, Integer)");
 	}
 
-	public Graph filter(Graph g) {
+	public Graph filter() {
 		if(!_inited) {
 			System.err.println("Error: Degree filter has not been initialized.");
 			return null;
@@ -40,7 +42,7 @@ public class DegreeFilter implements FilterInterface {
 
 		if(_deg == -1) {
 			// don't do any filtering
-			return g;
+			return _g;
 		}
 
 		int i = _deg;
@@ -57,7 +59,7 @@ public class DegreeFilter implements FilterInterface {
 			tmpSet = getOutNeighbors(tmpSet);
 			vertices.addAll(tmpSet);
 		}
-		return g.subset(vertices);
+		return _g.subset(vertices);
 	}
 
 	private Set getOutNeighbors(Set s) {

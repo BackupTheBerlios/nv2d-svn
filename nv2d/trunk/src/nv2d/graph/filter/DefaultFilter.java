@@ -5,12 +5,13 @@ import nv2d.graph.FilterInterface;
 
 /* Identity filter */
 public class DefaultFilter implements FilterInterface {
+	Graph _g;
 
 	public void initialize(Graph g, Object [] args) {
-		return;
+		_g = g;
 	}
 
-	public Graph filter(Graph g) {
-		return g;
+	public Graph filter() {
+		return _g;
 	}
 }

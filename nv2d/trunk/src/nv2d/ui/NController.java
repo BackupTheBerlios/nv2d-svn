@@ -124,4 +124,12 @@ public interface NController {
 	 * @param url path to a JAR archvie.
 	 */
 	public void loadModules(String url);
+	
+	/**
+	 * Show a warning dialog and log the error message.
+	 * @param title the title of the dialog window
+	 * @param msg error message to be logged and shown
+	 * @param extra details about the error
+	 */
+	public void errorPopup(String title, String msg, String extra);
 }

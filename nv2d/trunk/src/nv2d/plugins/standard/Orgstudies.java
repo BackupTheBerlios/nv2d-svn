@@ -174,8 +174,7 @@ public class Orgstudies implements NV2DPlugin, FilterInterface {
 		_filterArgs = args;
 	}
 	
-	public Graph filter(Graph g) {
-		// ***TODO: g is ignored; we really should fix this
+	public Graph filter() {
 		// this method can only be called when the function has been initialized
 		assert(_inited);
 		
@@ -183,7 +182,7 @@ public class Orgstudies implements NV2DPlugin, FilterInterface {
 		String year = (String) _filterArgs[1];
 		
 		Set collection = new HashSet();
-		Iterator i = g.getEdges().iterator();
+		Iterator i = _graph.getEdges().iterator();
 		while(i.hasNext()) {
 			Edge e = (Edge) i.next();
 			String eYear = (String) e.getDatum(DATUM_LP).get();
@@ -211,7 +210,7 @@ public class Orgstudies implements NV2DPlugin, FilterInterface {
 			}
 		}
 		
-		return g.subset(collection);
+		return _graph.subset(collection);
 	}
 	
 	public Object [] getYearListing() {
@@ -222,10 +221,10 @@ public class Orgstudies implements NV2DPlugin, FilterInterface {
 		if(_inited) {
 			new OrgstudiesUI(new java.awt.Frame(), _ctl, this).setVisible(true);
 		} else {
-			JOptionPane.showMessageDialog(null,
-					"You need an Orgstudies dataset in order to use this function",
+			_ctl.errorPopup(
 					"Orgstudies",
-					JOptionPane.WARNING_MESSAGE);
+					"You need an Orgstudies dataset in order to use the Orgstudies time filter",
+					null);
 		}
 	}
 	

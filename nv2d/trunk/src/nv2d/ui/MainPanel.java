@@ -140,8 +140,8 @@ public class MainPanel implements NController {
 				try {
 					_g = (Graph) io.getData(ioArgs);
 				} catch (IOException ioe) {
-					System.err.println("There was an error importing data.  Perhaps your arguments were invalid.");
-					_g = null;
+					errorPopup("Error Loading Graph", "There was an error importing data.  New graph not loaded", null);
+					_g = _originalGraph;
 				}
 			}
 			_originalGraph = _g;
@@ -153,14 +153,21 @@ public class MainPanel implements NController {
 			// if clause tests for existence of vertices in graph, so next() can be used
 			runFilter(new Object[] {_g.getVertices().iterator().next(), new Integer(1)}, true);
 			// notify user
-			JOptionPane.showMessageDialog(null,
-					"We don't recommend showing over " + DegreeFilterUI.THRESHHOLD + " vertices at onetime.\nYour graph has been filtered using the degree filter.\nChange the settings to show all vertices at the same time.",
-					"Too Many Vertices",
-					JOptionPane.WARNING_MESSAGE);
+			errorPopup("Too Many Vertices",
+					"We don't recommend showing over " + DegreeFilterUI.THRESHHOLD + " vertices at one time.\nYour graph has been filtered using the degree filter.\nChange the settings to show all vertices at the same time.",
+					null);
 			// runFilter() runs reinitModules()
 		} else {
 			reinitModules();
 		}
+	}
+	
+	public void errorPopup(String title, String msg, String extra) {
+		System.err.println(msg);
+		JOptionPane.showMessageDialog(null,
+			msg,
+			title,
+			JOptionPane.WARNING_MESSAGE);
 	}
 	
 	public void displayOutTextBox(boolean b) {
@@ -204,21 +211,24 @@ public class MainPanel implements NController {
 	}
 	
 	public void runFilter(Object [] args, boolean wholeSet) {
+		if(_originalGraph == null) {
+			errorPopup("No Graph Loaded", "You must load a graph before using a filter.", null);
+		}
+		// if _originalGraph exists, pick it
 		_filter.initialize((wholeSet ? _originalGraph : _g), args);
-		_g = _filter.filter((wholeSet ? _originalGraph : _g));
+		_g = _filter.filter();
 		
 		// just in case a filter produces too many nodes, we will break it down using degree filter
 		if(_g != null && _g.numVertices() > DegreeFilterUI.THRESHHOLD) {
 			_filter = _degreeFilter;
 			// if clause tests for existence of vertices in graph, so next() can be used
 			_filter.initialize(_g, new Object[] {_g.getVertices().iterator().next(), new Integer(1)});
-			_g = _filter.filter(_g);
+			_g = _filter.filter();
 			
 			// notify user
-			JOptionPane.showMessageDialog(null,
+			errorPopup("Too Many Vertices",
 					"We don't recommend showing over " + DegreeFilterUI.THRESHHOLD + " vertices at onetime.\nYour graph has been filtered using the degree filter.\nChange the settings to show all vertices at the same time.",
-					"Too Many Vertices",
-					JOptionPane.WARNING_MESSAGE);
+					null);
 			// runFilter() runs reinitModules()
 		}
 		
@@ -235,10 +245,7 @@ public class MainPanel implements NController {
 		try {
 			_pm.loadFromJar(getClass().getClassLoader(), url);
 		} catch (JARAccessException exception) {
-			JOptionPane.showMessageDialog(null,
-					exception.toString(),
-					"Could not load plugins",
-					JOptionPane.WARNING_MESSAGE);
+			errorPopup("Could not load plugins", exception.toString(), null);
 		}
 		
 		/* add module UI to top level UI */
