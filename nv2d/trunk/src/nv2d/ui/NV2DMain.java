@@ -2,6 +2,7 @@ package nv2d.ui;
 
 import java.io.IOException;
 import java.util.Iterator;
+import java.awt.*;
 import javax.swing.*;
 
 import nv2d.graph.Graph;
@@ -18,18 +19,44 @@ public class NV2DMain extends JFrame implements NController {
 	private Graph _g;
 	private RenderBox _r;
 	private NMenu _menu;
+	private JTabbedPane _tabs;
+
+	private JComponent _outTextBox, _errTextBox;
+
+	private NPrintStream _err, _out;
 
 	public NV2DMain() {
 		// Important: this must be the order (loadmodules then renderbox as last two)
 		_r = new RenderBox();
-		_menu = new NMenu(_r);
+		_menu = new NMenu(this, _r);
+		_tabs = new JTabbedPane();
 
+		// trap output to standard streams and display them in a text box
+		JTextArea errTxt = new JTextArea();
+		JTextArea outTxt = new JTextArea();
+		JScrollPane sp1 = new JScrollPane(errTxt);
+		JScrollPane sp2 = new JScrollPane(outTxt);
+		_err = new NPrintStream(System.err);
+		_out = new NPrintStream(System.out);
+		System.setOut(_out);
+		System.setErr(_err);
+		_err.addNotifyClient(errTxt);
+		_out.addNotifyClient(outTxt);
+		sp1.setPreferredSize(new Dimension(500, 500));
+		sp2.setPreferredSize(new Dimension(500, 500));
+		_tabs.add("Display", _r);
+		_tabs.add("Output", sp2);
+		_tabs.add("Errors", sp1);
+		_outTextBox = sp2;
+		_errTextBox = sp1;
+
+		// initialize nv2d
 		loadModules();
-
 		initialize(null);
 
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
-		getContentPane().add(_r);
+		// getContentPane().add(_r);
+		getContentPane().add(_tabs);
 		setJMenuBar(_menu);
 		setTitle("NV2D");
 		pack();
@@ -80,6 +107,26 @@ public class NV2DMain extends JFrame implements NController {
 
 		// start things up
 		_r.initialize(_g);
+	}
+
+	public void displayOutTextBox(boolean b) {
+		if(b) {
+			_tabs.add("Output", _outTextBox);
+		} else {
+			_tabs.remove(_outTextBox);
+		}
+		_tabs.validate();
+		_tabs.repaint();
+	}
+
+	public void displayErrTextBox(boolean b) {
+		if(b) {
+			_tabs.add("Errors", _errTextBox);
+		} else {
+			_tabs.remove(_errTextBox);
+		}
+		_tabs.validate();
+		_tabs.repaint();
 	}
 
 	/* Current cmd-line:

@@ -19,10 +19,13 @@ public class NApplet extends JApplet implements NController {
 	private RenderBox _r;
 	private NMenu _menu;
 
+	private NPrintStream _err;
+	private NPrintStream _out;
+
 	public void init() {
 		// Important: this must be the order (loadmodules then renderbox as last two)
 		_r = new RenderBox();
-		_menu = new NMenu(_r);
+		_menu = new NMenu(this, _r);
 
 		try {
 			loadModules();
@@ -31,6 +34,11 @@ public class NApplet extends JApplet implements NController {
 			setVisible(true);
 			return;
 		}
+
+		// trap output to standard streams and display them in a text box
+		_err = new NPrintStream(System.err);
+		_out = new NPrintStream(System.out);
+		
 
 		getContentPane().add(_r);
 		setJMenuBar(_menu);
@@ -90,6 +98,12 @@ public class NApplet extends JApplet implements NController {
 
 		// start things up
 		_r.initialize(_g);
+	}
+
+	public void displayOutTextBox(boolean b) {
+	}
+
+	public void displayErrTextBox(boolean b) {
 	}
 
 	public void loadModules() {

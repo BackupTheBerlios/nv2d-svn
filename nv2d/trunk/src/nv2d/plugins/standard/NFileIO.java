@@ -53,7 +53,7 @@ public class NFileIO implements IOInterface {
 		String loc;
 		if(args.length == 0) {
 			if(_arg == null) {
-				System.err.print("Error, no argument provided.");
+				System.err.println("Error, no argument provided.");
 				return null;
 			}
 			loc = _arg;
@@ -61,7 +61,7 @@ public class NFileIO implements IOInterface {
 		else if(args.length == 1) {
 			loc = args[0];
 		} else {
-			System.err.print("Error, wrong number of arguments");
+			System.err.println("Error, wrong number of arguments");
 			return null;
 		}
 
@@ -89,18 +89,18 @@ public class NFileIO implements IOInterface {
 
 	/* Model, view, controller -> g, view, controller */
 	public void initialize(Graph g, Container view, NController control) {
-		System.out.print("--> initialize()\n");
+		System.out.println("--> initialize()");
 		// g is not used because this is an IOModule and it provides g
 		_view = view;
 		_control = control;
 	}
 
 	public void heartbeat() {
-		System.out.print("--> heartbeat()\n");
+		System.out.println("--> heartbeat()");
 	}
 
 	public void cleanup() {
-		System.out.print("--> cleanup()\n");
+		System.out.println("--> cleanup()");
 	}
 
 	public JPanel ui() {

@@ -17,9 +17,12 @@ import nv2d.render.RenderSettings;
 
 public class NMenu extends JMenuBar {
 	RenderBox _renderbox;
+	NController _topLevelUI;
 	nmMods _menu_mods;
 
-	public NMenu(RenderBox r) {
+	// public NMenu(RenderBox r) {
+	public NMenu(NController j, RenderBox r) {
+		_topLevelUI = j;
 		_renderbox = r;
 		_menu_mods = new nmMods();
 
@@ -93,19 +96,29 @@ public class NMenu extends JMenuBar {
 	}
 
 	public class nmShowHide extends JMenu implements ItemListener {
+		JMenu _visualization;
 		JCheckBoxMenuItem _nlabel = new JCheckBoxMenuItem("Labels", true);
 		JCheckBoxMenuItem _stress = new JCheckBoxMenuItem("Stress", true);
 		JCheckBoxMenuItem _length = new JCheckBoxMenuItem("Length", true);
 
+		JCheckBoxMenuItem _errTxt = new JCheckBoxMenuItem("Error Messages", true);
+		JCheckBoxMenuItem _outTxt = new JCheckBoxMenuItem("Program Output", true);
+
 		public nmShowHide() {
-			super("Show/Hide");
+			super("View");
+			_visualization = new JMenu("Visualization");
 			_nlabel.addItemListener(this);
 			_stress.addItemListener(this);
 			_length.addItemListener(this);
-			add(_nlabel);
-			add(_stress);
-			add(_length);
-			addItemListener(this);
+			_errTxt.addItemListener(this);
+			_outTxt.addItemListener(this);
+			_visualization.add(_nlabel);
+			_visualization.add(_stress);
+			_visualization.add(_length);
+
+			add(_errTxt);
+			add(_outTxt);
+			add(_visualization);
 		}
 
 		public void itemStateChanged(ItemEvent e) {
@@ -114,6 +127,12 @@ public class NMenu extends JMenuBar {
 			} else if (e.getSource().equals(_stress)) {
 			} else if (e.getSource().equals(_length)) {
 				_renderbox.getRenderSettings().setBoolean(RenderSettings.SHOW_LENGTH, _length.getState());
+			} else if (e.getSource().equals(_errTxt)) {
+				// System.out.print("err " + _errTxt.getState());
+				_topLevelUI.displayErrTextBox(_errTxt.getState());
+			} else if (e.getSource().equals(_outTxt)) {
+				// System.out.print("out " + _outTxt.getState());
+				_topLevelUI.displayOutTextBox(_outTxt.getState());
 			}
 		}
 	}

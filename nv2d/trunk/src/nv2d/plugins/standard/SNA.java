@@ -57,7 +57,7 @@ public class SNA implements NV2DPlugin  {
 	}
 
 	public void initialize(Graph g, Container view, NController control) {
-		System.out.print("--> initialize()\n");
+		System.out.println("--> initialize()");
 		_graph = g;
 
 		if(g != null) {
@@ -66,12 +66,12 @@ public class SNA implements NV2DPlugin  {
 		}
 	}
 	public void heartbeat() {
-		System.out.print("--> heartbeat()\n");
+		System.out.println("--> heartbeat()");
 	}
 
 	/* TODO */
 	public void cleanup() {
-		System.out.print("--> cleanup()\n");
+		System.out.println("--> cleanup()");
 	}
 	public JPanel ui() {
 		return null;

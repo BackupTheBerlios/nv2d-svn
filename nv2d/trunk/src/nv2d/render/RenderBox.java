@@ -9,6 +9,7 @@ import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
+import java.awt.geom.Line2D;
 import java.lang.Math;
 //import java.awt.geom.AffineTransform;
 //import java.awt.image.BufferedImage;
@@ -112,7 +113,6 @@ public class RenderBox extends Display {
 		// now execute the actions to visualize the graph
 		_actions.runNow();
 		doRandomLayout();
-
 	}
 
 	public void startForceDirectedLayout() {
@@ -203,6 +203,13 @@ public class RenderBox extends Display {
 			g.rotate(-theta);
 			g.translate(-(x1+x2)/2, -(y1+y2)/2);
 		}
+
+		String [][] test = {{"test", "12"},
+			{"\\hline",""},
+			{"asd","3232"},
+			{"\\hline",""},
+			{"test2","135"}};
+		renderTable(g, (int) getDisplayX() + 5, (int) getDisplayY() + 5, "", test);
 	}
 
 	private double getTheta(int x1, int y1, int x2, int y2) {
@@ -211,6 +218,56 @@ public class RenderBox extends Display {
 
 	private void setAlpha(Graphics2D g, float alpha) {
 		g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, alpha));
+	}
+
+	private void renderTable(Graphics2D g, int x, int y, String layout, String [][] content) {
+		// overridden method to paint stuff _after_ graph elements
+		// have been drawn
+		if(content.length > 0) {
+			return;
+		}
+		String HLINE = "\\hline";
+		FontMetrics fm = g.getFontMetrics();
+		int padding = 5;
+		int fheight = fm.getAscent() + padding;
+		int [] maxWidth = new int[content[0].length];
+		int totalx, width, i, j;
+		int cols;
+
+		cols = 0;
+		for(i = 0; i < content.length; i++) {
+			if(content[i][0].equals(HLINE)) {
+				continue;
+			}
+			for(j = 0; j < content[i].length; j++) {
+				width = fm.stringWidth(content[i][j]);
+				maxWidth[j] = (width > maxWidth[j] ? width : maxWidth[j]);
+			}
+			cols++;
+		}
+
+		totalx = 0;
+		for(i = 0; i < maxWidth.length; i++ ) {
+			totalx += maxWidth[i];
+		}
+
+		g.setPaint(Color.WHITE);
+		setAlpha(g, TRANSPARENCY);
+		g.fill(new Rectangle(x, y, totalx, fheight * cols));
+		setAlpha(g, 1.0f);
+		g.setPaint(Color.BLACK);
+		g.draw(new Rectangle(x, y, totalx, fheight * cols));
+
+		y = y + fm.getAscent();
+		for(i = 0; i < content.length; i++) {
+			if(content[i][0].equals(HLINE)) {
+				g.draw(new Line2D.Double((double) x, (double) (y + padding),
+							(double) (x + totalx), (double) (y + padding)));
+			}
+			for(j = 0; j < content[i].length; j++) {
+
+			}
+		}
 	}
 
 	public class MouseController extends ControlAdapter {
