@@ -10,6 +10,7 @@ import java.util.Set;
 import java.util.HashSet;
 
 import nv2d.graph.Vertex;
+import nv2d.graph.Datum;
 import nv2d.graph.Edge;
 import nv2d.graph.Graph;
 
@@ -45,6 +46,20 @@ public class DVertex extends Vertex {
 		}
 		
 		return set;
+	}
+
+	public Vertex clone() {
+		DVertex v = new DVertex(id());
+		Set attr = getDatumSet();
+		Iterator i = attr.iterator();
+		while(i.hasNext()) {
+			Datum d = (Datum) i.next();
+			if(!d.name().matches("__.*:.*")) {
+				// not a 'reserved' system datum
+				v.setDatum(d);
+			}
+		}
+		return v;
 	}
 
 	void addInEdge(Edge e) {

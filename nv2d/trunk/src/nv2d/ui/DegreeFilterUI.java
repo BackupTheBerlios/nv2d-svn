@@ -103,8 +103,6 @@ public class DegreeFilterUI {
 				fargs[0] = selectedVertex;
 				fargs[1] = degree;
 
-				System.out.println("FDEG: " + selectedVertex + " [" + degree + "]");
-
 				ctl.runFilter(fargs);
 			}
 		});

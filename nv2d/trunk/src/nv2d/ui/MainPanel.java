@@ -12,6 +12,7 @@ import javax.swing.*;
 import nv2d.graph.FilterInterface;
 import nv2d.graph.Graph;
 import nv2d.graph.filter.DefaultFilter;
+import nv2d.graph.filter.DegreeFilter;
 import nv2d.render.RenderBox;
 import nv2d.plugins.IOInterface;
 import nv2d.plugins.NPluginManager;
@@ -126,7 +127,19 @@ public class MainPanel implements NController {
 			_originalGraph = _g;
 		}
 
-		reinitModules();
+		if(_g != null && _g.numVertices() > DegreeFilterUI.THRESHHOLD) {
+			// filter it to 2 degrees using degree filter
+			setFilter(new DegreeFilter());
+			// if clause tests for existence of vertices in graph, so next() can be used
+			runFilter(new Object[] {_g.getVertices().iterator().next(), new Integer(1)});
+			// notify user
+			JOptionPane.showMessageDialog(null,
+				"We don't recommend showing over " + DegreeFilterUI.THRESHHOLD + " vertices at onetime.\nYour graph has been filtered using the degree filter.\nChange the settings to show all vertices at the same time.",
+				"Too Many Vertices",
+				JOptionPane.WARNING_MESSAGE);
+		} else {
+			reinitModules();
+		}
 	}
 
 	public void displayOutTextBox(boolean b) {
@@ -212,7 +225,7 @@ public class MainPanel implements NController {
 	}
 
 	public Graph getModel() {
-		return _g;
+		return _originalGraph;
 	}
 
 	public RenderBox getView() {
