@@ -23,6 +23,7 @@ import edu.berkeley.guir.prefuse.action.RepaintAction;
 import edu.berkeley.guir.prefuse.action.filter.GraphFilter;
 import edu.berkeley.guir.prefuse.activity.ActionList;
 import edu.berkeley.guir.prefuse.event.ControlAdapter;
+import edu.berkeley.guir.prefuse.graph.DefaultGraph;
 import edu.berkeley.guir.prefuse.graph.Entity;
 import edu.berkeley.guir.prefuse.graph.Node;
 import edu.berkeley.guir.prefusex.controls.DragControl;
@@ -53,21 +54,13 @@ public class RenderBox extends Display {
 	private ForceSimulator _fsim;
 	private ForceDirectedLayout _flayout;
 	
-	public RenderBox(Graph g) {
+	public RenderBox() {
 		// (1) convert NV2D graph to a data structure usable by Prefuse
 		// (2) create a new item registry
 		//  the item registry stores all the visual
 		//  representations of different graph elements
-		super(new ItemRegistry(new PGraph(g)));
-		_registry = getRegistry();
+		super(new ItemRegistry(new DefaultGraph(true)));
 
-		// set up attract/repulse
-		_fsim = new ForceSimulator();
-        _fsim.addForce(new NBodyForce(-0.4f, -1f, 0.9f));
-        _fsim.addForce(new SpringForce(4E-5f, 75f));
-        _fsim.addForce(new DragForce(-0.005f));
-		_flayout = new ForceDirectedLayout(_fsim, false, false);
-		
 		// create a new display component to show the data
 		setSize(400,400);
 		pan(350, 350);
@@ -76,7 +69,27 @@ public class RenderBox extends Display {
 		addControlListener(new DragControl());
         addControlListener(new PanControl());
         addControlListener(new ZoomControl());
-		
+	}
+
+	public void clear() {
+		_registry.clear();
+		_actions = null;
+		_settings = null;
+		_fsim = null;
+		_flayout = null;
+	}
+
+	public void initialize(Graph g) {
+		_registry = getRegistry();
+		_registry.setGraph(new PGraph(g));
+
+		// set up attract/repulse
+		_fsim = new ForceSimulator();
+        _fsim.addForce(new NBodyForce(-0.4f, -1f, 0.9f));
+        _fsim.addForce(new SpringForce(4E-5f, 75f));
+        _fsim.addForce(new DragForce(-0.005f));
+		_flayout = new ForceDirectedLayout(_fsim, false, false);
+
 		// create a new action list that
 		// (a) filters visual representations from the original graph
 		// (b) performs a random layout of graph nodes
@@ -88,9 +101,7 @@ public class RenderBox extends Display {
 
 		// establish settings controller
 		_settings = new RenderSettings();
-	}
 
-	public void init() {
 		// now execute the actions to visualize the graph
 		_actions.runNow();
 		doRandomLayout();

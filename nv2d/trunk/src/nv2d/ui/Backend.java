@@ -72,7 +72,7 @@ public class Backend {
 
 	public static void init_sequence() {
 		/* initialize modules */
-		pm.all_initialize(g);
+		pm.all_initialize(g, null);
 
 		/* load data file if specified, otherwise query user for datafile */
 	}

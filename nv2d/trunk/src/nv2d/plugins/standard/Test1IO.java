@@ -1,5 +1,6 @@
 package nv2d.plugins.standard;
 
+import java.awt.Container;
 import java.io.IOException;
 import javax.swing.JMenu;
 import javax.swing.JPanel;
@@ -38,7 +39,7 @@ public class Test1IO implements IOInterface {
 		return r;
 	}
 
-	public void initialize(Graph g/* Model, View */) {
+	public void initialize(Graph g, Container view) {
 		// io-plugins can ignore this
 	}
 

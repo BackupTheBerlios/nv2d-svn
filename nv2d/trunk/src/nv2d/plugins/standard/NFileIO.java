@@ -1,5 +1,6 @@
 package nv2d.plugins.standard;
 
+import java.awt.Container;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import java.io.File;
@@ -32,6 +33,7 @@ public class NFileIO implements IOInterface {
 	String _desc;
 	String _name;
 	String _author;
+	Container _view;
 
 	private String _arg;	// argument for this module supplied from JMenu
 
@@ -72,7 +74,7 @@ public class NFileIO implements IOInterface {
 		return r;
 	}
 
-	public void initialize(Graph g/* Model, View */) {
+	public void initialize(Graph g, Container view) {
 		System.out.print("--> initialize()\n");
 	}
 

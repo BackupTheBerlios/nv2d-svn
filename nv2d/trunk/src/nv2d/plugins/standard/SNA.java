@@ -1,5 +1,6 @@
 package nv2d.plugins.standard;
 
+import java.awt.Container;
 import java.lang.Integer;
 import java.util.Hashtable;
 import java.util.Iterator;
@@ -54,7 +55,7 @@ public class SNA implements NV2DPlugin  {
 		_author= new String("Bo Shi");
 	}
 
-	public void initialize(Graph g/* Model, View */) {
+	public void initialize(Graph g, Container view) {
 		System.out.print("--> initialize()\n");
 		_graph = g;
 

@@ -1,5 +1,6 @@
 package nv2d.plugins;
 
+import java.awt.Container;
 import javax.swing.JPanel;
 import javax.swing.JMenu;
 
@@ -14,7 +15,7 @@ public interface NV2DPlugin {
 	 * Graph 
 	 * View --> TBD
 	 * */
-	void initialize(Graph g/* Model, View */);
+	void initialize(Graph g, Container view);
 
 	/** This method is called periodically by the plugin manager.  If you need
 	 * to schedule actions, use this method.

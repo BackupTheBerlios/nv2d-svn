@@ -1,5 +1,6 @@
 package nv2d.plugins;
 
+import java.awt.Container;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.util.Enumeration;
@@ -18,7 +19,7 @@ public class NPluginManager extends NPluginLoader
 		return ((NV2DPlugin) pluginRegistry.get(name));
 	}
 
-	public void all_initialize(Graph g) {
+	public void all_initialize(Graph g, Container view) {
 		/* TODO: check that requirements are met */
 
 		/* init all the valid plugins */
@@ -26,7 +27,7 @@ public class NPluginManager extends NPluginLoader
 		for ( Enumeration e = pluginRegistry.keys() ; e.hasMoreElements() ; ) {
 			String pname = (String) e.nextElement();
 			System.out.print("[" + pname + "] ");
-			getp(pname).initialize(g);
+			getp(pname).initialize(g, view);
 		}
 	}
 

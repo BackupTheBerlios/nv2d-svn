@@ -20,10 +20,10 @@ public class NV2DMain extends JFrame {
 
 	public NV2DMain(String [] args) {
 		// Important: this must be the order (loadmodules then renderbox as last two)
+		r = new RenderBox();
 		menu = new NMenu(r);
-		loadModules(args);
-		r = new RenderBox(g);
 
+		loadModules(args);
 
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 		getContentPane().add(r);
@@ -33,7 +33,7 @@ public class NV2DMain extends JFrame {
 		setVisible(true);
 
 		// run all scheduled actions in the RenderBox
-		r.init();
+		r.initialize(g);
 	}
 
 	/* Current cmd-line:
@@ -93,7 +93,7 @@ public class NV2DMain extends JFrame {
 		}
 
 		/* initialize modules */
-		pm.all_initialize(g);
+		pm.all_initialize(g, this);
 
 		/* add module UI to top level UI */
 		Iterator j = pm.iterator();
