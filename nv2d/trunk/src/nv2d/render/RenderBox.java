@@ -123,8 +123,8 @@ public class RenderBox extends Display {
 			while(i.hasNext()) {
 				VisualItem item = (VisualItem) i.next();
 				Vertex v = _ctl.getModel().findVertex(((PNode) item.getEntity()).v().id());
-				v.setDatum(new Datum(DATUM_LASTLOCATION, item.getLocation()));
-				System.out.println("Saving " + v + " at point " + item.getLocation());
+				// v.setDatum(new Datum(DATUM_LASTLOCATION, item.getLocation()));
+				// System.out.println("Saving " + v + " at point " + item.getLocation());
 			}
 		}
 		
@@ -134,6 +134,19 @@ public class RenderBox extends Display {
 		_fsim = null;
 		_flayout = null;
 		_empty = true;
+	}
+
+	public BufferedImage screenShot() {
+		BufferedImage bi = new BufferedImage(
+				(int) getWidth(),
+				(int) getHeight(),
+				BufferedImage.TYPE_INT_RGB);
+		Graphics2D g = bi.createGraphics();
+
+		// draw to image
+		update(g);
+
+		return bi;
 	}
 	
 	public void initialize(Graph g) {
@@ -170,7 +183,8 @@ public class RenderBox extends Display {
 		doRandomLayout();
 		// now take all the items which have previously been shown
 		// and render them in their old locations
-		doSavedVertexLocations();		
+		// TODO
+		// doSavedVertexLocations();		
 	}
 	
 	public void startForceDirectedLayout() {
@@ -234,13 +248,14 @@ public class RenderBox extends Display {
 	public void doSavedVertexLocations() {
 		// old locations are saved in the overall model (getModel())
 		System.out.println("   restoring... (registry size = "+_registry.size() + ")");
-		Iterator i = _registry.getNodeItems(false);
+		// Iterator i = _registry.getNodeItems(false);
+		Iterator i = _registry.getNodeItems();
 		// TODO: the registry is empty every time we do this. weird
 		while(i.hasNext()) {
 			VisualItem item = (VisualItem) i.next();
 			Vertex v = _ctl.getModel().findVertex(((PNode) item.getEntity()).v().id());
 			Datum oldloc = v.getDatum(DATUM_LASTLOCATION);
-			System.out.println("   Restoring vertex " + v + " location at " + oldloc.get());
+			// System.out.println("   Restoring vertex " + v + " location at " + oldloc.get());
 			if(oldloc != null) {
 				item.setLocation((java.awt.geom.Point2D) oldloc.get());
 			}
@@ -473,7 +488,7 @@ public class RenderBox extends Display {
 					
 					Object [] fargs = new Object[2];
 					fargs[0] = _ctl.getModel().findVertex(id);
-					fargs[1] = new Integer(1);
+					fargs[1] = _ctl.getDegreeFilter().lastArgs()[1];	// what was the last DegreeFilter setting used?
 					// this menu item is only shown when a degreefilter is active
 					// so this next line is safe
 					_ctl.runFilter(fargs, true);
