@@ -125,6 +125,12 @@ public class NPluginManager extends NPluginLoader {
 			if (filename.indexOf('$')== -1) {
 				// we have found a file corresponding to a public class
 				try {
+					if(pluginRegistry.containsKey(filename) || ioRegistry.containsKey(filename)) {
+						// don't reload plugins
+						System.err.println("Warning: plugin with name [" + filename + "] already loaded.  Ignoring.");
+						continue;
+					}
+
 					NV2DPlugin s = createPlugin(filename, PLUGIN_DIRECTORY);
 					System.out.println(" * " + filename + " plug-in loaded");
 				} catch(PluginNotCreatedException e) {
@@ -185,6 +191,15 @@ public class NPluginManager extends NPluginLoader {
 				fullname = extractPath(enum_str);
 				
 				if(pname == null || pname.length() < 1 || pname.indexOf("$") >= 0) {
+					// internal classes have the file name format
+					// PublicClass$InternalClass.class, and should not be
+					// considered.
+					continue;
+				}
+
+				if(pluginRegistry.containsKey(pname) || ioRegistry.containsKey(pname)) {
+					// don't reload plugins
+					System.err.println("Warning: plugin with name [" + pname + "] already loaded.  Ignoring.");
 					continue;
 				}
 

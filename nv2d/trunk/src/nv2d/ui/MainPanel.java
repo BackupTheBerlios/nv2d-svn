@@ -293,6 +293,9 @@ public class MainPanel implements NController {
 		} catch (JARAccessException exception) {
 			errorPopup("Could not load plugins", exception.toString(), null);
 		}
+
+		_menu.resetPluginMenu();
+		_menu.resetImporterMenu();
 		
 		/* add module UI to top level UI */
 		Iterator j = _pm.pluginIterator();

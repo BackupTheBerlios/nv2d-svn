@@ -52,7 +52,8 @@ public class NMenu extends JMenuBar {
 		
 		_pluginManagerUI = new PluginManagerUI(null, _ctl);
 		_degreeFilter = new DegreeFilter();
-		_separator = new JSeparator();
+		_separatorImporter = new JSeparator();
+		_separatorPlugin = new JSeparator();
 		
 		initComponents();
 		
@@ -70,9 +71,22 @@ public class NMenu extends JMenuBar {
 	public void addPluginMenu(JMenu m) {
 		_plugin.add(m);
 	}
+
+	public void resetImporterMenu() {
+		_mods.removeAll();
+		_mods.add(_modsClear);
+		_mods.add(_separatorImporter);
+	}
+
+	public void resetPluginMenu() {
+		_plugin.removeAll();
+		_plugin.add(_pluginLoad);
+		_plugin.add(_separatorPlugin);
+	}
 	
 	
-	private JSeparator _separator;
+	private JSeparator _separatorImporter;
+	private JSeparator _separatorPlugin;
 	
 	private JMenu _mods;
 	private JMenuItem _modsClear;
@@ -106,8 +120,9 @@ public class NMenu extends JMenuBar {
 		_mods = new JMenu("Import");
 		_modsClear = new JMenuItem("Clear Graph");
 
-		_mods.add(_modsClear);
-		_mods.add(_separator);
+		// NOTE: done in resetImporterMenu() now -bs
+		// _mods.add(_modsClear);
+		// _mods.add(_separatorImporter);
 		_modsClear.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				_modsClearActionPerformed(e);
@@ -117,9 +132,10 @@ public class NMenu extends JMenuBar {
 		// initialize the plugins menu
 		_plugin = new JMenu("Plugins");
 		_pluginLoad = new JMenuItem("Plugin Manager");
-		
-		_plugin.add(_pluginLoad);
-		_plugin.add(_separator);
+	
+		// NOTE: done in resetPluginMenu() now -bs
+		// _plugin.add(_pluginLoad);
+		// _plugin.add(_separatorPlugin);
 		_pluginLoad.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				_pluginLoadActionPerformed(e);
@@ -175,7 +191,7 @@ public class NMenu extends JMenuBar {
 		_view.add(_viewHistoryPanel);
 		_view.add(_viewErrTxt);
 		_view.add(_viewOutTxt);
-		_view.add(_separator);
+		_view.add(new JSeparator());
 		_view.add(_viewVis);
 		_view.add(_viewFilter);
 		// visualization submenu
