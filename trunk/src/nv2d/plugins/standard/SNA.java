@@ -25,6 +25,8 @@ import java.awt.event.ActionEvent;
 import java.lang.Integer;
 import java.lang.Double;
 import java.lang.NullPointerException;
+import java.text.NumberFormat;
+import java.text.DecimalFormat;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.Vector;
@@ -61,6 +63,8 @@ public class SNA implements NV2DPlugin  {
 	private Container _view;
 	private NController _control;
 
+	private NumberFormat _formatter;
+
 	/* Some datums */
 
 	/** Datum name for current index */
@@ -86,6 +90,7 @@ public class SNA implements NV2DPlugin  {
 		_desc = new String("This plugin calculates basic social network analysis measures for a graph and it's elements.");
 		_name = new String("SNA");
 		_author= new String("Bo Shi");
+		_formatter = new DecimalFormat("#.00");
 		_inited = false;
 	}
 
@@ -291,19 +296,19 @@ public class SNA implements NV2DPlugin  {
 		double m_grpDegree = grp_degree(m_degree);
 
 		_graph.setDatum(new Datum(DATUM_GRP_DENSITY, new Double(m_grpDensity)));
-		System.out.println("   Group Density = " + m_grpDensity);
+		System.out.println("   Group Density = " + _formatter.format(m_grpDensity));
 
 		_graph.setDatum(new Datum(DATUM_GRP_TRANSITIVITY, new Double(m_grpTransitivity)));
-		System.out.println("   Group Transitivity = " + m_grpTransitivity);
+		System.out.println("   Group Transitivity = " + _formatter.format(m_grpTransitivity));
 
 		_graph.setDatum(new Datum(DATUM_GRP_BETWEENNESS, new Double(m_grpBetweenness)));
-		System.out.println("   Group Betweenness= " + m_grpBetweenness);
+		System.out.println("   Group Betweenness= " + _formatter.format(m_grpBetweenness));
 
 		_graph.setDatum(new Datum(DATUM_GRP_CLOSENESS, new Double(m_grpCloseness)));
-		System.out.println("   Group Closeness= " + m_grpCloseness);
+		System.out.println("   Group Closeness= " + _formatter.format(m_grpCloseness));
 
 		_graph.setDatum(new Datum(DATUM_GRP_DEGREE, new Double(m_grpDegree)));
-		System.out.println("   Group Degree = " + m_grpDegree);
+		System.out.println("   Group Degree = " + _formatter.format(m_grpDegree));
 
 
 		String [] vtx_names = new String[_vtx_index_tbl.length];
@@ -332,31 +337,31 @@ public class SNA implements NV2DPlugin  {
 		System.out.println("   Betweenness:");
 		for(v = 0; v < _graph.numVertices(); v++) {
 			_vtx_index_tbl[v].setDatum(new Datum(DATUM_BETWEENNESS, new Double(m_betweenness[v])));
-			System.out.println("      [" + vtx_names[v] + "]\t" + m_betweenness[v]);
+			System.out.println("      [" + vtx_names[v] + "]\t" + _formatter.format(m_betweenness[v]));
 		}
 
 		System.out.println("   Closeness:");
 		for(v = 0; v < _graph.numVertices(); v++) {
 			_vtx_index_tbl[v].setDatum(new Datum(DATUM_CLOSENESS, new Double(m_closeness[v])));
-			System.out.println("      [" + vtx_names[v] + "]\t" + m_closeness[v]);
+			System.out.println("      [" + vtx_names[v] + "]\t" + _formatter.format(m_closeness[v]));
 		}
 
 		System.out.println("   Degree:");
 		for(v = 0; v < _graph.numVertices(); v++) {
 			_vtx_index_tbl[v].setDatum(new Datum(DATUM_DEGREE, new Double(m_degree[v])));
-			System.out.println("      [" + vtx_names[v] + "]\t" + m_degree[v]);
+			System.out.println("      [" + vtx_names[v] + "]\t" + _formatter.format(m_degree[v]));
 		}
 
 		System.out.println("   In-Degree:");
 		for(v = 0; v < _graph.numVertices(); v++) {
 			_vtx_index_tbl[v].setDatum(new Datum(DATUM_INDEGREE, new Double(m_indegree[v])));
-			System.out.println("      [" + vtx_names[v] + "]\t" + m_indegree[v]);
+			System.out.println("      [" + vtx_names[v] + "]\t" + _formatter.format(m_indegree[v]));
 		}
 
 		System.out.println("   Out-Degree:");
 		for(v = 0; v < _graph.numVertices(); v++) {
 			_vtx_index_tbl[v].setDatum(new Datum(DATUM_OUTDEGREE, new Double(m_outdegree[v])));
-			System.out.println("      [" + vtx_names[v] + "]\t" + m_outdegree[v]);
+			System.out.println("      [" + vtx_names[v] + "]\t" + _formatter.format(m_outdegree[v]));
 		}
 	}
 
