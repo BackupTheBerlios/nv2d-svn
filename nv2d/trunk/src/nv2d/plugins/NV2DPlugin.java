@@ -1,4 +1,4 @@
-package plugins;
+package nv2d.plugins;
 
 import javax.swing.JPanel;
 import javax.swing.JMenu;
