@@ -24,6 +24,10 @@ public class NV2DMain extends JFrame {
 		pack();
 		setVisible(true);
 
+		// testing
+		r.editText("Hello World!", new java.awt.Rectangle(50, 50, 500, 100));
+		// end testing
+
 		// run all scheduled actions in the RenderBox
 		r.init();
 	}
