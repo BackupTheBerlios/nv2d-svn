@@ -13,7 +13,11 @@
 \maketitle
 
 \begin{abstract}
-This report details the design and implementation of the traffic light controller.
+This report details the design and implementation of a relatively simple
+traffic light controller.  The intersection for which this controller is being
+designed also has a walk lamp and traffic sensor (along one street).  The controller
+is implemented using a High Level Description language and a module--by--module
+description of the  TODO TODO TODO
 \end{abstract}
 
 \newpage
@@ -29,13 +33,46 @@ This report details the design and implementation of the traffic light controlle
 % \pagenumbering{arabic}
 % \setcounter{page}{1}
 \section{Design Overview}
-	blah abalha aga og
-
+	\subsection{Requirements}
+		The intersection of Main Street and Side Street is having a traffic
+		light installed.  Both streets will have a red, yellow, and green light
+		signal.  There will also be a single walk signal which will halt all
+		traffic and serve pedestrians crossing either street.  A sensor is
+		installed on Side street to monitor traffic.  The behavior of the
+		controller should also take into consideration traffic conditions,
+		provided by a sensor.  In particular, if traffic is heavy along Side
+		street, the time duration of Main Street's green signal should be
+		shortened.  Similarly, the time duration of Side Street's green signal
+		should be lengthened if the sensor detects traffic on Side Street.
+		
 	\subsection{Setup}
-		The four inputs to the controller were push buttons.  The
-		output was a 7-bit value ordered as the figure shows.
-		The FPGA used was an Altera Flex 10K10 clocked with a 1.8432 Mhz
-		crystal oscillator.
+		The traffic light controller accepts four asynchronous inputs and two
+		2-bit and 4-bit synchrnoized inputs and has a seven bit output
+		controlling the switching of the traffic lights and the walk signal.
+		The four asynchronous inputs to the controller are push buttons serving
+		the following roles:
+		\begin{itemize}
+			\item Resetting the traffic light controller
+			\item Sensor data from the streets
+			\item Walk requests from pedestrians\footnote{It is assumed that all corners of the intersection have a walk request and that all requests will be sent as a single signal using a wired--OR.}
+			\item Reprogram request
+		\end{itemize}
+
+		The two synchronized inputs allow control over the duration which
+		various states last (for example, one may change the duration of
+		yellow-light intervals).  The output is a 7-bit value ordered as
+		Table~\ref{tbl:output} shows.  The FPGA used was an Altera Flex 10K10
+		clocked with a 1.8432 Mhz crystal oscillator.
+		\begin{table}
+		\centering
+			\begin{tabular}{|c|c|c|c|c|c|c|}
+			\hline
+			Bit 6 & Bit 5 & Bit 4 & Bit 3 & Bit 2 & Bit 1 & Bit 0 \\ \hline
+			Main Red & Main Yellow & Main Green & Side Red & Side Yellow & Side Green & Walk \\ \hline
+			\end{tabular}
+		\caption{Output Setup}
+		\label{tbl:output}
+		\end{table}
 	
 
 	\subsection{Module Overview}
@@ -54,7 +91,9 @@ This report details the design and implementation of the traffic light controlle
 
 		\subsubsection{Finite State Machine (FSM)}
 			The specifications for operation are discussed in
-			subsequent sections.
+			subsequent sections.  The FSM determines the output of the
+			traffic light controller at any given time based on
+			timing information retrived from the time modules.
 
 		\subsubsection{Time Parameters}
 			This module determines the duration of a given state
@@ -62,58 +101,78 @@ This report details the design and implementation of the traffic light controlle
 			durations are available (see Figure 
 
 		\subsubsection{Timer}
-			The timer module signals the FSM upon the end of the
-			time duration specified by the time parameters module.
+			At the request of the FSM, the timer module begins counting down a
+			duration specified by the Time Parameters module and signals the
+			FSM upon the end of the time duration.
 
 		\subsubsection{Divider}
-			The divider sends out a pulse every second.  The c
+			The divider sends out a pulse every second.
 
 \section{Module Implementation}
 	\subsection{Walk Register}
-		The walk register module has an internal bit that is set to
-		high when a walk signal has been requested.  When the FSM exits
-		the \texttt{walk} state, a \texttt{wr\_reset} pulse is sent and
-		gives the register a value of zero.
+		The walk register module has an internal bit that is set to high when a
+		walk signal, \texttt{wr\_sync}, has been requested.  The \texttt{wr}
+		output of the walk register module is held high until this request is
+		honored.  When the FSM exits the \texttt{S\_walk} state, a
+		\texttt{wr\_reset} pulse is sent by the FSM and the register is set to
+		a value of zero.
+
+	\begin{figure}
+	\centering
+	\includegraphics[scale=0.25]{block.ps}
+	\caption{Block diagram of the modules inside the traffic light controller.}
+	\label{fig:block}
+	\end{figure}
 
 	\subsection{Timer}
 		The timer keeps an internal 4-bit counter.  When it recieves a
 		pulse from the Divider module, the counter decrements.  When
 		the counter's value is one, it sends out an {\texttt{expired}}
 		pulse to the FSM.  Upon reception of a {\texttt{start\_timer}}
-		pulse, the Timer will load a new counter value from the Time
-		Parameter module and begin counting down.
+		pulse, the Timer will load a new counter value (the \texttt{value}
+		signal) from the Time Parameter module and begin counting down.  The
+		timer module is notified whenever 1 second elapses by a
+		\texttt{onehzenable} pulse from the Divider module.
 
 	\subsection{Time Parameters}
-		The specification states that the time parameters should be
-		programmable.  On the \texttt{prog\_sync} pulse, the module will
-		read the 4--bit time value (the input ``Time Value'' in
+		This module maintains a table of integer values which represent
+		the correct duration of a given state.  The data that this module
+		provides is used by the Timer module to count the duration of the FSM's
+		current state so that it can notify the FSM to change state.  The timer
+		module provides timing data according to the state of the FSM (through
+		the 2-bit \texttt{interval} signal).  The default timing values are
+		given in Table~\ref{tbl:timeparam}.
+
+		The specification also states that the time parameters should be
+		programmable.  On the \texttt{prog\_sync} pulse, the module will read
+		the 4--bit time value (the input ``Time Value'' in
 		Figure~\ref{fig:block} and program the interval selected by the 2--bit
-		select signal (the input ``Time Parameter Selector'').
-		It is possible that an error might cause a value of zero might be
-		programmed as one of the time parameters.  Since the \texttt{expired}
-		signal is only sent when the timer counter has value 1, a programmed
-		value of zero will simply cause the time parameter to become 16 seconds
-		long.
+		select signal\footnote{It is assumed that these signals are in steady
+		state when the reprogram button is pushed so that a synchronizer is not
+		necessary.} (the input ``Time Parameter Selector'').  It is possible
+		that an error might cause a value of zero might be programmed as one of
+		the time parameters.  Since the \texttt{expired} signal is only sent
+		when the timer counter has value 1, a programmed value of zero will
+		simply cause the time parameter to become 16 seconds long because the
+		value in the register will simply wrap around to 0xF when 1 is
+		subtracted from 0.
 
 	\subsection{Divider}
 		The divider maintains a N-bit counter capable of holding a
 		value larger and or equal to the clock frequency.  The clock
 		used for the traffic light controller is a 1.8432 Mhz crystal
 		oscillator.  Consequently, each time the Divider counter
-		reached 1,843,200, the counter was reset and the {\texttt{
-		onehzenable}} pulse was sent to the Timer.
+		reached 1,843,200, the counter was reset and the \texttt{onehzenable}
+		pulse was sent to the Timer.
 
 	\begin{figure}
 	\centering
-	\includegraphics{fsm.ps}
+	\includegraphics[scale=0.25]{fsm.ps}
 	\caption{Finite State Machine for the Traffic Light Controller}
 	\label{fig:fsm}
 	\end{figure}
 
 	\subsection{Finite State Machine}
-		Figure~\ref{fig:fsm} shows the finite state machine controlling
-		the lights.
-
 		When RESET is asserted, the FSM enters the \texttt{S\_RESET}
 		state\footnote{The original design used \texttt{S\_main\_green} as both
 		the initial state and the reset state.  This was changed because the
@@ -121,7 +180,24 @@ This report details the design and implementation of the traffic light controlle
 		be asserted during actual operation, it would be best to have a period
 		of all red lights so that actual traffic does not get adversely
 		confused.}.  The \texttt{S\_RESET} state lasts for 3 seconds and then
-		the controller starts normal operation.  Normal operation 
+		the controller starts normal operation.  As indicated by the state
+		transition diagram (Figure~\ref{fig:fsm}), the default duration of Main Street's
+		green light is $2 \cdot t_{base}$.  For Side Street, green signals will
+		only last $t_{base}$ seconds. The default duration of any Yellow signal
+		is $t_{ext}$.  The controller will behave normally unless the sensor
+		detects traffic or a walk signal has been requested (\texttt{sensor} or
+		\texttt{wr} signal is high).  In these cases, the new states will go
+		according to what the state transition diagram shows;  a walk interval
+		will occur \emph{only} after a Main Street yellow signal and the green signal
+		will lengthen for Side Street or shorten for Main Street if the sensor
+		detects traffic on Side Street.
+
+		The \texttt{RESET} state is entered when the reset button is pushed or
+		when the program button is pushed.
+		When a \texttt{prog\_sync} pulse is sent, the Timer Parameters module
+		reprograms itself and so the FSM should enter into the \texttt{RESET}
+		state.  This type of transition into the \texttt{RESET} state may occur
+		from any state.
 	
 	\begin{table}
 	\centering
@@ -139,6 +215,8 @@ This report details the design and implementation of the traffic light controlle
 
 \section{Debugging}
 	...Was a pain in the ass.
+
+	There was a misunderstanding of the requirements.
 
 	The timer originally sent the \texttt{expired} signal when it's counter
 	reached zero.  This caused two problems observed in simulation.  First,
