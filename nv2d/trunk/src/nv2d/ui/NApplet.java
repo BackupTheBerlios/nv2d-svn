@@ -11,7 +11,7 @@ import nv2d.plugins.NPluginManager;
 import nv2d.plugins.NPluginLoader;
 import nv2d.plugins.NV2DPlugin;
 
-public class NApplet extends JFrame implements NController {
+public class NApplet extends JApplet implements NController {
 	public static final String DEFAULT_PLUGIN_DIR = "build/nv2d/plugins/standard";
 	
 	private NPluginManager _pm;
@@ -19,21 +19,31 @@ public class NApplet extends JFrame implements NController {
 	private RenderBox _r;
 	private NMenu _menu;
 
-	public NApplet() {
+	public void init() {
 		// Important: this must be the order (loadmodules then renderbox as last two)
 		_r = new RenderBox();
 		_menu = new NMenu(_r);
 
-		loadModules();
+		try {
+			loadModules();
+		} catch (java.security.AccessControlException e) {
+			getContentPane().add(new JLabel("Due to security restrictions, this applet cannot load the appropriate plugins."));
+			setVisible(true);
+			return;
+		}
 
-		initialize(null);
-
-		setDefaultCloseOperation(EXIT_ON_CLOSE);
 		getContentPane().add(_r);
-		setTitle("NV2D");
 		setJMenuBar(_menu);
-		pack();
 		setVisible(true);
+	}
+
+	public void start() {
+		try {
+			initialize(null);
+		} catch (java.security.AccessControlException e) {
+			getContentPane().add(new JLabel("Due to security restrictions, this applet cannot load the appropriate plugins."));
+			return;
+		}
 	}
 
 	/** This method takes in string arguments provided and attempts to
@@ -82,18 +92,11 @@ public class NApplet extends JFrame implements NController {
 		_r.initialize(_g);
 	}
 
-	/* Current cmd-line:
-	 * Backend [path to plugins] [io_plugin] [io parameters ...]
-	 */
-	public static void main(String [] args) {
-		new NApplet();
-	}
-
-
 	public void loadModules() {
 		_pm = new NPluginManager();
 
-		_pm.loadFromJar("jar:http://web.mit.edu/bshi/www/N2.jar!/");
+		// pass in parent class loader (necessary for Applets)
+		_pm.loadFromJar(getClass().getClassLoader(), "jar:http://web.mit.edu/bshi/www/N2.jar!/");
 
 		/* add module UI to top level UI */
 		Iterator j = _pm.pluginIterator();

@@ -86,14 +86,15 @@ public class NV2DMain extends JFrame implements NController {
 	 * Backend [path to plugins] [io_plugin] [io parameters ...]
 	 */
 	public static void main(String [] args) {
-		new NApplet();
+		new NV2DMain();
 	}
 
 
 	public void loadModules() {
 		_pm = new NPluginManager();
 
-		_pm.load(DEFAULT_PLUGIN_DIR);
+		// pass in parent class loader (necessary for Applets)
+		_pm.loadFromJar(getClass().getClassLoader(), "jar:http://web.mit.edu/bshi/www/N2.jar!/");
 
 		/* add module UI to top level UI */
 		Iterator j = _pm.pluginIterator();

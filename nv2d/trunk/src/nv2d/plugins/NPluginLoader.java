@@ -122,15 +122,15 @@ public abstract class NPluginLoader
 		} catch (IllegalAccessException e) {
 			System.err.println("The class '" + name + "' could not be accessed.");
 			System.err.println(e.toString());
-			throw(new PluginNotCreatedException("Could not find the plugin [" + name + "]"));
+			throw(new PluginNotCreatedException("NPluginLoader: IllegalAccessException: " + name));
 		} catch (InstantiationException e) {
 			System.err.println("The class '" + name + "' is not a valid NV2D plugin.");
 			System.err.println(e.toString());
-			throw(new PluginNotCreatedException("Could not find the plugin [" + name + "]"));
+			throw(new PluginNotCreatedException("NPluginLoader: InstantiationException: " + name));
 		} catch (ClassCastException e) {
 			System.err.println("The class '" + name + "' is not a valid NV2D plugin.");
 			System.err.println(e.toString());
-			throw(new PluginNotCreatedException("Could not find the plugin [" + name + "]"));
+			throw(new PluginNotCreatedException("NPluginLoader: ClassCastException: " + name));
 		}
 		return classptr;
 	}

@@ -4,6 +4,7 @@ import java.awt.Container;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.lang.Class;
+import java.lang.ClassLoader;
 import java.lang.ClassNotFoundException;
 import java.lang.Object;
 import java.net.MalformedURLException;
@@ -86,12 +87,12 @@ public class NPluginManager extends NPluginLoader
 		}
 	}
 
-	public void loadFromJar(String url) {
+	public void loadFromJar(ClassLoader parent, String url) {
 		URLClassLoader loader = null;
 		String pname = null;
 		String fullname = null;
 		try {
-			loader = new URLClassLoader(new URL[] { new URL(url) });
+			loader = new URLClassLoader(new URL[] { new URL(url) }, parent);
 		} catch (MalformedURLException ex) {
 			System.err.println("  The url for the JAR file [" + url + "] is malformed");
 			System.err.println(ex.toString());
