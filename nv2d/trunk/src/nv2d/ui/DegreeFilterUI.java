@@ -6,6 +6,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.lang.Integer;
 import java.lang.NumberFormatException;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
@@ -64,7 +65,9 @@ public class DegreeFilterUI {
 		}
 
 		// create the swing elements for the dialog
-		final JComboBox vertices = new JComboBox(g.getVertices().toArray());
+		Object [] vnames = g.getVertices().toArray();
+		Arrays.sort(vnames);
+		final JComboBox vertices = new JComboBox(vnames);
 		final JComboBox degree = new JComboBox(vlist);
 		JButton confirm = new JButton("Filter");
 		degree.setToolTipText("Vertices will be filtered according to the degree of separation between the vertex and the central vertex.");
