@@ -90,18 +90,15 @@ public class NFileIO implements IOInterface {
 
 	/* Model, view, controller -> g, view, controller */
 	public void initialize(Graph g, Container view, NController control) {
-		System.out.println("--> initialize()");
 		// g is not used because this is an IOModule and it provides g
 		_view = view;
 		_control = control;
 	}
 
 	public void heartbeat() {
-		System.out.println("--> heartbeat()");
 	}
 
 	public void cleanup() {
-		System.out.println("--> cleanup()");
 	}
 
 	public JPanel ui() {
