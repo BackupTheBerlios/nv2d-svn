@@ -1,5 +1,6 @@
 package nv2d.ui;
 
+import java.awt.Container;
 import java.lang.String;
 import java.net.URL;
 import java.util.Set;
@@ -40,6 +41,18 @@ public interface NController {
 	 * @return returns a {@link nv2d.render.RenderBox} object.
 	 */
 	public RenderBox getView();
+	
+	/**
+	 * Returns the parent container for the main panel.
+	 * @return returns a content pane object which holds this controller.
+	 */
+	public Container getParent();
+	
+	/**
+	 * Returns a Frame or Applet depending on the top level container.
+	 * @param returns a {@link java.awt.Frame} or {@link java.awt.Applet} object
+	 */
+	public Container getWindow();
 	
 	// other accessors
 	/**

@@ -18,7 +18,7 @@ import nv2d.plugins.NV2DPlugin;
 
 public class NV2DMain extends JFrame {
 	public NV2DMain() {
-		MainPanel panel = new MainPanel(getContentPane());
+		MainPanel panel = new MainPanel(this, getContentPane());
 		panel.start();
 		
 		setDefaultCloseOperation(EXIT_ON_CLOSE);

@@ -1,23 +1,29 @@
 package nv2d.render;
 
 import java.util.Arrays;
+import java.net.*;
 import javax.swing.*;
 import javax.swing.SpringLayout;
 import java.awt.*;
+import java.awt.event.*;
+import java.applet.*;
 
 
 import nv2d.graph.GraphElement;
 import nv2d.graph.Datum;
+import nv2d.ui.NController;
 
 public class PopupProp extends JPanel {
-	
-	public PopupProp(GraphElement ge) {
+	private NController _ctl;
+	public PopupProp(NController ctl, GraphElement ge) {
+		_ctl = ctl;
+		
 		setLayout(new SpringLayout());
+		setBorder(new javax.swing.border.LineBorder(new java.awt.Color(0, 0, 0)));
+		//setBorder(new javax.swing.border.TitledBorder(ge.id() + " [" + ge.getClass() + "]"));
 		
 		Object [] datums = ge.getDatumSet().toArray();
 		Arrays.sort(datums);
-		
-		System.out.println(" # datums ["+ge.id()+"]: " + datums.length);
 		
 		if(datums.length < 1) {
 			return;
@@ -25,16 +31,51 @@ public class PopupProp extends JPanel {
 		
 		for(int j = 0; j < datums.length; j++) {
 			Datum d = (Datum) datums[j];
-			add(new JLabel(d.name()));
-			add(new JLabel(d.get().toString()));
+			JLabel col1, col2;
+			col1 = new JLabel(d.name() + ": ");
+			
+			if(d.get() instanceof URL) {
+				col2 = createURLButton((URL) d.get());
+			}
+			else if(d.get().toString().length() > 32) {
+				col2 = new JLabel(d.get().toString().substring(0,31) + "...");
+				col2.setToolTipText(d.get().toString());
+			} else {
+				col2 = new JLabel(d.get().toString());
+			}
+			
+			add(col1);
+			add(col2);
 		}
-		
-		setBorder(new javax.swing.border.TitledBorder(ge.id() + " [" + ge.getClass() + "]"));
 		
 		makeCompactGrid(this,
 				datums.length, 2,
 				0, 0,
 				5, 0);
+	}
+	
+	private JLabel createURLButton(final URL url) {
+		String str = url.toString();
+		JLabel l = new JLabel(str.length() > 32 ? str.substring(0, 31) + "..." : str);
+		l.setToolTipText("Open location [" + str + "]");
+		l.setForeground(Color.BLUE);
+		if(_ctl.getWindow() instanceof Applet) {
+			l.addMouseListener(new MouseListener() {
+				public void mousePressed(MouseEvent e) {}
+				public void mouseReleased(MouseEvent e) {}
+				public void mouseClicked(MouseEvent e) {
+					_openURLActionHandler(url);
+				}
+				public void mouseEntered(MouseEvent e) {}
+				public void mouseExited(MouseEvent e) {}
+			});
+		}
+		return l;
+	}
+	
+	private void _openURLActionHandler(URL url) {
+		AppletContext act = ((Applet) _ctl.getWindow()).getAppletContext();
+		act.showDocument(url, "nv2dnetshow");
 	}
 	
 	/**

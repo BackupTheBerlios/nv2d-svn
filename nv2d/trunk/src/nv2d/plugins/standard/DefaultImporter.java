@@ -4,6 +4,7 @@ import java.awt.Container;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import java.io.IOException;
+import java.net.URL;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
@@ -13,7 +14,7 @@ import nv2d.plugins.NV2DPlugin;
 import nv2d.plugins.IOInterface;
 
 import nv2d.graph.Graph;
-
+import nv2d.graph.Datum;
 import nv2d.graph.directed.DEdge;
 import nv2d.graph.directed.DGraph;
 import nv2d.graph.directed.DVertex;
@@ -94,7 +95,7 @@ public class DefaultImporter implements IOInterface {
 	public static DGraph mkgraph() {
 		DGraph graph = new DGraph();
 		DVertex a = new DVertex("a");
-		DVertex b = new DVertex("b");
+		DVertex b = new DVertex("bshi");
 		DVertex c = new DVertex("c");
 		DVertex d = new DVertex("d");
 		DVertex e = new DVertex("e");
@@ -103,6 +104,13 @@ public class DefaultImporter implements IOInterface {
 		DVertex h = new DVertex("h");
 		DVertex i = new DVertex("i");
 		DVertex j = new DVertex("j");
+		
+		try {
+			b.setDatum(new Datum("URL", new URL("http://web.mit.edu/bshi/www")));
+		} catch (java.net.MalformedURLException exception) {
+			// do nothing
+			System.err.println("Could not set URL datum");
+		}
 
 		DEdge e0 = new DEdge(a, b, 4.0f);
 		DEdge e1 = new DEdge(b, a, 74.0f);

@@ -22,6 +22,7 @@ import nv2d.plugins.NV2DPlugin;
 
 public class MainPanel implements NController {
 	private Container _parentContainer;
+	private Container _topLevelContainer;
 	private NPluginManager _pm;
 	private Graph _g;	// current view
 	private Graph _originalGraph;	// original full set
@@ -38,7 +39,7 @@ public class MainPanel implements NController {
 	
 	private DegreeFilter _degreeFilter = new DegreeFilter();
 	
-	public MainPanel(Container parent) {
+	public MainPanel(Container topLevel, Container parent) {
 		/* The following font bit is taken from
 		 * http://forum.java.sun.com/thread.jsp?thread=125315&forum=57&message=330309
 		 * Thanks to 'urmasoft' for the post
@@ -55,6 +56,7 @@ public class MainPanel implements NController {
 		}
 		
 		_parentContainer = parent;
+		_topLevelContainer = topLevel;
 		_bottomPane = new BottomPanel(this);
 		
 		// Important: this must be the order (loadmodules then renderbox as last two)
@@ -90,6 +92,14 @@ public class MainPanel implements NController {
 			_tabs.add("Fatal Error", new JLabel("Due to security restrictions, this applet cannot load the appropriate plugins."));
 			return;
 		}
+	}
+	
+	public Container getParent() {
+		return _parentContainer;
+	}
+	
+	public Container getWindow() {
+		return _topLevelContainer;
 	}
 	
 	public JTabbedPane getCenterPane() {

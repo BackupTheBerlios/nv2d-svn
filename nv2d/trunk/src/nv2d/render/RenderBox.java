@@ -91,7 +91,7 @@ public class RenderBox extends Display {
 		
 		// establish settings controller
 		_settings = new RenderSettings();
-		_pFactory = new PopupFactory().getSharedInstance();
+		_pFactory = (PopupFactory) new PopupFactory().getSharedInstance();
 		
 		_ctl = ctl;
 		// setup the popup menu for vertices
@@ -370,12 +370,12 @@ public class RenderBox extends Display {
 			if(_popup == null) {
 				// show popup
 				nv2d.graph.GraphElement geData = p.getNV2DGraphElement();
-				_popup = _pFactory.getPopup(_parent, new PopupProp(geData), e.getX(), e.getY());
+				_popup = _pFactory.getPopup(_parent, new PopupProp(_ctl, geData), e.getX(), e.getY());
 				_popup.show();
 			} else {
 				_popup.hide();
 				nv2d.graph.GraphElement geData = p.getNV2DGraphElement();
-				_popup = _pFactory.getPopup(_parent, new PopupProp(geData), e.getX(), e.getY());
+				_popup = _pFactory.getPopup(_parent, new PopupProp(_ctl, geData), e.getX(), e.getY());
 				_popup.show();
 			}
 			
