@@ -87,7 +87,7 @@ public class NPluginManager extends NPluginLoader
 		}
 	}
 
-	public void loadFromJar(ClassLoader parent, String url) {
+	public boolean loadFromJar(ClassLoader parent, String url) {
 		URLClassLoader loader = null;
 		String pname = null;
 		String fullname = null;
@@ -96,8 +96,13 @@ public class NPluginManager extends NPluginLoader
 		} catch (MalformedURLException ex) {
 			System.err.println("  The url for the JAR file [" + url + "] is malformed");
 			System.err.println(ex.toString());
+			return false;
 		}
-		for(Enumeration e = JarListing.getPluginListing(url, PLUGIN_DIRECTORY); e.hasMoreElements();) {
+		Enumeration e = JarListing.getPluginListing(url, PLUGIN_DIRECTORY);
+		if(e == null) {
+			return false;
+		}
+		for(e = e; e.hasMoreElements();) {
 			try {
 				// pname = ((String) e.nextElement()).replace('/', '.');
 				String enum_str = (String) e.nextElement();
@@ -124,5 +129,6 @@ public class NPluginManager extends NPluginLoader
 				System.err.println("  -> The file is not an NV2D plugin.");
 			}
 		}
+		return true;
 	}
 }

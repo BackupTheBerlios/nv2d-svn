@@ -202,7 +202,12 @@ public class MainPanel implements NController {
 		_pm = new NPluginManager();
 
 		// pass in parent class loader (necessary for Applets)
-		_pm.loadFromJar(getClass().getClassLoader(), "jar:http://web.mit.edu/bshi/www/N2.jar!/");
+		if(!_pm.loadFromJar(getClass().getClassLoader(), "jar:http://web.mit.edu/bshi/www/N2.jar!/")) {
+			JOptionPane.showMessageDialog(null,
+				"NV2D could not find any plugins.  Please specify a location where plugins may be found.",
+				"No Plugins Found",
+				JOptionPane.WARNING_MESSAGE);
+		}
 
 		/* add module UI to top level UI */
 		Iterator j = _pm.pluginIterator();

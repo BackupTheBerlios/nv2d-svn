@@ -3,6 +3,7 @@ package nv2d.utils;
 import java.io.File;
 import java.io.IOException;
 import java.lang.String;
+import java.lang.NullPointerException;
 import java.net.JarURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -58,6 +59,9 @@ public class JarListing {
 			return null;
 		} catch (IOException e) {
 			System.err.println(e);
+			return null;
+		} catch (java.lang.NullPointerException e) {
+			System.err.println("JarListing: Could not find a plugin listing.");
 			return null;
 		}
 	}
