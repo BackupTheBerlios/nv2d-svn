@@ -173,6 +173,10 @@ public class Orgstudies implements NV2DPlugin, FilterInterface {
 		_filterArgs = args;
 	}
 	
+	public Object [] lastArgs() {
+		return _filterArgs;
+	}
+	
 	public Graph filter() {
 		// this method can only be called when the function has been initialized
 		assert(_inited);
