@@ -3,7 +3,13 @@ package nv2d.graph;
 import java.lang.ClassCastException;
 import java.lang.Comparable;
 
-/* Stores one piece of information with an identifier */
+/** Stores one piece of information with an identifier.
+ *
+ * <p><b>A note about Datum naming convention:</b><br>
+ * Datum's with names beginning with two underscores (i.e. '__sna_cache') will
+ * not be shown.  These will be considered internal variables.  All others will
+ * be displayed (if possible) in the visualization.
+ * */
 public class Datum implements Comparable {
 	protected String _name;
 	protected Object _value;

@@ -5,7 +5,7 @@ public interface RenderConstants {
 	static final public double DEFAULT_VERTEX_RADIUS = 5.0;
 
 	// literals
-	static final public String DATUM_RELEMENT_POINTER = "render:RElement";
+	static final public String DATUM_RELEMENT_POINTER = "__render:RElement";
 
 	// error messages here
 }
