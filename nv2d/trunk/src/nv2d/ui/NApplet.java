@@ -1,6 +1,9 @@
 package nv2d.ui;
 
+import java.awt.*;
 import java.io.IOException;
+import java.util.Enumeration;
+import java.util.Hashtable;
 import java.util.Iterator;
 import javax.swing.*;
 
@@ -18,14 +21,51 @@ public class NApplet extends JApplet implements NController {
 	private Graph _g;
 	private RenderBox _r;
 	private NMenu _menu;
+	private JTabbedPane _tabs;
 
-	private NPrintStream _err;
-	private NPrintStream _out;
+	private JComponent _outTextBox, _errTextBox;
+
+	private NPrintStream _err, _out;
 
 	public void init() {
+		/* The following font bit is taken from
+		 * http://forum.java.sun.com/thread.jsp?thread=125315&forum=57&message=330309
+		 * Thanks to 'urmasoft' for the post
+		 */
+		Hashtable oUIDefault = UIManager.getDefaults();
+		Enumeration oKey = oUIDefault.keys();
+		String oStringKey = null;
+
+		while (oKey.hasMoreElements()) {
+			oStringKey = oKey.nextElement().toString();
+			if (oStringKey.endsWith("font") || oStringKey.endsWith("acceleratorFont")) {
+				UIManager.put(oStringKey, new Font("Dialog", Font.PLAIN, 10));
+			}
+		}
+
 		// Important: this must be the order (loadmodules then renderbox as last two)
 		_r = new RenderBox();
 		_menu = new NMenu(this, _r);
+		_tabs = new JTabbedPane();
+
+		_tabs.setPreferredSize(new Dimension(700, 500));
+
+		// trap output to standard streams and display them in a text box
+		JTextArea errTxt = new JTextArea();
+		JTextArea outTxt = new JTextArea();
+		JScrollPane sp1 = new JScrollPane(errTxt);
+		JScrollPane sp2 = new JScrollPane(outTxt);
+		_err = new NPrintStream(System.err);
+		_out = new NPrintStream(System.out);
+		System.setOut(_out);
+		System.setErr(_err);
+		_err.addNotifyClient(errTxt);
+		_out.addNotifyClient(outTxt);
+		_tabs.add("Display", _r);
+		_tabs.add("Output", sp2);
+		_tabs.add("Errors", sp1);
+		_outTextBox = sp2;
+		_errTextBox = sp1;
 
 		try {
 			loadModules();
@@ -34,11 +74,6 @@ public class NApplet extends JApplet implements NController {
 			setVisible(true);
 			return;
 		}
-
-		// trap output to standard streams and display them in a text box
-		_err = new NPrintStream(System.err);
-		_out = new NPrintStream(System.out);
-		
 
 		getContentPane().add(_r);
 		setJMenuBar(_menu);
@@ -101,11 +136,25 @@ public class NApplet extends JApplet implements NController {
 	}
 
 	public void displayOutTextBox(boolean b) {
+		if(b) {
+			_tabs.add("Output", _outTextBox);
+		} else {
+			_tabs.remove(_outTextBox);
+		}
+		_tabs.validate();
+		_tabs.repaint();
 	}
 
 	public void displayErrTextBox(boolean b) {
+		if(b) {
+			_tabs.add("Errors", _errTextBox);
+		} else {
+			_tabs.remove(_errTextBox);
+		}
+		_tabs.validate();
+		_tabs.repaint();
 	}
-
+	
 	public void loadModules() {
 		_pm = new NPluginManager();
 
@@ -118,7 +167,7 @@ public class NApplet extends JApplet implements NController {
 			NV2DPlugin plugin = (NV2DPlugin) j.next();
 			plugin.initialize(_g, _r, this);
 			if(plugin.menu() != null) {
-				_menu.addModuleMenu(plugin.menu());
+				_menu.addPluginMenu(plugin.menu());
 			}
 		}
 
@@ -128,7 +177,7 @@ public class NApplet extends JApplet implements NController {
 			IOInterface io = (IOInterface) j.next();
 			io.initialize(null, _r, this);
 			if(io.menu() != null) {
-				_menu.addModuleMenu(io.menu());
+				_menu.addImporterMenu(io.menu());
 			}
 		}
 	}

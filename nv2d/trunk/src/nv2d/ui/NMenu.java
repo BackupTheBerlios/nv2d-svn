@@ -18,41 +18,55 @@ import nv2d.render.RenderSettings;
 public class NMenu extends JMenuBar {
 	RenderBox _renderbox;
 	NController _topLevelUI;
-	nmMods _menu_mods;
+	nmMods _menu_importers;
+	nmPlugins _menu_plugins;
 
 	// public NMenu(RenderBox r) {
 	public NMenu(NController j, RenderBox r) {
 		_topLevelUI = j;
 		_renderbox = r;
-		_menu_mods = new nmMods();
 
-		add(_menu_mods);
+		_menu_importers = new nmMods();
+		_menu_plugins = new nmPlugins();
+
+		add(_menu_importers);
+		add(_menu_plugins);
 		add(new nmOptimization());
 		add(new nmShowHide());
 		add(new nmSettings());
 	}
 
-	public void addModuleMenu(JMenu m) {
-		_menu_mods.add(m);
+	public void addImporterMenu(JMenu m) {
+		_menu_importers.add(m);
+	}
+
+	public void addPluginMenu(JMenu m) {
+		_menu_plugins.add(m);
 	}
 
 	public class nmMods extends JMenu {
 		private JMenuItem _clear = new JMenuItem("Clear Graph");
 		public nmMods() {
-			super("Modules");
+			super("Import");
 
-			_clear.addActionListener(new ClearAction());
+			_clear.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					_renderbox.clear();
+				}
+			});
 			add(_clear);
-		}
-
-		private class ClearAction implements ActionListener {
-			public void actionPerformed(ActionEvent e) {
-				_renderbox.clear();
-			}
 		}
 	}
 
-	public class nmOptimization extends JMenu implements ActionListener {
+	public class nmPlugins extends JMenu {
+		private JMenuItem _load = new JMenuItem("Load Plugin");
+		public nmPlugins() {
+			super("Plugins");
+			add(_load);
+		}
+	}
+
+	public class nmOptimization extends JMenu {
 		JMenuItem _start = new JMenuItem("Start");
 		JMenuItem _stop = new JMenuItem("Stop");
 		JMenuItem _center = new JMenuItem("Center");
@@ -64,34 +78,39 @@ public class NMenu extends JMenuBar {
 		public nmOptimization() {
 			super("Optimization");
 			running = false;
-			_start.addActionListener(this);
-			_stop.addActionListener(this);
-			_center.addActionListener(this);
-			_reset.addActionListener(this);
+			_start.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					if(!running) {
+						_renderbox.startForceDirectedLayout();
+						running = true;
+					}
+				}
+			});
+			_stop.addActionListener(new ActionListener () {
+				public void actionPerformed(ActionEvent e) {
+					if(running) {
+						_renderbox.stopForceDirectedLayout();
+						running = false;
+					}
+				}
+			});
+			_center.addActionListener(new ActionListener () {
+				public void actionPerformed(ActionEvent e) {
+				}
+			});
+			_reset.addActionListener(new ActionListener () {
+				public void actionPerformed(ActionEvent e) {
+					if(running) {
+						_renderbox.stopForceDirectedLayout();
+						running = false;
+					}
+					_renderbox.doRandomLayout();
+				}
+			});
 			add(_start);
 			add(_stop);
 			add(_center);
 			add(_reset);
-		}
-
-		public void actionPerformed(ActionEvent e) {
-			if(e.getSource().equals(_start)) {
-				if(!running) {
-					_renderbox.startForceDirectedLayout();
-					running = true;
-				}
-			} else if (e.getSource().equals(_stop)) {
-				if(running) {
-					_renderbox.stopForceDirectedLayout();
-					running = false;
-				}
-			} else if (e.getSource().equals(_reset)) {
-				if(running) {
-					_renderbox.stopForceDirectedLayout();
-					running = false;
-				}
-				_renderbox.doRandomLayout();
-			}
 		}
 	}
 

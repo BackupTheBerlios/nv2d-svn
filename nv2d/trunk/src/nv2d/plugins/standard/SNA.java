@@ -1,6 +1,8 @@
 package nv2d.plugins.standard;
 
 import java.awt.Container;
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
 import java.lang.Integer;
 import java.util.Hashtable;
 import java.util.Iterator;
@@ -8,6 +10,7 @@ import java.util.Set;
 import java.util.Vector;
 import java.util.Stack;
 import javax.swing.JMenu;
+import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 
 import nv2d.plugins.NPluginLoader;
@@ -33,6 +36,8 @@ public class SNA implements NV2DPlugin  {
 	String _author;
 
 	Graph _graph;
+	Container _view;
+	NController _control;
 
 	/* Some datums */
 
@@ -57,8 +62,9 @@ public class SNA implements NV2DPlugin  {
 	}
 
 	public void initialize(Graph g, Container view, NController control) {
-		System.out.println("--> initialize()");
 		_graph = g;
+		_view = view;
+		_control = control;
 
 		if(g != null) {
 			indecize();
@@ -66,18 +72,26 @@ public class SNA implements NV2DPlugin  {
 		}
 	}
 	public void heartbeat() {
-		System.out.println("--> heartbeat()");
 	}
 
 	/* TODO */
 	public void cleanup() {
-		System.out.println("--> cleanup()");
+		// run through all graph elements and remove the DATUM's added
 	}
+
 	public JPanel ui() {
 		return null;
 	}
 	public JMenu menu() {
-		return null;
+		JMenu m = new JMenu("Social Network Analysis");
+		JMenuItem recalc = new JMenuItem("Recalculate Measures");
+		recalc.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				initialize(_graph, _view, _control);
+			}
+		});
+		m.add(recalc);
+		return m;
 	}
 
 	public String require() {
@@ -146,7 +160,7 @@ public class SNA implements NV2DPlugin  {
 	/* TODO */
 	private void calculate() {
 		if (_vtx_index_tbl == null || _vtx_index_tbl.length < 1) {
-			System.out.println("[SNA] Warning: no graph loaded or graph contains no vertices.");
+			System.err.println("[SNA] Warning: no graph loaded or graph contains no vertices.");
 			return;
 		}
 		int v;

@@ -146,13 +146,9 @@ public class NV2DMain extends JFrame implements NController {
 		_tabs.repaint();
 	}
 
-	/* Current cmd-line:
-	 * Backend [path to plugins] [io_plugin] [io parameters ...]
-	 */
 	public static void main(String [] args) {
 		new NV2DMain();
 	}
-
 
 	public void loadModules() {
 		_pm = new NPluginManager();
@@ -166,7 +162,7 @@ public class NV2DMain extends JFrame implements NController {
 			NV2DPlugin plugin = (NV2DPlugin) j.next();
 			plugin.initialize(_g, _r, this);
 			if(plugin.menu() != null) {
-				_menu.addModuleMenu(plugin.menu());
+				_menu.addPluginMenu(plugin.menu());
 			}
 		}
 
@@ -176,7 +172,7 @@ public class NV2DMain extends JFrame implements NController {
 			IOInterface io = (IOInterface) j.next();
 			io.initialize(null, _r, this);
 			if(io.menu() != null) {
-				_menu.addModuleMenu(io.menu());
+				_menu.addImporterMenu(io.menu());
 			}
 		}
 	}
