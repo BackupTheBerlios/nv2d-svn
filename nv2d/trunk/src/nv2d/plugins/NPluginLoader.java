@@ -7,10 +7,10 @@ import nv2d.exceptions.PluginNotCreatedException;
 public abstract class NPluginLoader
 {
 	// This is the list of loaded plug-ins
-	public static Hashtable pluginRegistry = new Hashtable();
-	public static Hashtable ioRegistry = new Hashtable();
+	protected static Hashtable pluginRegistry = new Hashtable();
+	protected static Hashtable ioRegistry = new Hashtable();
 
-	protected static NV2DPlugin createPlugin(String name)
+	protected static NV2DPlugin createPlugin(String name, String path)
 			throws PluginNotCreatedException {
 		/* As a general note, the only objects that should have access to the
 		 * registries are the plugins.  This class should never alter the
@@ -20,7 +20,7 @@ public abstract class NPluginLoader
 		if(!pluginRegistry.containsKey(name) || !ioRegistry.containsKey(name))
 		{
 			// detector not found
-			String pluginPath = NPluginManager.PLUGIN_DIRECTORY.replace('/', '.') + '.' + name;
+			String pluginPath = path.replace('/', '.') + '.' + name;
 			try {
 				Class.forName(pluginPath);
 				// successful loading the class should add it to one of the

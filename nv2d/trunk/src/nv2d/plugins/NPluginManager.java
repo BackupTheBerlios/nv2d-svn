@@ -10,12 +10,12 @@ public class NPluginManager extends NPluginLoader
 {
 	// public static final String PLUGIN_DIRECTORY = "nv2d/plugins/standard";
 	// public static final String PLUGIN_DIRECTORY = "./standard/";
-	public static String PLUGIN_DIRECTORY = "./standard/";
+	private static String PLUGIN_DIRECTORY = "standard";
 
-	public static void main(String args[])
+	public static void load(String directory)
 	{
-		if (args.length > 0) {
-			PLUGIN_DIRECTORY = args[0];
+		if(directory != null) {
+			PLUGIN_DIRECTORY = directory;
 		}
 
 		// Look for *.class files in a particular directory
@@ -41,7 +41,7 @@ public class NPluginManager extends NPluginLoader
 			if (filename.indexOf('$')== -1) { 
 				// we have found a file corresponding to a public class
 				try {
-					NV2DPlugin s = createPlugin(filename);
+					NV2DPlugin s = createPlugin(filename, PLUGIN_DIRECTORY);
 					System.out.println(filename + " plug-in loaded");
 					System.out.println("Description: " + s.description());
 				} catch(PluginNotCreatedException e) {
