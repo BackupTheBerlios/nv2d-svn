@@ -46,7 +46,7 @@ public class MainPanel implements NController {
 		while (oKey.hasMoreElements()) {
 			oStringKey = oKey.nextElement().toString();
 			if (oStringKey.endsWith("font") || oStringKey.endsWith("acceleratorFont")) {
-				UIManager.put(oStringKey, new Font("Dialog", Font.PLAIN, 10));
+				UIManager.put(oStringKey, new Font("Dialog", Font.PLAIN, 11));
 			}
 		}
 

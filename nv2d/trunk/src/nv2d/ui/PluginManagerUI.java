@@ -12,8 +12,13 @@ import java.awt.Color;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseEvent;
 import javax.swing.JLabel;
+import javax.swing.JList;
+import javax.swing.JCheckBox;
+import javax.swing.JPanel;
+import javax.swing.JSeparator;
 
 import nv2d.plugins.IOInterface;
+import nv2d.plugins.NV2DPlugin;
 import nv2d.ui.NController;
 
 /**
@@ -37,7 +42,6 @@ public class PluginManagerUI extends javax.swing.JDialog {
     public void initContent() {
         // clear the panes of interest
         _managerListPanel.removeAll();
-        
         // fill in the list of available importers
         Iterator i = _ctl.getPluginManager().ioIterator();
         while(i.hasNext()) {
@@ -52,7 +56,7 @@ public class PluginManagerUI extends javax.swing.JDialog {
                 public void mouseClicked(MouseEvent e) {
                     label.setForeground(label.getForeground() == selected ? nonselected : selected);
 
-                    StringBuffer text = new StringBuffer("Importer Name: " + io.name() + '\n');
+                    StringBuffer text = new StringBuffer(io.name() + '\n');
                     text.append("Author: " + io.author() + '\n');
 
                     text.append("Required Arguments:\n");
@@ -71,8 +75,38 @@ public class PluginManagerUI extends javax.swing.JDialog {
             _managerListPanel.add(label);
         }
         
-        // TODO fill in list of available plugins
-        
+        _managerListPanel.add(new JSeparator());
+
+        // fill in the list of available plugins
+        i = _ctl.getPluginManager().pluginIterator();
+        while(i.hasNext()) {
+            final NV2DPlugin pl = (NV2DPlugin) i.next();
+            // TODO: initialize the state
+            final JLabel label = new JLabel(pl.name() + (pl.author() != null || pl.author().length() > 0 ? " - [" + pl.author() + "]" : ""));
+			JCheckBox cbox = new JCheckBox("");
+            label.addMouseListener(new MouseListener() {
+                Color nonselected = new Color(51, 51, 51);
+                Color selected = Color.BLUE;
+
+                public void mousePressed(MouseEvent e) {}
+                public void mouseReleased(MouseEvent e) {}
+                public void mouseClicked(MouseEvent e) {
+                    label.setForeground(label.getForeground() == selected ? nonselected : selected);
+
+                    StringBuffer text = new StringBuffer(pl.name() + '\n');
+                    text.append("Author: " + pl.author() + '\n');
+                    
+                    text.append("\nDescription:\n" + pl.description());
+                    _managerDescTxt.setText(text.toString());
+                }
+                public void mouseEntered(MouseEvent e) {}
+                public void mouseExited(MouseEvent e) {}
+            });
+            
+            // add it to _managerListPanel
+            _managerListPanel.add(label);
+        }
+
         // fill in default security list
         _secList.setListData(_ctl.getPluginManager().secureLocations());
     }
@@ -101,12 +135,14 @@ public class PluginManagerUI extends javax.swing.JDialog {
         _manager.setLayout(new javax.swing.BoxLayout(_manager, javax.swing.BoxLayout.Y_AXIS));
 
         _manager.setBorder(new javax.swing.border.TitledBorder("Plugin Manager"));
+        _manager.setPreferredSize(new java.awt.Dimension(300, 300));
         _managerListPanel.setLayout(new javax.swing.BoxLayout(_managerListPanel, javax.swing.BoxLayout.Y_AXIS));
 
         _managerListSP.setViewportView(_managerListPanel);
 
         _manager.add(_managerListSP);
 
+        _managerDescTxt.setEditable(false);
         _managerDescTxt.setTabSize(4);
         _managerDescSP.setViewportView(_managerDescTxt);
 
@@ -120,29 +156,59 @@ public class PluginManagerUI extends javax.swing.JDialog {
         _loadLabel.setText("URI  ");
         _load.add(_loadLabel);
 
-        _loadURI.setText("jTextField1");
+        _loadURI.setText("http://");
         _load.add(_loadURI);
 
         _loadExec.setText("Load");
+        _loadExec.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                _loadExecActionPerformed(evt);
+            }
+        });
+
         _load.add(_loadExec);
 
         getContentPane().add(_load, java.awt.BorderLayout.NORTH);
 
         _sec.setLayout(new java.awt.BorderLayout());
 
-        _sec.setBorder(new javax.swing.border.TitledBorder("Security"));
+        _sec.setBorder(new javax.swing.border.TitledBorder("Security - Allowed Sites"));
         _sec.add(_secList, java.awt.BorderLayout.CENTER);
 
         _secAdd.setText("Add Location");
+        _secAdd.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                _secAddActionPerformed(evt);
+            }
+        });
+
         _sec.add(_secAdd, java.awt.BorderLayout.NORTH);
 
         _secRem.setText("Remove Location");
+        _secRem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                _secRemActionPerformed(evt);
+            }
+        });
+
         _sec.add(_secRem, java.awt.BorderLayout.SOUTH);
 
         getContentPane().add(_sec, java.awt.BorderLayout.SOUTH);
 
         pack();
     }//GEN-END:initComponents
+
+    private void _loadExecActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event__loadExecActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event__loadExecActionPerformed
+
+    private void _secRemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event__secRemActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event__secRemActionPerformed
+
+    private void _secAddActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event__secAddActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event__secAddActionPerformed
     
     /**
      * @param args the command line arguments

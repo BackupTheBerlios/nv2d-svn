@@ -24,6 +24,9 @@
             <TitledBorder title="Plugin Manager"/>
           </Border>
         </Property>
+        <Property name="preferredSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
+          <Dimension value="[300, 300]"/>
+        </Property>
       </Properties>
       <Constraints>
         <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout" value="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout$BorderConstraintsDescription">
@@ -53,6 +56,7 @@
           <SubComponents>
             <Component class="javax.swing.JTextArea" name="_managerDescTxt">
               <Properties>
+                <Property name="editable" type="boolean" value="false"/>
                 <Property name="tabSize" type="int" value="4"/>
               </Properties>
             </Component>
@@ -83,13 +87,16 @@
         </Component>
         <Component class="javax.swing.JTextField" name="_loadURI">
           <Properties>
-            <Property name="text" type="java.lang.String" value="jTextField1"/>
+            <Property name="text" type="java.lang.String" value="http://"/>
           </Properties>
         </Component>
         <Component class="javax.swing.JButton" name="_loadExec">
           <Properties>
             <Property name="text" type="java.lang.String" value="Load"/>
           </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="_loadExecActionPerformed"/>
+          </Events>
         </Component>
       </SubComponents>
     </Container>
@@ -97,7 +104,7 @@
       <Properties>
         <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
           <Border info="org.netbeans.modules.form.compat2.border.TitledBorderInfo">
-            <TitledBorder title="Security"/>
+            <TitledBorder title="Security - Allowed Sites"/>
           </Border>
         </Property>
       </Properties>
@@ -120,6 +127,9 @@
           <Properties>
             <Property name="text" type="java.lang.String" value="Add Location"/>
           </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="_secAddActionPerformed"/>
+          </Events>
           <Constraints>
             <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout" value="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout$BorderConstraintsDescription">
               <BorderConstraints direction="North"/>
@@ -130,6 +140,9 @@
           <Properties>
             <Property name="text" type="java.lang.String" value="Remove Location"/>
           </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="_secRemActionPerformed"/>
+          </Events>
           <Constraints>
             <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout" value="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout$BorderConstraintsDescription">
               <BorderConstraints direction="South"/>

@@ -21,6 +21,9 @@ import nv2d.exceptions.JARAccessException;
 import nv2d.ui.NController;
 import nv2d.utils.JarListing;
 
+/* TODO: make sure that plugins with the same names cannot be added to the
+ * manager. */
+
 public class NPluginManager extends NPluginLoader
 {
 	// public static final String PLUGIN_DIRECTORY = "nv2d/plugins/standard";
@@ -126,10 +129,16 @@ public class NPluginManager extends NPluginLoader
 		String pname = null;
 		String fullname = null;
 
+                // the java load classes have some syntax peculiarties, namely that 
+                // to load a jar file, the URL must begin with 'jar:' and end with '!/'
 		if(!url.startsWith("jar:")) {
 			System.out.println("Foo!");
 			url = new String("jar:" + url);
 		}
+                
+                if(!url.endsWith(".jar!/")) {
+                    url = new String(url + "!/");
+                }
 
 		// check if the url is allowed by the _securityList
 		if(!isValidLocation(url)) {
