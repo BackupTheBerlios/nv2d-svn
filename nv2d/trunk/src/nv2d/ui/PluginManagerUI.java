@@ -249,6 +249,7 @@ public class PluginManagerUI extends javax.swing.JDialog {
 		if(s != null && (s.length() > 0)) {
 			java.util.Set vals = new java.util.HashSet(java.util.Arrays.asList(_ctl.getPluginManager().secureLocations()));
 			vals.add(s);
+			_ctl.getPluginManager().addSecureLocation(s);
 			_secList.setListData(vals.toArray());
 		}
     }//GEN-LAST:event__secAddActionPerformed
