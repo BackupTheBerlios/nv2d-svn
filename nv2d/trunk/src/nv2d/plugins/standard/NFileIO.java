@@ -342,7 +342,21 @@ class FileIO {
 			String [] data = (String []) _data.get(v.id());
 			for(j = VERTEX_CUSTOM; j < data.length; j++) {
 				if(j - VERTEX_CUSTOM < _attributes.length) {
-					v.setDatum(new Datum(_attributes[j - VERTEX_CUSTOM], data[j]));
+					String aname = _attributes[j - VERTEX_CUSTOM];
+					// URL support
+					if(aname.equals("URL")) {
+						URL url = null;
+						Datum d = null;
+						try {
+							url = new URL(data[j]);
+							d = new Datum(aname, url);
+						} catch (java.net.MalformedURLException exception) {
+							d = new Datum(aname, data[j]);
+						}
+						v.setDatum(d);
+					} else {
+						v.setDatum(new Datum(_attributes[j - VERTEX_CUSTOM], data[j]));
+					}
 				} else {
 					System.err.println("Syntax error: too many attributes for vertex '" + v.id() + "'");
 				}
