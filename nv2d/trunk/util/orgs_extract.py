@@ -31,7 +31,7 @@ cursor.execute('select author, fname, middle, last, coauthors_all, org, dept fro
 data = cursor.fetchall()
 
 
-print '"Organization";"Department";"Last Published"'
+print '"Organization";"Department";"Last Published";"URL"'
 
 for entry in data:
 	# first and last names
@@ -85,5 +85,6 @@ for entry in data:
 	fullname = entry[1] + ' ' + entry[2] + ' ' + entry[3]
 
 	buf = enclose(entry[0]) + ';' + enclose(edges) + ';' + enclose(stringify(lengths)) + ';'\
-		+ enclose(fullname) + ';' + enclose(entry[5]) + ';' + enclose(entry[6]) + ';' + enclose(stringify(years))
+		+ enclose(fullname) + ';' + enclose(entry[5]) + ';' + enclose(entry[6]) + ';' + enclose(stringify(years))\
+		+ enclose("http://www.orgstudies.org/nv2d_show?last=" + entry[3])
 	print buf
