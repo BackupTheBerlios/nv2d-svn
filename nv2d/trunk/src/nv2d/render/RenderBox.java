@@ -100,6 +100,7 @@ public class RenderBox extends Display {
 	private ForceDirectedLayout _flayout;
 	private RandomLayout _randomLayout;
 	private SemiRandomLayout _semiRandomLayout;
+	private CenterLayout _centerLayout;
 	
 	private PopupMenu _vertexMenu;
 	
@@ -176,6 +177,7 @@ public class RenderBox extends Display {
 		// other layouts
 		_randomLayout = new RandomLayout();
 		_semiRandomLayout = new SemiRandomLayout(_ctl);
+		_centerLayout = new CenterLayout();
 		
 		// create a new action list that
 		// (a) filters visual representations from the original graph
@@ -265,27 +267,25 @@ public class RenderBox extends Display {
 		act.runNow();		
 	}
 	
-	/** Saved locations are lost when another graph is loaded.
-	 */
-	/*
-	public void doRestoreVertexLocations() {
-		// old locations are saved in the overall model (getModel())
-		Iterator i = _registry.getNodeItems();
-		while(i.hasNext()) {
-			VisualItem item = (VisualItem) i.next();
-			Vertex v = _ctl.getModel().findVertex(((PNode) item.getEntity()).v().id());
-			if(null != v) {
-				Datum oldloc = v.getDatum(DATUM_LASTLOCATION);
-				if(oldloc != null) {
-					System.out.println("   Restoring vertex " + v + " location at " + oldloc.get());
-					java.awt.geom.Point2D oldp = (java.awt.geom.Point2D) oldloc.get();
-					item.setLocation(oldp.getX() - getDisplayX(), oldp.getY() - getDisplayY());
-				}
-			}
+	public void doCenterLayout() {
+		if(_empty) {
+			return;
 		}
-		repaint();
+		
+		int ct = 0;
+		double x = 0, y = 0;
+		Iterator nodeIter = _registry.getNodeItems();
+		while ( nodeIter.hasNext() ) {
+			VisualItem item = (VisualItem) nodeIter.next();
+			x += item.getLocation().getX();
+			y += item.getLocation().getY();
+			ct++;
+		}
+		x = x / (double) ct;
+		y = y / (double) ct;
+		panToAbs(new java.awt.geom.Point2D.Double(x, y));
 	}
-	*/
+	
 	public void doSaveVertexLocations() {
 		// when graph is cleared, save the locations of the
 		// current nodes in the Model (MainPanel._originalGraph)

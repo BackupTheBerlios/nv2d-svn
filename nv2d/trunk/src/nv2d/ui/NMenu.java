@@ -248,7 +248,8 @@ public class NMenu extends JMenuBar {
 	}
 
 	private void _optimizeCenterActionPerformed(ActionEvent e) {
-		
+		_renderbox.stopForceDirectedLayout();
+		_renderbox.doCenterLayout();
 	}
 
 	private void _optimizeResetActionPerformed(ActionEvent e) {

@@ -209,8 +209,7 @@ public class BottomPanel extends javax.swing.JPanel {
     }//GEN-LAST:event__stopActionPerformed
 	
     private void _centerActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event__centerActionPerformed
-		// TODO add your handling code here:
-		
+		_ctl.getView().doCenterLayout();
     }//GEN-LAST:event__centerActionPerformed
 	
     private void _resetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event__resetActionPerformed

@@ -47,7 +47,6 @@ public class SemiRandomLayout extends Layout {
 		_ctl = ctl;
 	}
 	
-	// FIXME
 	public void run(ItemRegistry registry, double frac) {
 		// RenderBox.DATUM_LASTLOCATION
 		Rectangle2D b = getLayoutBounds(registry);
@@ -68,5 +67,5 @@ public class SemiRandomLayout extends Layout {
 				setLocation(item, null, x, y);
 			}
 		}
-	} //
-} // end of class RandomLayout
+	}
+}
