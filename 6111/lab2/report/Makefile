@@ -1,3 +1,5 @@
+# make sure that the papersize is set to letter (texconfig)
+
 default:
 	lgrind -t 4 -i -lverilog ../traffic_src/controller.v > controller.v.latex
 	lgrind -t 4 -i -lverilog ../traffic_src/divider.v > divider.v.latex
@@ -9,4 +11,5 @@ default:
 	lgrind -t 4 -i -lverilog ../traffic_src/walk_register.v > walkregister.v.latex
 
 	latex report.tex
-	dvips -Pcmz report.dvi -o report.ps
+	dvips -Pcmz -t letter report.dvi -o report.ps
+	ps2pdf report.ps
