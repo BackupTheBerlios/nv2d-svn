@@ -36,12 +36,16 @@ public class Colorizer extends ColorFunction {
 				return apsp;
 			}
 		}
-		return fill_normal;
+		return normal;
 	}
 
 	public Paint getFillColor(VisualItem i) {
 		if(!(i.getEntity() instanceof PNode)) {
 			return fill_normal;
+		}
+		
+		if (i.isHighlighted()) {
+			return fill_mouseover;
 		}
 
 		PNode p = (PNode) i.getEntity();
