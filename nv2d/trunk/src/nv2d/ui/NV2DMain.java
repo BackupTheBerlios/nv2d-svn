@@ -19,9 +19,11 @@ public class NV2DMain extends JFrame {
 	static NMenu menu;
 
 	public NV2DMain(String [] args) {
+		// Important: this must be the order (loadmodules then renderbox as last two)
+		menu = new NMenu(r);
 		loadModules(args);
 		r = new RenderBox(g);
-		menu = new NMenu(r);
+
 
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 		getContentPane().add(r);
@@ -98,8 +100,13 @@ public class NV2DMain extends JFrame {
 		while(j.hasNext()) {
 			NV2DPlugin plugin = (NV2DPlugin) j.next();
 			if(plugin.menu() != null) {
+				System.out.println("Adding menu from module " + plugin.name());
 				menu.addModuleMenu(plugin.menu());
 			}
+		}
+		// finally, add module menu
+		if(io.menu() != null) {
+			menu.addModuleMenu(io.menu());
 		}
 
 		/* load data file if specified, otherwise query user for datafile */
