@@ -1,5 +1,6 @@
 package nv2d.graph.directed;
 
+import java.util.Hashtable;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
@@ -19,7 +20,6 @@ import nv2d.graph.Vertex;
 public class DGraph extends Graph {
 	protected Set _e;	// edges
 	protected Set _v;	// vertices
-	protected Set _o;	// other graph elements
 
 	/* If this variable is zero, the cache is invalid.  If the value is
 	 * non-zero, the cache is valid.  Any modifications to the graph should
@@ -42,7 +42,6 @@ public class DGraph extends Graph {
 	public DGraph() {
 		_e = (Set) (new HashSet());
 		_v = (Set) (new HashSet());
-		_o = (Set) (new HashSet());
 
 		_shortestPaths = new Dijkstra(this);
 		_minEdgeLengthCache = 0;
@@ -56,10 +55,6 @@ public class DGraph extends Graph {
 
 	public Set getVertices() {
 		return _v;
-	}
-
-	public Set getOtherGraphElements() {
-		return _o;
 	}
 
 	public int numVertices() {
@@ -147,30 +142,63 @@ public class DGraph extends Graph {
 		throw new IllegalArgumentException("You must add a Directed graph element to a Directed Graph.");
 	}
 
+	/* TODO: need to create new instances of the graph object and copy over
+	 * the user attributes (perhaps a clone() method in Vertex and Edge?) 
+	 * Algorithm:
+	 * 	
+	 * 	use hashmap */
 	public Graph subset(Set graphelements) {
 		// filter for those edges which contain only the vertices we want
 		DGraph g = new DGraph();
+		Hashtable vertices = new Hashtable(); // (cloned)
+		Hashtable edges = new Hashtable(); // originals
 		Iterator i = graphelements.iterator();
+
+		// collect all the graph elements and catalog them
 		while(i.hasNext()) {
 			Object o = i.next();
-			if(o instanceof Vertex) {
-				g.add((Vertex) o);
-			} else if(o instanceof Edge) {
-				g.add((Vertex) ((Edge) o).getEnds().car());
-				g.add((Vertex) ((Edge) o).getEnds().cdr());
-				g.add((Edge) o);
+			String id = ((GraphElement) o).id();
+			if(_v.contains(o) || _e.contains(o)) {
+				if(o instanceof Vertex) {
+					vertices.put(id, ((Vertex) o).clone());
+				} else if(o instanceof Edge) {
+					edges.put(id, o);
+				}
+				// should never reach this point
+				assert(false);
+			} else {
+				// was not part of the edge
+				assert(false);
 			}
 		}
 
-		// add any additional edges for the vertices which were not
-		// included
+		// collect any additional edges for the vertices which were not included
 		i = getEdges().iterator();
 		while(i.hasNext()) {
 			Edge e = (Edge) i.next();
 			if(graphelements.contains(e.getEnds().car()) && graphelements.contains(e.getEnds().cdr())) {
-				g.add(e);
+				edges.put(e.id(), e);
 			}
 		}
+
+		// clone the vertices and insert into the graph
+		i = vertices.values().iterator();
+		while(i.hasNext()) {
+			g.add((Vertex) i.next());
+		}
+
+		// duplicate the edges and lengths
+		i = edges.values().iterator();
+		while(i.hasNext()) {
+			Edge e = (Edge) i.next();
+			Vertex source = (Vertex) e.getEnds().car();
+			Vertex dest = (Vertex) e.getEnds().cdr();
+			g.add(new DEdge(
+						(DVertex) vertices.get(source.id()),
+						(DVertex) vertices.get(dest.id()),
+						e.length()));
+		}
+
 		return g;
 	}
 
