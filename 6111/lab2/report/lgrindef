@@ -104,21 +104,14 @@ C:\
 #Last couple of lines are partial ANSI, plus VAX-C specific
 
 verilog:\
-	:pb=\p\d?\(:cf:np=\)\d?;:bb={:be=}:\
-	:cb=/*:ce=*/:ab=//:ae=$:sb=":se=\e":lb=':le=\e':\
-	:tl:id=_~\::\
-	:zb=@:ze=@:tb=%%:te=%%:mb=%\$:me=\$%:vb=%\|:ve=\|%:\
+	:cb=//:ce=$:tl\
 	:kw=begin end endmodule module always reg input output inout wire\
 	parameter endcase assign\
 	asm auto break case cdecl char continue default do double else\
 	enum extern far float for fortran goto huge if int interrupt long\
 	near pascal register return short signed sizeof static struct\
 	switch typedef union unsigned void while\
-	#define #else #endif #if #ifdef #ifndef #include #undef # define\
-	else endif if ifdef ifndef include undef #pragma #elif pragma elif\
-	#module #dictionary module dictionary\
-	variant_struct variant_union\
-	noshare readonly globaldef globalref globalvalue main_program:
+	else endif if ifdef ifndef include undef":
 
 C++|CC:\
 	:pb=\p\d?\(:cf:np=\)\d?;:bb={:be=}:\
