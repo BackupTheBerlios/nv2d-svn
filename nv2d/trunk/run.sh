@@ -1,8 +1,5 @@
 #! /bin/bash
 
-# BASE='/home/bshi/cvs/nv2d/v2'
-# CLASSPATH="${BASE}/src/build:${BASE}/lib/junit.jar:${BASE}/lib/piccolo.jar:${BASE}/lib/piccolox.jar:${BASE}/lib/colt.jar"
-
 CLASSPATH="./build:./lib/junit.jar:./lib/piccolo.jar:./lib/piccolox.jar:./lib/colt.jar"
 
 export CLASSPATH
@@ -10,17 +7,17 @@ export CLASSPATH
 echo $1
 
 if [ "$1" = "piccolo" ]; then
-	java nv2d/gui/NV2DMain
+	/mit/java/current/bin/java nv2d/gui/NV2DMain
 	exit
 	fi
 
 if [ "$1" = "path" ]; then
-	java nv2d/algorithms/Test
+	/mit/java/current/bin/java nv2d/algorithms/Test
 	exit
 	fi
 
 if [ "$1" = "unit" ]; then
-	java nv2d/testsuit/graph/DataStoreTest
+	/mit/java/current/bin/java nv2d/testsuit/graph/DataStoreTest
 	java nv2d/testsuit/graph/DatumTest
 	java nv2d/testsuit/algorithms/DijkstraTest
 	exit
@@ -42,6 +39,10 @@ if [ "$1" = "package" ]; then
 	rm junit.jar
 	jar cmf NV2D.manifest ../dist/NV2D.jar *
 	exit
+	fi
+
+if [ "$1" = "plugin" ]; then
+	java nv2d.plugins.NPluginManager build/nv2d/plugins/standard
 	fi
 
 if [ "$1" = "help" ]; then
