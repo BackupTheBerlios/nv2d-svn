@@ -1,31 +1,21 @@
 module majorfsm (clk, reset, heartbeat,
-// input from outside
-ad_status,
-// control signals
-ram_we, ram_addr, rom_addr, io_rwb, adr_we, dar_we,
-fzero, facc,
-// control to pins
-ad_rwb, ad_cseb, da_csb
-// DEBUG
-//,ad_start, ad_busy, conv_start, conv_busy, rbptr
-);
-//output ad_start, ad_busy, conv_start, conv_busy;
-//output [3:0] rbptr;
-// END DEBUG
+	// input from outside
+	ad_status,
+	// control signals
+	ram_we, ram_addr, rom_addr, io_rwb, adr_we, dar_we,
+	fzero, facc,
+	// control to pins
+	ad_rwb, ad_cseb, da_csb);
 
 	input clk, reset, heartbeat;
 	input ad_status;
-	output ram_we, io_rwb, adr_we, dar_we, ad_rwb, ad_cseb, da_csb, fzero, facc;
+	output ram_we, io_rwb, adr_we, dar_we, ad_rwb;
+	output ad_cseb, da_csb, fzero, facc;
 	output [3:0] ram_addr, rom_addr;
-
-	// signals directed to minor FSM's
-	// wire io_rwb, ad_cseb, ad_rwb;
-	// this signal is zero'd at all times except for whe the convolving FSM is active
-	// wire [3:0] rom_addr;
 
 	parameter S_DAC_OUTPUT = 0;
 	parameter S_ST_AD_PREP = 1;	// prepare to store to RAM
-	parameter S_ST_AD_WE = 2; // send we signal pulse & make data available
+	parameter S_ST_AD_WE = 2; // send we signal pulse
 	parameter S_ST_AD_ST = 3; // send we signal pulse
 	parameter S_CALL_ADFSM = 4;
 	parameter S_CALL_ADFSM_WAIT = 5;
@@ -49,13 +39,14 @@ ad_rwb, ad_cseb, da_csb
 	wire [3:0] rom_addr;
 
 	// **** A->D Controller MINOR FSM DECLARATION
-	ad_fsm qafsm (.clk(clk), .reset(reset), .start(ad_start), .busy(ad_busy),
-		.io_rwb(io_rwb), .st_ad(adr_we), .ad_status(ad_status),
-		.ad_rwb(ad_rwb), .ad_cseb(ad_cseb));
+	ad_fsm qafsm (.clk(clk), .reset(reset), .start(ad_start),
+		.busy(ad_busy), .io_rwb(io_rwb), .st_ad(adr_we),
+		.ad_status(ad_status), .ad_rwb(ad_rwb), .ad_cseb(ad_cseb));
 
 	// **** Convolution MINOR FSM DECLARATION
-	conv_fsm qcfsm (.clk(clk), .reset(reset), .start(conv_start), .busy(conv_busy),
-		.counter(rom_addr), .dar_we(dar_we), .fzero(fzero), .facc(facc));
+	conv_fsm qcfsm (.clk(clk), .reset(reset), .start(conv_start),
+		.busy(conv_busy), .counter(rom_addr), .dar_we(dar_we),
+		.fzero(fzero), .facc(facc));
 	
 
 	always @ (posedge clk) begin
