@@ -33,14 +33,17 @@ public class NPluginManager extends NPluginLoader
 			// Get filename of file or directory
 			String filename = children[i].substring(0, children[i].length()-6);
 			if (filename.indexOf('$')== -1) { 
+				// we have found a file corresponding to a public class
 				try {
 					NV2DPlugin s = createPlugin(filename);
 					System.out.println(filename + " plug-in loaded");
 					System.out.println("Description: " + s.description());
 				} catch(PluginNotCreatedException e) {
-					System.out.println(e.getMessage());
+					System.out.println("There was an error loading the plugin [" + filename + "]");
+					System.out.println("  -> " + e.toString());
 				} catch(ClassCastException e) {
-					System.out.println("Error, could not load a plugin.");
+					System.out.println("There was an error loading the plugin [" + filename + "]");
+					System.out.println("  -> The file is not an NV2D plugin.");
 				}
 			}
 		}
