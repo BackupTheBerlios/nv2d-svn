@@ -52,7 +52,7 @@ public abstract class GraphElement extends DataStore implements Comparable {
 	}
 
 	/** The default behavior for comparison is the <code>id()</code> method. */
-	final public boolean equals(Object o) {
+	public boolean equals(Object o) {
 		if(null == o) {
 			return false;
 		}

@@ -35,7 +35,7 @@ public class UEdge extends Edge {
 	
 	public UEdge(UVertex source, UVertex dest, double length) {
 		super("UndirectedEdge ["
-			+ source.id() + "]-->["
+			+ source.id() + "]<->["
 			+ dest.id() + "]");
 
 		if(source == null || dest == null || source.equals(dest)) {
@@ -44,6 +44,16 @@ public class UEdge extends Edge {
 
 		_v = new Pair(source, dest);
 		_len = length;
+	}
+	
+	public boolean equals(Object o) {
+		if(o instanceof UEdge) {
+			UEdge e = (UEdge) o;
+			if(e.getEnds().contains(_v.car()) && e.getEnds().contains(_v.cdr())) {
+				return true;
+			}
+		}
+		return false;
 	}
 	
 	public double length() {
