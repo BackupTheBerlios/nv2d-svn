@@ -7,6 +7,7 @@ import java.awt.event.ItemEvent;
 import java.util.Iterator;
 import javax.swing.JMenuItem;
 import javax.swing.JCheckBoxMenuItem;
+import javax.swing.JDialog;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JSeparator;
@@ -19,13 +20,13 @@ import nv2d.render.RenderSettings;
 
 public class NMenu extends JMenuBar {
 	RenderBox _renderbox;
-	NController _topLevelUI;
+	NController _topLevel;
 	nmMods _menu_importers;
 	nmPlugins _menu_plugins;
 
 	// public NMenu(RenderBox r) {
 	public NMenu(NController j, RenderBox r) {
-		_topLevelUI = j;
+		_topLevel = j;
 		_renderbox = r;
 
 		_menu_importers = new nmMods();
@@ -128,9 +129,11 @@ public class NMenu extends JMenuBar {
 		JMenuItem _degreeFilter = new JMenuItem("Degree");
 		JMenuItem _measureFilter = new JMenuItem("Measure");
 
+		// degree filter stuff
+		DegreeFilter _degreeFilterObject = new DegreeFilter();
+
 		JCheckBoxMenuItem _errTxt = new JCheckBoxMenuItem("Error Messages", true);
 		JCheckBoxMenuItem _outTxt = new JCheckBoxMenuItem("Program Output", true);
-
 
 		public nmView() {
 			super("View");
@@ -145,9 +148,14 @@ public class NMenu extends JMenuBar {
 			_outTxt.addItemListener(this);
 			_degreeFilter.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
-					_topLevelUI.setFilter(new DegreeFilter());
+					_topLevel.setFilter(_degreeFilterObject);
 					// dialog to get initialization arguments
 					// TODO
+					JDialog _degreeFilterDialog = DegreeFilterUI.getJDialog(_topLevel);
+					if(_degreeFilterDialog != null) {
+						_degreeFilterDialog.pack();
+						_degreeFilterDialog.show();
+					}
 				}
 			});
 
@@ -175,10 +183,10 @@ public class NMenu extends JMenuBar {
 				_renderbox.getRenderSettings().setBoolean(RenderSettings.SHOW_LENGTH, _length.getState());
 			} else if (e.getSource().equals(_errTxt)) {
 				// System.out.print("err " + _errTxt.getState());
-				_topLevelUI.displayErrTextBox(_errTxt.getState());
+				_topLevel.displayErrTextBox(_errTxt.getState());
 			} else if (e.getSource().equals(_outTxt)) {
 				// System.out.print("out " + _outTxt.getState());
-				_topLevelUI.displayOutTextBox(_outTxt.getState());
+				_topLevel.displayOutTextBox(_outTxt.getState());
 			}
 		}
 	}

@@ -7,10 +7,16 @@ import javax.swing.JMenuBar;
 import javax.swing.JTabbedPane;
 
 import nv2d.graph.FilterInterface;
+import nv2d.graph.Graph;
+import nv2d.render.RenderBox;
 
 /* NController contains the graph, renderbox, and filter */
 public interface NController {
 	public void initialize(String [] args);
+
+	// get model/view
+	public Graph getModel();
+	public RenderBox getView();
 
 	// filter controls
 	public void setFilter(FilterInterface filter);

@@ -20,7 +20,8 @@ import nv2d.plugins.NV2DPlugin;
 
 public class MainPanel implements NController {
 	private NPluginManager _pm;
-	private Graph _g;
+	private Graph _g;	// current view
+	private Graph _originalGraph;	// original full set
 	private RenderBox _r;
 	private NMenu _menu;
 	private JTabbedPane _tabs;
@@ -52,7 +53,7 @@ public class MainPanel implements NController {
 		_r = new RenderBox();
 		_menu = new NMenu(this, _r);
 		_tabs = new JTabbedPane();
-
+		
 		// trap output to standard streams and display them in a text box
 		JTextArea errTxt = new JTextArea();
 		JTextArea outTxt = new JTextArea();
@@ -122,6 +123,7 @@ public class MainPanel implements NController {
 					_g = null;
 				}
 			}
+			_originalGraph = _g;
 		}
 
 		reinitModules();
@@ -177,8 +179,8 @@ public class MainPanel implements NController {
 	}
 
 	public void runFilter(Object [] args) {
-		_filter.initialize(_g, args);
-		_g = _filter.filter(_g);
+		_filter.initialize(_originalGraph, args);
+		_g = _filter.filter(_originalGraph);
 		reinitModules();
 	}
 
@@ -207,6 +209,14 @@ public class MainPanel implements NController {
 				_menu.addImporterMenu(io.menu());
 			}
 		}
+	}
+
+	public Graph getModel() {
+		return _g;
+	}
+
+	public RenderBox getView() {
+		return _r;
 	}
 
 	private void reinitModules() {
