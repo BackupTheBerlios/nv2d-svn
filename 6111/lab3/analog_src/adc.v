@@ -15,10 +15,9 @@ module adc(clk, reset, start, busy, data_ready, done_reading,
    
    parameter 	S_IDLE = 0;
    parameter 	S_SAMPLE = 1;
-   parameter 	S_SAMPLE_WAIT_FOR_STATUS = 2;
-   parameter 	S_SAMPLE_WAIT = 3;
-   parameter 	S_READ = 4;
-   parameter 	S_DATA_READY = 5;
+   parameter 	S_SAMPLE_WAIT = 2;
+   parameter 	S_READ = 3;
+   parameter 	S_DATA_READY = 4;
    
    // data_ready - this is high when the value at the data pins of the
    //              a/d chip is okay to read.
@@ -41,7 +40,6 @@ module adc(clk, reset, start, busy, data_ready, done_reading,
 	 case(state)
 	   S_IDLE: begin adsig <= 2'b11; busy <= 0; data_ready <= 0; end
 	   S_SAMPLE: begin adsig <= 2'b00; busy <= 1; end
-       S_SAMPLE_WAIT_FOR_STATUS: begin adsig <= 2'b00; busy <= 1; end
 	   S_SAMPLE_WAIT: begin adsig <= 2'b11; busy <= 1; end
 	   S_READ: adsig <= 2'b10; // hold this for two+ clock cycles
 	   S_DATA_READY: begin adsig <=2'b10; data_ready <= 1; busy <= 0; end
@@ -50,9 +48,8 @@ module adc(clk, reset, start, busy, data_ready, done_reading,
 	 // transitions for each state
 	 case(state)
 	   S_IDLE: state <= start ? S_SAMPLE : S_IDLE;
-	   S_SAMPLE: state <= S_SAMPLE_WAIT_FOR_STATUS;
-       // wait until status goes high
-       S_SAMPLE_WAIT_FOR_STATUS: state <= ad_status ? S_SAMPLE_WAIT : S_SAMPLE_WAIT_FOR_STATUS;
+	   // wait until status goes high
+	   S_SAMPLE: state <= ad_status ? S_SAMPLE_WAIT : S_SAMPLE;
        // wait until status goes low
 	   S_SAMPLE_WAIT: state <= ad_status ? S_SAMPLE_WAIT : S_READ;
 	   S_READ: state <= S_DATA_READY;

@@ -6,7 +6,7 @@ module ioport(clk, rwb, port);
 
 	reg [7:0] buffer;
 
-    tc2unsigned converter(buffer, converted_num);
+    tc2sm converter(buffer, converted_num);
 
 	assign port = (rwb) ? 4'hz : converted_num;
 
