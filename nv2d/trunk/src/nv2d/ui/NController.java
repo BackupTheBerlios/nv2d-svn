@@ -26,7 +26,7 @@ public interface NController {
 	 * to the importer plugin.
 	 */
 	public void initialize(String [] args);
-
+	
 	// get model/view
 	/**
 	 * Returns the current instance of the model (as per the Model-View-Controller
@@ -40,14 +40,14 @@ public interface NController {
 	 * @return returns a {@link nv2d.render.RenderBox} object.
 	 */
 	public RenderBox getView();
-        
+	
 	// other accessors
 	/**
 	 * Returns the instance of the plugin manager.
 	 * @return returns a {@link nv2d.plugins.NPluginManager} object.
 	 */
 	public NPluginManager getPluginManager();
-
+	
 	// filter controls
 	/**
 	 * Set the active filter for the current {@link nv2d.graph.Graph} object.
@@ -62,11 +62,11 @@ public interface NController {
 	/**
 	 * Execute the active filter.
 	 * @param args Implementations of {@link nv2d.graph.FilterInterface} make require different arguments.
-         * @param wholeSet If true, the filter will be run on the original data set loaded.  If false,
-         *        the filter will only be run on the visible graph.
+	 * @param wholeSet If true, the filter will be run on the original data set loaded.  If false,
+	 *        the filter will only be run on the visible graph.
 	 */
 	public void runFilter(Object [] args, boolean wholeSet);
-
+	
 	// UI controls
 	/**
 	 * Toggle the Output tab.
@@ -78,13 +78,13 @@ public interface NController {
 	 * @param b On/Off
 	 */
 	public void displayErrTextBox(boolean b);
-        
-        /**
-         * Show the bottom button panel.
-         * @param b on/off
-         */
-        public void displayBottomPane(boolean b);
-        
+	
+	/**
+	 * Show the bottom button panel.
+	 * @param b on/off
+	 */
+	public void displayBottomPane(boolean b);
+	
 	/**
 	 * Get the instance of the main menu.
 	 * @return a {@link NMenu} object.
@@ -95,12 +95,12 @@ public interface NController {
 	 * @return a {@link javax.swing.JTabbedPane} instance.
 	 */
 	public JTabbedPane getCenterPane();
-        
-        /**
-         * Get the instance of the JComponent containing the top level bottom GUI component.
-         * @return a {@link javax.swing.JPanel} instance */
-        public JPanel getBottomPane();
-
+	
+	/**
+	 * Get the instance of the JComponent containing the top level bottom GUI component.
+	 * @return a {@link javax.swing.JPanel} instance */
+	public JPanel getBottomPane();
+	
 	// plugin controls
 	/**
 	 * Load the default set of plugins.

@@ -21,7 +21,7 @@ import nv2d.plugins.NPluginLoader;
 import nv2d.plugins.NV2DPlugin;
 
 public class MainPanel implements NController {
-        private Container _parentContainer;
+	private Container _parentContainer;
 	private NPluginManager _pm;
 	private Graph _g;	// current view
 	private Graph _originalGraph;	// original full set
@@ -30,14 +30,14 @@ public class MainPanel implements NController {
 	private JTabbedPane _tabs;
 	private FilterInterface _filter;
 	private Set _allowedURLs;
-        private JPanel _bottomPane;
-
+	private JPanel _bottomPane;
+	
 	private JComponent _outTextBox, _errTextBox;
-
+	
 	private NPrintStream _err, _out;
-        
-        private DegreeFilter _degreeFilter = new DegreeFilter();
-
+	
+	private DegreeFilter _degreeFilter = new DegreeFilter();
+	
 	public MainPanel(Container parent) {
 		/* The following font bit is taken from
 		 * http://forum.java.sun.com/thread.jsp?thread=125315&forum=57&message=330309
@@ -46,25 +46,25 @@ public class MainPanel implements NController {
 		Hashtable oUIDefault = UIManager.getDefaults();
 		Enumeration oKey = oUIDefault.keys();
 		String oStringKey = null;
-
+		
 		while (oKey.hasMoreElements()) {
 			oStringKey = oKey.nextElement().toString();
 			if (oStringKey.endsWith("font") || oStringKey.endsWith("acceleratorFont")) {
 				UIManager.put(oStringKey, new Font("Dialog", Font.PLAIN, 11));
 			}
 		}
-
-                _parentContainer = parent;
-                _bottomPane = new BottomPanel(this);
-                
+		
+		_parentContainer = parent;
+		_bottomPane = new BottomPanel(this);
+		
 		// Important: this must be the order (loadmodules then renderbox as last two)
-                _pm = new NPluginManager();
+		_pm = new NPluginManager();
 		_filter = new DefaultFilter();
 		_r = new RenderBox(this);
 		_menu = new NMenu(this, _r);
 		_tabs = new JTabbedPane();
-
-
+		
+		
 		_parentContainer.setPreferredSize(new Dimension(700, 500));
 		
 		// trap output to standard streams and display them in a text box
@@ -83,7 +83,7 @@ public class MainPanel implements NController {
 		_tabs.add("Errors", sp1);
 		_outTextBox = sp2;
 		_errTextBox = sp1;
-
+		
 		try {
 			loadModules();
 		} catch (java.security.AccessControlException e) {
@@ -91,15 +91,15 @@ public class MainPanel implements NController {
 			return;
 		}
 	}
-
+	
 	public JTabbedPane getCenterPane() {
 		return _tabs;
 	}
-        
-        public JPanel getBottomPane() {
-            return _bottomPane;
-        }
-
+	
+	public JPanel getBottomPane() {
+		return _bottomPane;
+	}
+	
 	public void start() {
 		try {
 			initialize(null);
@@ -108,7 +108,7 @@ public class MainPanel implements NController {
 			return;
 		}
 	}
-
+	
 	public void initialize(String [] args) {
 		if(args == null || args.length < 1) {
 			_g = null;
@@ -116,16 +116,16 @@ public class MainPanel implements NController {
 			String ioName = args[0];
 			String [] ioArgs = new String[args.length - 1];
 			IOInterface io;
-
+			
 			for(int j = 1; j < args.length; j++) {
 				ioArgs[j - 1] = args[j];
 			}
-
+			
 			if(_pm.type(ioName) != NPluginLoader.PLUGIN_TYPE_IO) {
 				System.err.println("Could not find IO-Plugin '" + ioName + "'");
 				_g = null;
 			} else {
-
+				
 				io = _pm.getIOInterface(ioName);
 				try {
 					_g = (Graph) io.getData(ioArgs);
@@ -136,7 +136,7 @@ public class MainPanel implements NController {
 			}
 			_originalGraph = _g;
 		}
-
+		
 		if(_g != null && _g.numVertices() > DegreeFilterUI.THRESHHOLD) {
 			// filter it to 2 degrees using degree filter
 			setFilter(_degreeFilter);
@@ -144,15 +144,15 @@ public class MainPanel implements NController {
 			runFilter(new Object[] {_g.getVertices().iterator().next(), new Integer(1)}, true);
 			// notify user
 			JOptionPane.showMessageDialog(null,
-				"We don't recommend showing over " + DegreeFilterUI.THRESHHOLD + " vertices at onetime.\nYour graph has been filtered using the degree filter.\nChange the settings to show all vertices at the same time.",
-				"Too Many Vertices",
-				JOptionPane.WARNING_MESSAGE);
+					"We don't recommend showing over " + DegreeFilterUI.THRESHHOLD + " vertices at onetime.\nYour graph has been filtered using the degree filter.\nChange the settings to show all vertices at the same time.",
+					"Too Many Vertices",
+					JOptionPane.WARNING_MESSAGE);
 			// runFilter() runs reinitModules()
 		} else {
 			reinitModules();
 		}
 	}
-
+	
 	public void displayOutTextBox(boolean b) {
 		if(b) {
 			_tabs.add("Output", _outTextBox);
@@ -162,7 +162,7 @@ public class MainPanel implements NController {
 		_tabs.validate();
 		_tabs.repaint();
 	}
-
+	
 	public void displayErrTextBox(boolean b) {
 		if(b) {
 			_tabs.add("Errors", _errTextBox);
@@ -172,65 +172,65 @@ public class MainPanel implements NController {
 		_tabs.validate();
 		_tabs.repaint();
 	}
-        
-        public void displayBottomPane(boolean b) {
-                _bottomPane.setVisible(b);
-                _parentContainer.validate();
-                _parentContainer.repaint();
-        }
-
+	
+	public void displayBottomPane(boolean b) {
+		_bottomPane.setVisible(b);
+		_parentContainer.validate();
+		_parentContainer.repaint();
+	}
+	
 	public void setFilter(FilterInterface filter) {
 		if(filter != null) {
 			_filter = filter;
 		}
 	}
-
+	
 	public FilterInterface getFilter() {
 		return _filter;
 	}
-
+	
 	public JMenuBar getMenu() {
 		return _menu;
 	}
-        
+	
 	public void runFilter(Object [] args, boolean wholeSet) {
 		_filter.initialize((wholeSet ? _originalGraph : _g), args);
 		_g = _filter.filter((wholeSet ? _originalGraph : _g));
-                
-                // just in case a filter produces too many nodes, we will break it down using degree filter
-                if(_g != null && _g.numVertices() > DegreeFilterUI.THRESHHOLD) {
+		
+		// just in case a filter produces too many nodes, we will break it down using degree filter
+		if(_g != null && _g.numVertices() > DegreeFilterUI.THRESHHOLD) {
 			_filter = _degreeFilter;
 			// if clause tests for existence of vertices in graph, so next() can be used
 			_filter.initialize(_g, new Object[] {_g.getVertices().iterator().next(), new Integer(1)});
-                        _g = _filter.filter(_g);
-                        
+			_g = _filter.filter(_g);
+			
 			// notify user
 			JOptionPane.showMessageDialog(null,
-				"We don't recommend showing over " + DegreeFilterUI.THRESHHOLD + " vertices at onetime.\nYour graph has been filtered using the degree filter.\nChange the settings to show all vertices at the same time.",
-				"Too Many Vertices",
-				JOptionPane.WARNING_MESSAGE);
+					"We don't recommend showing over " + DegreeFilterUI.THRESHHOLD + " vertices at onetime.\nYour graph has been filtered using the degree filter.\nChange the settings to show all vertices at the same time.",
+					"Too Many Vertices",
+					JOptionPane.WARNING_MESSAGE);
 			// runFilter() runs reinitModules()
 		}
-                
+		
 		reinitModules();
 	}
-
+	
 	public void loadModules() {
 		// loadModules("jar:http://web.mit.edu/bshi/www/N2.jar!/");
 		loadModules("jar:http://web.mit.edu/bshi/www/N2.jar!/");
 	}
-
+	
 	public void loadModules(String url) {
 		// pass in parent class loader (necessary for Applets)
 		try {
 			_pm.loadFromJar(getClass().getClassLoader(), url);
 		} catch (JARAccessException exception) {
 			JOptionPane.showMessageDialog(null,
-				exception.toString(),
-				"Could not load plugins",
-				JOptionPane.WARNING_MESSAGE);
+					exception.toString(),
+					"Could not load plugins",
+					JOptionPane.WARNING_MESSAGE);
 		}
-
+		
 		/* add module UI to top level UI */
 		Iterator j = _pm.pluginIterator();
 		while(j.hasNext()) {
@@ -240,7 +240,7 @@ public class MainPanel implements NController {
 				_menu.addPluginMenu(plugin.menu());
 			}
 		}
-
+		
 		/* initialize IO plugins */
 		j = _pm.ioIterator();
 		while(j.hasNext()) {
@@ -251,29 +251,29 @@ public class MainPanel implements NController {
 			}
 		}
 	}
-
+	
 	public Graph getModel() {
 		return _originalGraph;
 	}
-
+	
 	public RenderBox getView() {
 		return _r;
 	}
-        
-        public NPluginManager getPluginManager() {
-            return _pm;
-        }
-
+	
+	public NPluginManager getPluginManager() {
+		return _pm;
+	}
+	
 	private void reinitModules() {
 		_r.clear();
-
+		
 		// we now supposedly have a graph, reinit all modules
 		Iterator j = _pm.pluginIterator();
 		while(j.hasNext()) {
 			((NV2DPlugin) j.next()).initialize(_g, _r, this);
 		}
-
-
+		
+		
 		// start things up
 		_r.initialize(_g);
 	}

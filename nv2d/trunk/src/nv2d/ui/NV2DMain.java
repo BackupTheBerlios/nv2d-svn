@@ -20,16 +20,16 @@ public class NV2DMain extends JFrame {
 	public NV2DMain() {
 		MainPanel panel = new MainPanel(getContentPane());
 		panel.start();
-
+		
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 		getContentPane().add(panel.getCenterPane(), "Center");
-                getContentPane().add(panel.getBottomPane(), "South");
+		getContentPane().add(panel.getBottomPane(), "South");
 		setJMenuBar(panel.getMenu());
 		setTitle("NV2D");
 		pack();
 		setVisible(true);
 	}
-
+	
 	public static void main(String [] args) {
 		new NV2DMain();
 	}

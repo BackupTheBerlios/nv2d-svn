@@ -207,8 +207,13 @@ public class DGraph extends Graph {
 
 	/** Remove a graph element from the graph. */
 	public boolean remove(GraphElement ge) {
-		// TODO: setParent NULL on removed graph elements
-		_indecized = false;
+		if(_e.contains(ge) || _v.contains(ge)) {
+			_indecized = false;
+			ge.setParent(null);
+		} else {
+			return false;
+		}
+
 		if(ge.getClass() == DVertex.class) {
 			_e.removeAll(((DVertex) ge).inEdges());
 			_e.removeAll(((DVertex) ge).outEdges());

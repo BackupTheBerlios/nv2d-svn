@@ -23,11 +23,11 @@ public class NApplet extends JApplet {
 	public void init() {
 		panel = new MainPanel(getContentPane());
 		getContentPane().add(panel.getCenterPane(), "Center");
-                getContentPane().add(panel.getBottomPane(), "South");
+		getContentPane().add(panel.getBottomPane(), "South");
 		setJMenuBar(panel.getMenu());
 		setVisible(true);
 	}
-
+	
 	public void start() {
 		panel.start();
 	}

@@ -575,7 +575,7 @@ public class SNA implements NV2DPlugin  {
         return (grp_betweenness / denom);
     }
 
-    /** Calculate the closeness centrality of a vertex. TODO: broken
+    /** Calculate the closeness centrality of a vertex. TODO: broken, i think
      *
 	 * <p><i>The measure focuses on how close an actor is to all the other
 	 * actors in the set of actors.  The idea is that an actor is central if it

@@ -10,15 +10,14 @@ import java.net.URLClassLoader;
 
 import nv2d.exceptions.PluginNotCreatedException;
 
-public abstract class NPluginLoader
-{
+public abstract class NPluginLoader {
 	public static final int PLUGIN_TYPE_PLAIN = 1;
 	public static final int PLUGIN_TYPE_IO = 2;
-
+	
 	// This is the list of loaded plug-ins
 	protected static Hashtable pluginRegistry = new Hashtable();
 	protected static Hashtable ioRegistry = new Hashtable();
-
+	
 	/** Register a plug-in. */
 	public static void reg(String name, NV2DPlugin plug) {
 		try {
@@ -29,7 +28,7 @@ public abstract class NPluginLoader
 			pluginRegistry.put(name, plug);
 		}
 	}
-
+	
 	/** Get a module type.  If the module has not been loaded, a
 	 * zero (or false) is returned.  Otherwise, the type of the module is
 	 * returned (see the PLUGIN_TYPE_* fields). */
@@ -41,15 +40,15 @@ public abstract class NPluginLoader
 		}
 		return 0;
 	}
-
+	
 	public IOInterface getIOInterface(String name) {
 		return (IOInterface) ioRegistry.get(name);
 	}
-        
-        public NV2DPlugin getNV2DPlugin(String name) {
+	
+	public NV2DPlugin getNV2DPlugin(String name) {
 		return (NV2DPlugin) pluginRegistry.get(name);
 	}
-
+	
 	public String extractName(String fullpath) {
 		int start = fullpath.lastIndexOf("/") + 1;
 		int end = fullpath.length() - 6;
@@ -62,7 +61,7 @@ public abstract class NPluginLoader
 		}
 		return fullpath.substring(start, end);
 	}
-
+	
 	public String extractPath(String fullpath) {
 		int start = 0;
 		int end = fullpath.length() - 6;
@@ -75,31 +74,30 @@ public abstract class NPluginLoader
 		}
 		return fullpath.substring(start, end).replace('/','.');
 	}
-
+	
 	protected static NV2DPlugin createPlugin(String name, String path)
-			throws PluginNotCreatedException {
+	throws PluginNotCreatedException {
 		/* As a general note, the only objects that should have access to the
 		 * registries are the plugins.  This class should never alter the
 		 * content of said objects. */
 		NV2DPlugin classptr = null;
-
-		if(!pluginRegistry.containsKey(name) || !ioRegistry.containsKey(name))
-		{
+		
+		if(!pluginRegistry.containsKey(name) || !ioRegistry.containsKey(name)) {
 			// detector not found
 			String pluginPath = path.replace('/', '.').substring(path.indexOf("nv2d"), path.length()) + '.' + name;
-
+			
 			try {
 				Class.forName(pluginPath);
 				// successful loading the class should add it to one of the
 				// *Registry tables
-
+				
 				Object s = pluginRegistry.get(name);
 				Object t = ioRegistry.get(name);
-
+				
 				if (s == null && t == null) {
 					throw (new PluginNotCreatedException("Could not load the plugin."));
 				}
-
+				
 				classptr = (NV2DPlugin) (s == null ? t : s);
 			} catch(ClassNotFoundException e) {
 				// We'll throw an exception to indicate that
@@ -109,19 +107,19 @@ public abstract class NPluginLoader
 		}
 		return classptr;
 	}
-
+	
 	protected static NV2DPlugin createPlugin(Class c, String name)
-		throws PluginNotCreatedException {
+	throws PluginNotCreatedException {
 		NV2DPlugin classptr = null;
 		try {
 			classptr = (NV2DPlugin) c.newInstance();
 			Object s = pluginRegistry.get(name);
 			Object t = ioRegistry.get(name);
-
+			
 			if (s == null && t == null) {
 				throw (new PluginNotCreatedException("Could not load the plugin."));
 			}
-
+			
 			classptr = (NV2DPlugin) (s == null ? t : s);
 		} catch (IllegalAccessException e) {
 			// System.err.println("The class '" + name + "' could not be accessed.");
