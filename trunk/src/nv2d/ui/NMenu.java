@@ -57,6 +57,7 @@ public class NMenu extends JMenuBar {
 		add(_plugin);
 		add(_optimize);
 		add(_view);
+		add(_legend);
 		add(_settings);
 	}
 	
@@ -78,6 +79,28 @@ public class NMenu extends JMenuBar {
 		_plugin.removeAll();
 		_plugin.add(_pluginLoad);
 		_plugin.add(_separatorPlugin);
+	}
+	
+	public void setLegendMenu(LegendMap map) {
+		// TODO
+		// grab set of names/attributes
+		// alphabetize
+		// make menuitem for each name/attribute
+		// add listener which grabs legend
+		_legend.removeAll();
+		Object [] items = map.datumSet().toArray();
+		java.util.Arrays.sort(items);
+		for(int j = 0; j < items.length; j++) {
+			String name = ((nv2d.graph.Datum) items[j]).name();
+			JMenuItem item = new JMenuItem(name);
+			item.setToolTipText("Color vertices according to " + name);
+			_legend.add(item);
+			item.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					_viewLegendMenuActionPerformed(e);
+				}
+			});
+		}
 	}
 	
 	
@@ -108,10 +131,14 @@ public class NMenu extends JMenuBar {
 	private JCheckBoxMenuItem _viewErrTxt;
 	private JCheckBoxMenuItem _viewOutTxt;
 	
+	private JMenu _legend;
+	
 	private JMenu _settings;
 	private JCheckBoxMenuItem _settingsAntialias;
 	
 	private void initComponents() {
+		_legend = new JMenu("Legend");
+		
 		// initialize the modules menu
 		_mods = new JMenu("Import");
 		_modsClear = new JMenuItem("Clear Graph");
@@ -318,5 +345,9 @@ public class NMenu extends JMenuBar {
 	private void _settingsAntialiasItemStateChanged(ItemEvent e) {
 		_renderbox.getRenderSettings().setBoolean(RenderSettings.ANTIALIAS, _settingsAntialias.getState());
 		_renderbox.setHighQuality(_settingsAntialias.getState());	
+	}
+	
+	private void _viewLegendMenuActionPerformed(ItemEvent e) {
+		// TODO
 	}
 }

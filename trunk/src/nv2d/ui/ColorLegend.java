@@ -28,6 +28,7 @@ import java.util.Iterator;
 import java.util.Set;
 import java.util.HashSet;
 
+import nv2d.graph.Datum;
 import nv2d.graph.Graph;
 import nv2d.graph.Vertex;
 import nv2d.utils.Pair;
@@ -41,7 +42,6 @@ public class ColorLegend {
 	private Graph _g;
 	private Hashtable _table;
 	private DefaultListModel _legendListModel;
-	private JList _legendList;
 	
 	public ColorLegend(Graph g, String datumName) {
 		_datumName = datumName;
@@ -76,10 +76,19 @@ public class ColorLegend {
 			 * and the color is the cdr(). */
 			_legendListModel.addElement(new Pair(key, color));
 		}
-		
-		// create the list
-		_legendList = new JList(_legendListModel);
-		_legendList.setCellRenderer(new LegendListRenderer());
+	}
+	
+	/** Assign colors to each node */
+	public void assignColors() {
+		Iterator i = _g.getVertices().iterator();
+		while(i.hasNext()) {
+			Vertex v = (Vertex) i.next();
+			Datum d = v.getDatum(_datumName);
+			if(d == null) {
+				continue;
+			}
+			v.setDatum(new Datum(nv2d.render.LegendColorizer.DATUM_LEGENDCOLOR, getColor(d.name())));
+		}
 	}
 	
 	/**
@@ -96,35 +105,11 @@ public class ColorLegend {
 		return _g;
 	}
 	
-	public JList getList() {
-		return _legendList;
+	public DefaultListModel getListModel() {
+		return _legendListModel;
 	}
 	
 	public Color getColor(String value) {
 		return (Color) _table.get(value);
-	}
-}
-
-class LegendListRenderer extends DefaultListCellRenderer {
-	public Component getListCellRendererComponent(JList list,
-			Object value,
-			int index,
-			boolean isSelected,
-			boolean hasFocus) {
-		final JLabel label =
-				(JLabel)super.getListCellRendererComponent(list,
-				value,
-				index,
-				isSelected,
-				hasFocus);
-		
-		assert(value instanceof Pair);
-		
-		final Pair legendEntry = (Pair) value;
-		label.setIcon((Icon) legendEntry.cdr());
-		label.setText((String) legendEntry.car());
-		
-		label.setVerticalTextPosition(SwingConstants.TOP);
-		return(label);
 	}
 }
