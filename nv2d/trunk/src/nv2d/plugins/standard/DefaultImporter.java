@@ -19,16 +19,16 @@ import nv2d.graph.directed.DGraph;
 import nv2d.graph.directed.DVertex;
 import nv2d.ui.NController;
 
-public class Test1IO implements IOInterface {
+public class DefaultImporter implements IOInterface {
 	String _desc;
 	String _name;
 	String _author;
 
 	NController _control;
 
-	public Test1IO() {
+	public DefaultImporter() {
 		_desc = new String("This gives us a test Graph to work with.");
-		_name = new String("Test1IO");
+		_name = new String("DefaultImporter");
 		_author= new String("Bo Shi");
 	}
 
@@ -88,7 +88,7 @@ public class Test1IO implements IOInterface {
 	// means it will only be run when the class is loaded
 	static {
 		// put factory in the hashtable for detector factories.
-		NPluginLoader.reg("Test1IO", new Test1IO());
+		NPluginLoader.reg("DefaultImporter", new DefaultImporter());
 	}
 
 	public static DGraph mkgraph() {

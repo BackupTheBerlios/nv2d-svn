@@ -1,7 +1,12 @@
 package nv2d.plugins;
 
 import java.util.Hashtable;
+import java.lang.Class;
 import java.lang.ClassCastException;
+import java.lang.InstantiationException;
+import java.lang.ClassLoader;
+import java.net.URL;
+import java.net.URLClassLoader;
 
 import nv2d.exceptions.PluginNotCreatedException;
 
@@ -71,6 +76,35 @@ public abstract class NPluginLoader
 				// the detector could not be created
 				throw(new PluginNotCreatedException("Could not find the plugin [" + pluginPath + "]"));
 			}
+		}
+		return classptr;
+	}
+
+	protected static NV2DPlugin createPlugin(Class c, String name)
+		throws PluginNotCreatedException {
+		NV2DPlugin classptr = null;
+		try {
+			classptr = (NV2DPlugin) c.newInstance();
+			Object s = pluginRegistry.get(name);
+			Object t = ioRegistry.get(name);
+
+			if (s == null && t == null) {
+				throw (new PluginNotCreatedException("Could not load the plugin."));
+			}
+
+			classptr = (NV2DPlugin) (s == null ? t : s);
+		} catch (IllegalAccessException e) {
+			System.err.println("The class '" + name + "' could not be accessed.");
+			System.err.println(e.toString());
+			throw(new PluginNotCreatedException("Could not find the plugin [" + name + "]"));
+		} catch (InstantiationException e) {
+			System.err.println("The class '" + name + "' is not a valid NV2D plugin.");
+			System.err.println(e.toString());
+			throw(new PluginNotCreatedException("Could not find the plugin [" + name + "]"));
+		} catch (ClassCastException e) {
+			System.err.println("The class '" + name + "' is not a valid NV2D plugin.");
+			System.err.println(e.toString());
+			throw(new PluginNotCreatedException("Could not find the plugin [" + name + "]"));
 		}
 		return classptr;
 	}
