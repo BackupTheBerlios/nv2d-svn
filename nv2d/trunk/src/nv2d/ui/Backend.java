@@ -4,7 +4,6 @@ import java.io.IOException;
 import javax.swing.*;
 
 import nv2d.graph.Graph;
-import nv2d.render.Palette;
 import nv2d.plugins.IOInterface;
 import nv2d.plugins.NPluginManager;
 import nv2d.plugins.NPluginLoader;
