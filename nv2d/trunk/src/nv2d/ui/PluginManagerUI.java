@@ -6,16 +6,79 @@
 
 package nv2d.ui;
 
+import java.lang.StringBuffer;
+import java.util.Iterator;
+import java.awt.Color;
+import java.awt.event.MouseListener;
+import java.awt.event.MouseEvent;
+import javax.swing.JLabel;
+
+import nv2d.plugins.IOInterface;
+import nv2d.ui.NController;
+
 /**
  *
  * @author  bshi
  */
 public class PluginManagerUI extends javax.swing.JDialog {
+    NController _ctl;
     
     /** Creates new form PluginManagerUI */
-    public PluginManagerUI(java.awt.Frame parent, boolean modal) {
-        super(parent, modal);
+    public PluginManagerUI(java.awt.Frame parent, NController ctl) {
+        super(parent, true);
+        _ctl = ctl;
         initComponents();
+        initContent();
+        
+        _ctl.getPluginManager().addSecureLocation("www.netvis.org");
+        _ctl.getPluginManager().addSecureLocation("web.mit.edu/bshi");
+    }
+    
+    /** This method is called from the constructor to fill in the components
+     * from the {@link NPluginManager}.
+     */
+    public void initContent() {
+        // clear the panes of interest
+        _managerListPanel.removeAll();
+        
+        // fill in the list of available importers
+        Iterator i = _ctl.getPluginManager().ioIterator();
+        while(i.hasNext()) {
+            final IOInterface io = (IOInterface) i.next();
+            final JLabel label = new JLabel(io.name() + (io.author() != null || io.author().length() > 0 ? " - [" + io.author() + "]" : ""));
+            label.addMouseListener(new MouseListener() {
+                Color nonselected = new Color(51, 51, 51);
+                Color selected = Color.BLUE;
+
+                public void mousePressed(MouseEvent e) {}
+                public void mouseReleased(MouseEvent e) {}
+                public void mouseClicked(MouseEvent e) {
+                    label.setForeground(label.getForeground() == selected ? nonselected : selected);
+
+                    StringBuffer text = new StringBuffer("Importer Name: " + io.name() + '\n');
+                    text.append("Author: " + io.author() + '\n');
+
+                    text.append("Required Arguments:\n");
+                    for(int i = 0; i < io.requiredArgs().length; i++) {
+                        text.append("   " + (i + 1) + ": " + io.requiredArgs()[i] + '\n');
+                    }
+                    
+                    text.append("Description:\n" + io.description());
+                    _managerDescTxt.setText(text.toString());
+                }
+                public void mouseEntered(MouseEvent e) {}
+                public void mouseExited(MouseEvent e) {}
+            });
+            
+            // add it to _managerListPanel
+            _managerListPanel.add(label);
+        }
+        
+        // TODO fill in list of available plugins
+        
+        // fill in default security list
+        _secList.setListData(_ctl.getPluginManager().secureLocations());
+        
     }
     
     /** This method is called from within the constructor to
@@ -28,7 +91,7 @@ public class PluginManagerUI extends javax.swing.JDialog {
         _managerListSP = new javax.swing.JScrollPane();
         _managerListPanel = new javax.swing.JPanel();
         _managerDescSP = new javax.swing.JScrollPane();
-        _managerDescTxt = new javax.swing.JTextPane();
+        _managerDescTxt = new javax.swing.JTextArea();
         _load = new javax.swing.JPanel();
         _loadLabel = new javax.swing.JLabel();
         _loadURI = new javax.swing.JTextField();
@@ -42,10 +105,13 @@ public class PluginManagerUI extends javax.swing.JDialog {
         _manager.setLayout(new javax.swing.BoxLayout(_manager, javax.swing.BoxLayout.Y_AXIS));
 
         _manager.setBorder(new javax.swing.border.TitledBorder("Plugin Manager"));
+        _managerListPanel.setLayout(new javax.swing.BoxLayout(_managerListPanel, javax.swing.BoxLayout.Y_AXIS));
+
         _managerListSP.setViewportView(_managerListPanel);
 
         _manager.add(_managerListSP);
 
+        _managerDescTxt.setTabSize(4);
         _managerDescSP.setViewportView(_managerDescTxt);
 
         _manager.add(_managerDescSP);
@@ -95,6 +161,8 @@ public class PluginManagerUI extends javax.swing.JDialog {
     }
     */
     
+    
+    
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPanel _load;
     private javax.swing.JButton _loadExec;
@@ -102,7 +170,7 @@ public class PluginManagerUI extends javax.swing.JDialog {
     private javax.swing.JTextField _loadURI;
     private javax.swing.JPanel _manager;
     private javax.swing.JScrollPane _managerDescSP;
-    private javax.swing.JTextPane _managerDescTxt;
+    private javax.swing.JTextArea _managerDescTxt;
     private javax.swing.JPanel _managerListPanel;
     private javax.swing.JScrollPane _managerListSP;
     private javax.swing.JPanel _sec;

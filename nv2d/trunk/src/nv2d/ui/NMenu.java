@@ -63,11 +63,19 @@ public class NMenu extends JMenuBar {
 	}
 
 	public class nmPlugins extends JMenu {
-		private JMenuItem _load = new JMenuItem("Load Plugin");
+		private JMenuItem _load = new JMenuItem("Plugin Manager");
+                private PluginManagerUI _pluginManagerUI = new PluginManagerUI(null, _topLevel);
 		public nmPlugins() {
 			super("Plugins");
 			add(_load);
 			add(new JSeparator());
+                        
+                        _load.addActionListener(new ActionListener() {
+                            public void actionPerformed(ActionEvent e) {
+                                _pluginManagerUI.setVisible(true);
+                                _pluginManagerUI.initContent();
+                            }
+                        });
 		}
 	}
 

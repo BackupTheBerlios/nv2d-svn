@@ -12,6 +12,8 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.Enumeration;
 import java.util.Iterator;
+import java.util.HashSet;
+import java.util.Set;
 
 import nv2d.graph.Graph;
 import nv2d.exceptions.PluginNotCreatedException;
@@ -23,6 +25,24 @@ public class NPluginManager extends NPluginLoader
 	// public static final String PLUGIN_DIRECTORY = "nv2d/plugins/standard";
 	// public static final String PLUGIN_DIRECTORY = "./standard/";
 	private static String PLUGIN_DIRECTORY = "nv2d/plugins/standard";
+        
+        private static Set _securityList;
+        
+        public NPluginManager() {
+            _securityList = new HashSet();
+        }
+        
+        public void addSecureLocation(String loc) {
+            _securityList.add(loc);
+        }
+        
+        public void remSecureLocation(String loc) {
+            _securityList.remove(loc);
+        }
+        
+        public Object [] secureLocations() {
+            return _securityList.toArray();
+        }
 
 	public NV2DPlugin getp(String name) {
 		return ((NV2DPlugin) pluginRegistry.get(name));
@@ -91,6 +111,9 @@ public class NPluginManager extends NPluginLoader
 		URLClassLoader loader = null;
 		String pname = null;
 		String fullname = null;
+                
+                // TODO: check if the url is allowd by the _securityList
+                
 		try {
 			loader = new URLClassLoader(new URL[] { new URL(url) }, parent);
 		} catch (MalformedURLException ex) {

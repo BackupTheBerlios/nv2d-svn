@@ -50,6 +50,7 @@ public class MainPanel implements NController {
 		}
 
 		// Important: this must be the order (loadmodules then renderbox as last two)
+                _pm = new NPluginManager();
 		_filter = new DefaultFilter();
 		_r = new RenderBox(this);
 		_menu = new NMenu(this, _r);
@@ -93,12 +94,6 @@ public class MainPanel implements NController {
 		}
 	}
 
-	/** This method takes in string arguments provided and attempts to
-	 * import data into a Graph.  If <code>args</code> is null or has
-	 * not arguments, the visualization will not load a Graph.  Otherwise,
-	 * the first argument must be the name of the <code>IOInterface</code>
-	 * importer to be used.  Any subsequent arguments will be passed
-	 * to the importer object. */
 	public void initialize(String [] args) {
 		if(args == null || args.length < 1) {
 			_g = null;
@@ -116,7 +111,7 @@ public class MainPanel implements NController {
 				_g = null;
 			} else {
 
-				io = _pm.get(ioName);
+				io = _pm.getIOInterface(ioName);
 				try {
 					_g = (Graph) io.getData(ioArgs);
 				} catch (IOException ioe) {
@@ -199,8 +194,6 @@ public class MainPanel implements NController {
 	}
 
 	public void loadModules() {
-		_pm = new NPluginManager();
-
 		// pass in parent class loader (necessary for Applets)
 		if(!_pm.loadFromJar(getClass().getClassLoader(), "jar:http://web.mit.edu/bshi/www/N2.jar!/")) {
 			JOptionPane.showMessageDialog(null,
@@ -237,6 +230,10 @@ public class MainPanel implements NController {
 	public RenderBox getView() {
 		return _r;
 	}
+        
+        public NPluginManager getPluginManager() {
+            return _pm;
+        }
 
 	private void reinitModules() {
 		_r.clear();

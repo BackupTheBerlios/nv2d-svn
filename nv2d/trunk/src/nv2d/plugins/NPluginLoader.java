@@ -42,8 +42,12 @@ public abstract class NPluginLoader
 		return 0;
 	}
 
-	public IOInterface get(String name) {
+	public IOInterface getIOInterface(String name) {
 		return (IOInterface) ioRegistry.get(name);
+	}
+        
+        public NV2DPlugin getNV2DPlugin(String name) {
+		return (NV2DPlugin) pluginRegistry.get(name);
 	}
 
 	public String extractName(String fullpath) {
