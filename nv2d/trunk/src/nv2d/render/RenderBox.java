@@ -5,15 +5,17 @@ import java.awt.Cursor;
 import java.awt.AlphaComposite;
 import java.awt.Font;
 import java.awt.FontMetrics;
-//import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Line2D;
+import java.io.File;
+import java.io.IOException;
 import java.lang.Math;
-//import java.awt.geom.AffineTransform;
-//import java.awt.image.BufferedImage;
+import java.awt.image.BufferedImage;
+import java.awt.image.RenderedImage;
 import java.util.Iterator;
+import javax.imageio.ImageIO;
 
 import edu.berkeley.guir.prefuse.Display;
 import edu.berkeley.guir.prefuse.ItemRegistry;
@@ -127,6 +129,35 @@ public class RenderBox extends Display {
 			return;
 		}
 		_actions.remove(_flayout);
+	}
+
+	/** Saves the current visualization to a PNG or JPEG file.
+	 *
+	 * @param filename	the name of the file to save to.
+	 */
+	public void saveVisualFile(String filename) {
+		BufferedImage bi = new BufferedImage(
+				(int) getWidth(),
+				(int) getHeight(),
+				BufferedImage.TYPE_INT_RGB);
+		Graphics2D g = bi.createGraphics();
+
+		// draw what we have
+		this.update(g);
+
+		// saves according to extension.  if extension is invalid
+		// (i.e. not .jpg or .png) will default to jpg file.
+		try {
+			File f = new File(filename);
+			if(filename.substring(filename.length() - 4).equals(".png")) {
+				ImageIO.write((RenderedImage) bi, "png", f);
+			} else {
+				ImageIO.write((RenderedImage) bi, "jpg", f);
+			}
+		} catch (IOException e) {
+			System.out.println("Error: " + e);
+		}
+		g.dispose();
 	}
 
 	public void doRandomLayout() {
