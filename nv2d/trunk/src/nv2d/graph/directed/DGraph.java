@@ -15,10 +15,19 @@ public class DGraph extends Graph {
 	protected Set _v;	// vertices
 	protected Set _o;	// other graph elements
 
+	/* If this variable is zero, the cache is invalid.  If the value is
+	 * non-zero, the cache is valid.  Any modifications to the graph should
+	 * invalidate the cache.  If the cache is invalidated, the method
+	 * <code>minEdgeLength()</code> needs to run through all the edges and
+	 * check for the minimum length. */
+	private double _minEdgeLengthCache;
+
 	public DGraph() {
 		_e = (Set) (new HashSet());
 		_v = (Set) (new HashSet());
 		_o = (Set) (new HashSet());
+
+		_minEdgeLengthCache = 0;
 	}
 
 	public Set getEdges() {
@@ -41,9 +50,26 @@ public class DGraph extends Graph {
 		return _e.size();
 	}
 
+	public double minEdgeLength() {
+		if(_minEdgeLengthCache != 0) {
+			return _minEdgeLengthCache;
+		}
+
+		Iterator i = _e.iterator();
+		while(i.hasNext()) {
+			DEdge e = (DEdge) i.next();
+			if(e.length() < _minEdgeLengthCache) {
+				_minEdgeLengthCache = e.length();
+			}
+		}
+		return _minEdgeLengthCache;
+	}
+
 	public boolean add(GraphElement ge) {
 		if(ge.getClass() == DVertex.class) {
 			ge.setParent(this);
+			// invalidate _minEdgeLengthCache
+			_minEdgeLengthCache = 0;
 			return _v.add(ge);
 		}
 		if(ge.getClass() == DEdge.class) {
@@ -51,6 +77,8 @@ public class DGraph extends Graph {
 			((DVertex) ((DEdge) ge).getDest()).addInEdge( (DEdge) ge );
 			((DVertex) ((DEdge) ge).getSource()).addOutEdge( (DEdge) ge );
 			ge.setParent(this);
+			// invalidate _minEdgeLengthCache
+			_minEdgeLengthCache = 0;
 			return _e.add(ge);
 		}
 
@@ -70,6 +98,9 @@ public class DGraph extends Graph {
 			_e.removeAll(((DVertex) ge).outEdges());
 			_v.remove(ge);
 			cleanupVertex(((DVertex) ge).neighbors());
+			// invalidate _minEdgeLengthCache
+			_minEdgeLengthCache = 0;
+
 			/* This return value is meaningless for now */
 			return true;
 		}
@@ -77,6 +108,9 @@ public class DGraph extends Graph {
 			_e.remove(ge);
 			cleanupVertex((DVertex) ((DEdge) ge).getSource());
 			cleanupVertex((DVertex) ((DEdge) ge).getDest());
+			// invalidate _minEdgeLengthCache
+			_minEdgeLengthCache = 0;
+
 			/* This return value is meaningless for now */
 			return true;
 		}
@@ -85,8 +119,6 @@ public class DGraph extends Graph {
 		throw new IllegalArgumentException("You must add a Directed graph element to a Directed Graph.");
 	}
 
-	/* The remove operation sometimes leave vertices with pointers to edges
-	 * that no longer exist.  This method should be called to clean them up. */
 	private void cleanupVertex(Set vertices) {
 		Iterator i = vertices.iterator();
 		while(i.hasNext()) {
@@ -94,6 +126,8 @@ public class DGraph extends Graph {
 		}
 	}
 
+	/* The remove operation sometimes leave vertices with pointers to edges
+	 * that no longer exist.  This method should be called to clean them up. */
 	private void cleanupVertex(DVertex v) {
 		Iterator j = v.inEdges().iterator();
 		while(j.hasNext()) {
@@ -112,8 +146,11 @@ public class DGraph extends Graph {
 	}
 
 	public void clear() {
-		_v.clear();
-		_e.clear();
-		_o.clear();
+		/* removing all the nodes using the remove() method should handle
+		 * clearing all the object references. */
+		Iterator i = _v.iterator();
+		while(i.hasNext()) {
+			remove((GraphElement) i.next());
+		}
 	}
 }
