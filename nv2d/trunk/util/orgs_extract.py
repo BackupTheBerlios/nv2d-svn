@@ -7,9 +7,9 @@ The data structures in this file are static.
 import MySQLdb
 import string
 
-_site = "mysql.com"
-_login = "foo"
-_passw = "bar"
+_site = ""
+_login = ""
+_passw = ""
 
 def enclose(s):
 	return '"' + str(s) + '"'
@@ -85,6 +85,6 @@ for entry in data:
 	fullname = entry[1] + ' ' + entry[2] + ' ' + entry[3]
 
 	buf = enclose(entry[0]) + ';' + enclose(edges) + ';' + enclose(stringify(lengths)) + ';'\
-		+ enclose(fullname) + ';' + enclose(entry[5]) + ';' + enclose(entry[6]) + ';' + enclose(stringify(years))\
+		+ enclose(fullname) + ';' + enclose(entry[5]) + ';' + enclose(entry[6]) + ';' + enclose(stringify(years)) + ';'\
 		+ enclose("http://www.orgstudies.org/nv2d_show?last=" + entry[3])
 	print buf
