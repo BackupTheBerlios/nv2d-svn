@@ -100,7 +100,6 @@ public class RenderBox extends Display {
 	private ForceDirectedLayout _flayout;
 	private RandomLayout _randomLayout;
 	private SemiRandomLayout _semiRandomLayout;
-	private CenterLayout _centerLayout;
 	
 	private PopupMenu _vertexMenu;
 	
@@ -177,7 +176,6 @@ public class RenderBox extends Display {
 		// other layouts
 		_randomLayout = new RandomLayout();
 		_semiRandomLayout = new SemiRandomLayout(_ctl);
-		_centerLayout = new CenterLayout();
 		
 		// create a new action list that
 		// (a) filters visual representations from the original graph
