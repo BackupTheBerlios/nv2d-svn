@@ -366,6 +366,14 @@ public class RenderBox extends Display {
 			_setEndPoint.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
 					Vertex v = ((PNode) _lastItemClicked.getEntity()).v();
+					if(v.equals(_apspSource)) {
+						JOptionPane.showMessageDialog(null,
+							"You picked the same node " + _apspSource.id() + " to be the source and destination.",
+							"Path Error",
+							JOptionPane.ERROR_MESSAGE);
+						return;
+					}
+
 					Path p = _g.shortestPath(_apspSource, v);
 
 					if(p == null) {
