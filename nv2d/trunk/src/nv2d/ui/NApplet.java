@@ -75,7 +75,7 @@ public class NApplet extends JApplet implements NController {
 			return;
 		}
 
-		getContentPane().add(_r);
+		getContentPane().add(_tabs);
 		setJMenuBar(_menu);
 		setVisible(true);
 	}
