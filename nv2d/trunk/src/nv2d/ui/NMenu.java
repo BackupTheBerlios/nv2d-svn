@@ -9,6 +9,7 @@ import javax.swing.JMenuItem;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
+import javax.swing.JSeparator;
 
 import edu.berkeley.guir.prefuse.VisualItem;
 
@@ -55,6 +56,7 @@ public class NMenu extends JMenuBar {
 				}
 			});
 			add(_clear);
+			add(new JSeparator());
 		}
 	}
 
@@ -63,6 +65,7 @@ public class NMenu extends JMenuBar {
 		public nmPlugins() {
 			super("Plugins");
 			add(_load);
+			add(new JSeparator());
 		}
 	}
 
