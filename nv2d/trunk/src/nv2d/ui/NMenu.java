@@ -20,199 +20,259 @@ import nv2d.render.RenderSettings;
 
 /* TODO: complete rewrite using the java forms manager */
 public class NMenu extends JMenuBar {
-	RenderBox _renderbox;
-	NController _topLevel;
-	nmMods _menu_importers;
-	nmPlugins _menu_plugins;
+	private RenderBox _renderbox;
+	private NController _ctl;
+	private PluginManagerUI _pluginManagerUI;
 	
+	private DegreeFilter _degreeFilter;
+
 	// public NMenu(RenderBox r) {
 	public NMenu(NController j, RenderBox r) {
-		_topLevel = j;
+		_ctl = j;
 		_renderbox = r;
 		
-		_menu_importers = new nmMods();
-		_menu_plugins = new nmPlugins();
+		_pluginManagerUI = new PluginManagerUI(null, _ctl);
+		_degreeFilter = new DegreeFilter();
+		_separator = new JSeparator();
 		
-		add(_menu_importers);
-		add(_menu_plugins);
-		add(new nmOptimization());
-		add(new nmView());
-		add(new nmSettings());
+		initComponents();
+		
+		add(_mods);
+		add(_plugin);
+		add(_optimize);
+		add(_view);
+		add(_settings);
 	}
 	
 	public void addImporterMenu(JMenu m) {
-		_menu_importers.add(m);
+		_mods.add(m);
 	}
-	
+
 	public void addPluginMenu(JMenu m) {
-		_menu_plugins.add(m);
+		_plugin.add(m);
 	}
 	
-	public class nmMods extends JMenu {
-		private JMenuItem _clear = new JMenuItem("Clear Graph");
-		public nmMods() {
-			super("Import");
-			
-			_clear.addActionListener(new ActionListener() {
-				public void actionPerformed(ActionEvent e) {
-					_renderbox.clear();
-				}
-			});
-			add(_clear);
-			add(new JSeparator());
-		}
-	}
 	
-	public class nmPlugins extends JMenu {
-		private JMenuItem _load = new JMenuItem("Plugin Manager");
-		private PluginManagerUI _pluginManagerUI = new PluginManagerUI(null, _topLevel);
-		public nmPlugins() {
-			super("Plugins");
-			add(_load);
-			add(new JSeparator());
-			
-			_load.addActionListener(new ActionListener() {
-				public void actionPerformed(ActionEvent e) {
-					_pluginManagerUI.initContent();
-					_pluginManagerUI.setVisible(true);
-				}
-			});
-		}
-	}
+	private JSeparator _separator;
 	
-	public class nmOptimization extends JMenu {
-		JMenuItem _start = new JMenuItem("Start");
-		JMenuItem _stop = new JMenuItem("Stop");
-		JMenuItem _center = new JMenuItem("Center");
-		JMenuItem _reset= new JMenuItem("Reset");
-		
-		public nmOptimization() {
-			super("Optimization");
-			_start.addActionListener(new ActionListener() {
-				public void actionPerformed(ActionEvent e) {
-					_renderbox.startForceDirectedLayout();
-				}
-			});
-			_stop.addActionListener(new ActionListener() {
-				public void actionPerformed(ActionEvent e) {
-					_renderbox.stopForceDirectedLayout();
-				}
-			});
-			_center.addActionListener(new ActionListener() {
-				public void actionPerformed(ActionEvent e) {
-				}
-			});
-			_reset.addActionListener(new ActionListener() {
-				public void actionPerformed(ActionEvent e) {
-					_renderbox.stopForceDirectedLayout();
-					_renderbox.doRandomLayout();
-				}
-			});
-			add(_start);
-			add(_stop);
-			add(_center);
-			add(_reset);
-		}
-	}
+	private JMenu _mods;
+	private JMenuItem _modsClear;
 	
-	public class nmView extends JMenu implements ItemListener {
-		JMenu _visualization;
-		JCheckBoxMenuItem _nlabel = new JCheckBoxMenuItem("Labels",
-				_renderbox.getRenderSettings().getBoolean(RenderSettings.SHOW_LABELS));
-		JCheckBoxMenuItem _stress = new JCheckBoxMenuItem("Stress",
-				_renderbox.getRenderSettings().getBoolean(RenderSettings.SHOW_STRESS));
-		JCheckBoxMenuItem _length = new JCheckBoxMenuItem("Length",
-				_renderbox.getRenderSettings().getBoolean(RenderSettings.SHOW_LENGTH));
-		
-		JMenu _filter;
-		JMenuItem _degreeFilter = new JMenuItem("Degree");
-		JMenuItem _measureFilter = new JMenuItem("Measure");
-		
-		// degree filter stuff
-		DegreeFilter _degreeFilterObject = new DegreeFilter();
-		
-		JCheckBoxMenuItem _bottomPanel = new JCheckBoxMenuItem("Bottom Control Panel", true);
-		JCheckBoxMenuItem _errTxt = new JCheckBoxMenuItem("Error Messages", true);
-		JCheckBoxMenuItem _outTxt = new JCheckBoxMenuItem("Program Output", true);
-		
-		public nmView() {
-			super("View");
-			_visualization = new JMenu("Visualization");
-			_filter = new JMenu("Graph Filters");
-			
-			// event listeners
-			_nlabel.addItemListener(this);
-			_stress.addItemListener(this);
-			_length.addItemListener(this);
-			_errTxt.addItemListener(this);
-			_outTxt.addItemListener(this);
-			_degreeFilter.addActionListener(new ActionListener() {
-				public void actionPerformed(ActionEvent e) {
-					_topLevel.setFilter(_degreeFilterObject);
-					// dialog to get initialization arguments
-					// TODO
-					JDialog _degreeFilterDialog = DegreeFilterUI.getJDialog(_topLevel);
-					if(_degreeFilterDialog != null) {
-						_degreeFilterDialog.pack();
-						_degreeFilterDialog.show();
-					}
-				}
-			});
-			
-			_bottomPanel.addActionListener(new ActionListener() {
-				public void actionPerformed(ActionEvent e) {
-					_topLevel.displayBottomPane(_bottomPanel.getState());
-				}
-			});
-			
-			// visualization submenu
-			_visualization.add(_nlabel);
-			_visualization.add(_stress);
-			_visualization.add(_length);
-			
-			// filter submenu
-			_filter.add(_degreeFilter);
-			_filter.add(_measureFilter);
-			
-			add(_bottomPanel);
-			add(_errTxt);
-			add(_outTxt);
-			add(new JSeparator());
-			add(_visualization);
-			add(_filter);
-		}
-		
-		public void itemStateChanged(ItemEvent e) {
-			if (e.getSource().equals(_nlabel)) {
-				_renderbox.getRenderSettings().setBoolean(RenderSettings.SHOW_LABELS, _nlabel.getState());
-			} else if (e.getSource().equals(_stress)) {
-			} else if (e.getSource().equals(_length)) {
-				_renderbox.getRenderSettings().setBoolean(RenderSettings.SHOW_LENGTH, _length.getState());
-			} else if (e.getSource().equals(_errTxt)) {
-				// System.out.print("err " + _errTxt.getState());
-				_topLevel.displayErrTextBox(_errTxt.getState());
-			} else if (e.getSource().equals(_outTxt)) {
-				// System.out.print("out " + _outTxt.getState());
-				_topLevel.displayOutTextBox(_outTxt.getState());
+	private JMenu _plugin;
+	private JMenuItem _pluginLoad;
+	
+	private JMenu _optimize;
+	private JMenuItem _optimizeStart;
+	private JMenuItem _optimizeStop;
+	private JMenuItem _optimizeCenter;
+	private JMenuItem _optimizeReset;
+	
+	private JMenu _view;
+	private JCheckBoxMenuItem _viewVLabel;
+	private JCheckBoxMenuItem _viewStress;
+	private JCheckBoxMenuItem _viewLength;
+	private JMenu _viewVis;
+	private JMenuItem _viewFilter;
+	private JMenuItem _viewFilterDegree;
+	private JCheckBoxMenuItem _viewSouthPanel;
+	private JCheckBoxMenuItem _viewErrTxt;
+	private JCheckBoxMenuItem _viewOutTxt;
+	
+	private JMenu _settings;
+	private JCheckBoxMenuItem _settingsAntialias;
+	
+	private void initComponents() {
+		// initialize the modules menu
+		_mods = new JMenu("Import");
+		_modsClear = new JMenuItem("Clear Graph");
+
+		_mods.add(_modsClear);
+		_mods.add(_separator);
+		_modsClear.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				_modsClearActionPerformed(e);
 			}
+		});
+
+		// initialize the plugins menu
+		_plugin = new JMenu("Plugins");
+		_pluginLoad = new JMenuItem("Plugin Manager");
+		
+		_plugin.add(_pluginLoad);
+		_plugin.add(_separator);
+		_pluginLoad.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				_pluginLoadActionPerformed(e);
+			}
+		});
+		
+		// initialize the optimization menu
+		_optimize = new JMenu("Optimization");
+		_optimizeStart = new JMenuItem("Start");
+		_optimizeStop = new JMenuItem("Stop");
+		_optimizeCenter = new JMenuItem("Center");
+		_optimizeReset= new JMenuItem("Reset");
+		
+		_optimize.add(_optimizeStart);
+		_optimize.add(_optimizeStop);
+		_optimize.add(_optimizeCenter);
+		_optimize.add(_optimizeReset);
+		
+		_optimizeStart.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				_optimizeStartActionPerformed(e);
+			}
+		});
+		_optimizeStop.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				_optimizeStopActionPerformed(e);
+			}
+		});
+		_optimizeCenter.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				_optimizeCenterActionPerformed(e);
+			}
+		});
+		_optimizeReset.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				_optimizeResetActionPerformed(e);
+			}
+		});
+		
+		_view = new JMenu("View");
+		_viewVLabel = new JCheckBoxMenuItem("Labels", _renderbox.getRenderSettings().getBoolean(RenderSettings.SHOW_LABELS));
+		_viewStress = new JCheckBoxMenuItem("Stress", _renderbox.getRenderSettings().getBoolean(RenderSettings.SHOW_STRESS));
+		_viewLength = new JCheckBoxMenuItem("Length", _renderbox.getRenderSettings().getBoolean(RenderSettings.SHOW_LENGTH));
+		_viewVis = new JMenu("Visualization");
+		_viewFilter = new JMenuItem("Graph Filters");
+		_viewFilterDegree = new JMenuItem("Degree Filter");
+		_viewSouthPanel = new JCheckBoxMenuItem("Bottom Control Panel", true);
+		_viewErrTxt = new JCheckBoxMenuItem("Error Messages", true);
+		_viewOutTxt = new JCheckBoxMenuItem("Program Output", true);
+
+		_view.add(_viewSouthPanel);
+		_view.add(_viewErrTxt);
+		_view.add(_viewOutTxt);
+		_view.add(_separator);
+		_view.add(_viewVis);
+		_view.add(_viewFilter);
+		// visualization submenu
+		_viewVis.add(_viewVLabel);
+		_viewVis.add(_viewStress);
+		_viewVis.add(_viewLength);
+		// filter submenu
+		_viewFilter.add(_viewFilterDegree);
+		_viewFilterDegree.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				_viewFilterDegreeActionPerformed(e);
+				
+			}
+		});
+		_viewSouthPanel.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				_viewSouthPanelActionPerformed(e);
+			}
+		});
+		_viewVLabel.addItemListener(new ItemListener() {
+			public void itemStateChanged(ItemEvent e) {
+				_viewVLabelItemStateChanged(e);
+			}
+		});
+		_viewStress.addItemListener(new ItemListener() {
+			public void itemStateChanged(ItemEvent e) {
+				_viewStressItemStateChanged(e);
+			}
+		});
+		_viewLength.addItemListener(new ItemListener() {
+			public void itemStateChanged(ItemEvent e) {
+				_viewLengthItemStateChanged(e);
+			}
+		});
+		_viewErrTxt.addItemListener(new ItemListener() {
+			public void itemStateChanged(ItemEvent e) {
+				_viewErrTxtItemStateChanged(e);
+			}
+		});
+		_viewOutTxt.addItemListener(new ItemListener() {
+			public void itemStateChanged(ItemEvent e) {
+				_viewOutTxtItemStateChanged(e);
+			}
+		});
+		
+		// initialize settings menu
+		_settings = new JMenu("Settings");
+		_settingsAntialias = new JCheckBoxMenuItem("Antialias", _renderbox.getRenderSettings().getBoolean(RenderSettings.ANTIALIAS));
+		
+		_settings.add(_settingsAntialias);
+		_settingsAntialias.addItemListener(new ItemListener() {
+			public void itemStateChanged(ItemEvent e) {
+				_settingsAntialiasItemStateChanged(e);
+			}
+		});
+	}
+
+	private void _modsClearActionPerformed(ActionEvent e) {
+		_renderbox.clear();
+	}
+
+	private void _pluginLoadActionPerformed(ActionEvent e) {
+		_pluginManagerUI.initContent();
+		_pluginManagerUI.setVisible(true);
+	}
+
+	private void _optimizeStartActionPerformed(ActionEvent e) {
+		_renderbox.startForceDirectedLayout();
+	}
+
+	private void _optimizeStopActionPerformed(ActionEvent e) {
+		_renderbox.stopForceDirectedLayout();
+	}
+
+	private void _optimizeCenterActionPerformed(ActionEvent e) {
+		
+	}
+
+	private void _optimizeResetActionPerformed(ActionEvent e) {
+		_renderbox.stopForceDirectedLayout();
+		_renderbox.doRandomLayout();
+	}
+
+	private void _viewFilterDegreeActionPerformed(ActionEvent e) {
+		_ctl.setFilter(_degreeFilter);
+		// dialog to get initialization arguments
+		// TODO
+		JDialog _degreeFilterDialog = DegreeFilterUI.getJDialog(_ctl);
+		if(_degreeFilterDialog != null) {
+			_degreeFilterDialog.pack();
+			_degreeFilterDialog.show();
 		}
 	}
-	
-	public class nmSettings extends JMenu implements ItemListener {
-		JCheckBoxMenuItem _aa = new JCheckBoxMenuItem("Antialias",
-				_renderbox.getRenderSettings().getBoolean(RenderSettings.ANTIALIAS));
-		
-		public nmSettings() {
-			super("Settings");
-			add(_aa);
-			_aa.addItemListener(this);
-		}
-		
-		public void itemStateChanged(ItemEvent e) {
-			if(e.getSource().equals(_aa)) {
-				_renderbox.getRenderSettings().setBoolean(RenderSettings.ANTIALIAS, _aa.getState());
-				_renderbox.setHighQuality(_aa.getState());
-			}
-		}
+
+	private void _viewSouthPanelActionPerformed(ActionEvent e) {
+		_ctl.displayBottomPane(_viewSouthPanel.getState());
+	}
+
+	private void _viewVLabelItemStateChanged(ItemEvent e) {
+		_renderbox.getRenderSettings().setBoolean(RenderSettings.SHOW_LABELS, _viewVLabel.getState());
+	}
+
+	private void _viewOutTxtItemStateChanged(ItemEvent e) {
+		_ctl.displayOutTextBox(_viewOutTxt.getState());
+	}
+
+	private void _viewErrTxtItemStateChanged(ItemEvent e) {
+		_ctl.displayErrTextBox(_viewErrTxt.getState());
+	}
+
+	private void _viewLengthItemStateChanged(ItemEvent e) {
+		_renderbox.getRenderSettings().setBoolean(RenderSettings.SHOW_LENGTH, _viewLength.getState());
+	}
+
+	private void _viewStressItemStateChanged(ItemEvent e) {
+	}
+
+	private void _settingsAntialiasItemStateChanged(ItemEvent e) {
+		_renderbox.getRenderSettings().setBoolean(RenderSettings.ANTIALIAS, _settingsAntialias.getState());
+		_renderbox.setHighQuality(_settingsAntialias.getState());	
 	}
 }
