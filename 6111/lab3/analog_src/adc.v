@@ -15,15 +15,17 @@ module adc(clk, reset, start, busy, data_ready, done_reading,
    
    parameter 	S_IDLE = 0;
    parameter 	S_SAMPLE = 1;
-   parameter 	S_SAMPLE_WAIT = 2;
-   parameter 	S_READ = 3;
-   parameter 	S_DATA_READY = 4;
+   parameter 	S_SAMPLE_WAIT_FOR_STATUS = 2;
+   parameter 	S_SAMPLE_WAIT = 3;
+   parameter 	S_READ = 4;
+   parameter 	S_DATA_READY = 5;
    
    // data_ready - this is high when the value at the data pins of the
    //              a/d chip is okay to read.
    reg 		busy, data_ready;
    // control signals sent to A/D chip (format and BPO are tied to source)
    reg [1:0] 	adsig; // [R/Wb, CEb = CSb]
+   reg [2:0]    state;
    
    assign 	ad_rwb = adsig[1];
    assign 	ad_cseb = adsig[0];
@@ -39,15 +41,19 @@ module adc(clk, reset, start, busy, data_ready, done_reading,
 	 case(state)
 	   S_IDLE: begin adsig <= 2'b11; busy <= 0; data_ready <= 0; end
 	   S_SAMPLE: begin adsig <= 2'b00; busy <= 1; end
-	   S_SAMPLE_WAIT: adsig <= 2'b11;
-	   S_READ: adsig <= 2'b10; // hold this for two clock cycles
-	   S_DATA_READY: begin adsig <=2'b10; data_ready <= 1; end
+       S_SAMPLE_WAIT_FOR_STATUS: begin adsig <= 2'b00; busy <= 1; end
+	   S_SAMPLE_WAIT: begin adsig <= 2'b11; busy <= 1; end
+	   S_READ: adsig <= 2'b10; // hold this for two+ clock cycles
+	   S_DATA_READY: begin adsig <=2'b10; data_ready <= 1; busy <= 0; end
 	 endcase // case(state)
 	 
 	 // transitions for each state
 	 case(state)
 	   S_IDLE: state <= start ? S_SAMPLE : S_IDLE;
-	   S_SAMPLE: state <= S_SAMPLE_WAIT;
+	   S_SAMPLE: state <= S_SAMPLE_WAIT_FOR_STATUS;
+       // wait until status goes high
+       S_SAMPLE_WAIT_FOR_STATUS: state <= ad_status ? S_SAMPLE_WAIT : S_SAMPLE_WAIT_FOR_STATUS;
+       // wait until status goes low
 	   S_SAMPLE_WAIT: state <= ad_status ? S_SAMPLE_WAIT : S_READ;
 	   S_READ: state <= S_DATA_READY;
 	   S_DATA_READY: state <= done_reading ? S_IDLE : S_DATA_READY;

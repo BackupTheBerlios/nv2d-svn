@@ -1,6 +1,8 @@
 // module sends a pulse at frequency of 20kHz
 module divider(clk, reset, pulse);
    parameter CLOCK_FREQ = 92; // for 20khz pulse
+   //parameter CLOCK_FREQ = 20;
+   
    input     clk, reset;
    output    pulse;
 
