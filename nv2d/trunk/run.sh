@@ -7,7 +7,7 @@ export CLASSPATH
 echo $1
 
 if [ "$1" = "piccolo" ]; then
-	/mit/java/current/bin/java nv2d/gui/NV2DMain
+	/mit/java/current/bin/java nv2d/ui/NV2DMain
 	exit
 	fi
 
