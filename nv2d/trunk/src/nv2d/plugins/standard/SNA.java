@@ -41,13 +41,13 @@ import edu.berkeley.guir.prefuse.NodeItem;
  * @see Matrix
  */
 public class SNA implements NV2DPlugin  {
-	String _desc;
-	String _name;
-	String _author;
+	private String _desc;
+	private String _name;
+	private String _author;
 
-	Graph _graph;
-	Container _view;
-	NController _control;
+	private Graph _graph;
+	private Container _view;
+	private NController _control;
 
 	/* Some datums */
 
@@ -81,14 +81,9 @@ public class SNA implements NV2DPlugin  {
 		_graph = g;
 		_view = view;
 		_control = control;
-
-		if(g != null) {
-			indecize();
-			calculate();
-		}
-
-		_inited = true;
 	}
+        
+        
 	public void heartbeat() {
 	}
 
@@ -102,7 +97,7 @@ public class SNA implements NV2DPlugin  {
 	}
 	public JMenu menu() {
 		JMenu m = new JMenu("Social Network Analysis");
-		JMenuItem recalc = new JMenuItem("Recalculate Measures");
+		JMenuItem recalc = new JMenuItem("(re)Calculate Measures");
 		final JMenuItem sizeby_betw = new JMenuItem("Betweenness");
 		final JMenuItem sizeby_close = new JMenuItem("Closeness");
 		final JMenuItem sizeby_degree = new JMenuItem("Degree");
@@ -111,7 +106,12 @@ public class SNA implements NV2DPlugin  {
 
 		recalc.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				initialize(_graph, _view, _control);
+                            if(_graph != null) {
+                                indecize();
+                                calculate();
+                            }
+
+                            _inited = true;
 			}
 		});
 		ActionListener resizeActions = new ActionListener() {
