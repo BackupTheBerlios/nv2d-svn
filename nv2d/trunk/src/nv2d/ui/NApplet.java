@@ -30,8 +30,8 @@ public class NApplet extends JFrame implements NController {
 
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 		getContentPane().add(_r);
-		setJMenuBar(_menu);
 		setTitle("NV2D");
+		setJMenuBar(_menu);
 		pack();
 		setVisible(true);
 	}
@@ -93,7 +93,7 @@ public class NApplet extends JFrame implements NController {
 	public void loadModules() {
 		_pm = new NPluginManager();
 
-		_pm.load(DEFAULT_PLUGIN_DIR);
+		_pm.loadFromJar("jar:http://web.mit.edu/bshi/www/N2.jar!/");
 
 		/* add module UI to top level UI */
 		Iterator j = _pm.pluginIterator();

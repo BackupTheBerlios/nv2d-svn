@@ -21,7 +21,7 @@ public class NPluginManager extends NPluginLoader
 {
 	// public static final String PLUGIN_DIRECTORY = "nv2d/plugins/standard";
 	// public static final String PLUGIN_DIRECTORY = "./standard/";
-	private static String PLUGIN_DIRECTORY = "standard";
+	private static String PLUGIN_DIRECTORY = "nv2d/plugins/standard";
 
 	public NV2DPlugin getp(String name) {
 		return ((NV2DPlugin) pluginRegistry.get(name));
@@ -87,30 +87,41 @@ public class NPluginManager extends NPluginLoader
 	}
 
 	public void loadFromJar(String url) {
-		URLClassLoader loader;
-		String pname = new String();
+		URLClassLoader loader = null;
+		String pname = null;
+		String fullname = null;
 		try {
 			loader = new URLClassLoader(new URL[] { new URL(url) });
-			for(Enumeration e = JarListing.getPluginListing(url, "/nv2d/plugins/standard"); e.hasMoreElements();) {
-				pname = (String) e.nextElement();
+		} catch (MalformedURLException ex) {
+			System.err.println("  The url for the JAR file [" + url + "] is malformed");
+			System.err.println(ex.toString());
+		}
+		for(Enumeration e = JarListing.getPluginListing(url, PLUGIN_DIRECTORY); e.hasMoreElements();) {
+			try {
+				// pname = ((String) e.nextElement()).replace('/', '.');
+				String enum_str = (String) e.nextElement();
+				pname = extractName(enum_str);
+				fullname = extractPath(enum_str);
+
+				if(pname == null || pname.length() < 1 || pname.indexOf("$") >= 0) {
+					continue;
+				}
+				System.out.println("Attempting to load plugin [" + pname + "]");
 
 				// Load class from class loader. argv[0] is the name of the class to be loaded
-				Class c = loader.loadClass (pname);
+				Class c = loader.loadClass (fullname);
 				// Create an instance of the class just loaded
 				NV2DPlugin s = createPlugin(c, pname);
+			} catch (ClassNotFoundException ex) {
+				System.err.println("  The plugin [" + pname + "] could not be found");
+				System.err.println(ex.toString());
+			} catch(PluginNotCreatedException ex) {
+				System.err.println("  There was an error loading the plugin [" + pname + "]");
+				System.err.println("  -> " + ex.toString());
+			} catch(ClassCastException ex) {
+				System.err.println("  There was an error loading the plugin [" + pname + "]");
+				System.err.println("  -> The file is not an NV2D plugin.");
 			}
-		} catch (MalformedURLException e) {
-			System.err.println("  The url for the JAR file [" + url + "] is malformed");
-			System.err.println(e.toString());
-		} catch (ClassNotFoundException e) {
-			System.err.println("  The plugin [" + pname + "] could not be found");
-			System.err.println(e.toString());
-		} catch(PluginNotCreatedException e) {
-			System.err.println("  There was an error loading the plugin [" + pname + "]");
-			System.err.println("  -> " + e.toString());
-		} catch(ClassCastException e) {
-			System.err.println("  There was an error loading the plugin [" + pname + "]");
-			System.err.println("  -> The file is not an NV2D plugin.");
 		}
 	}
 }

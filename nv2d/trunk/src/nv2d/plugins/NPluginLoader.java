@@ -46,6 +46,32 @@ public abstract class NPluginLoader
 		return (IOInterface) ioRegistry.get(name);
 	}
 
+	public String extractName(String fullpath) {
+		int start = fullpath.lastIndexOf("/") + 1;
+		int end = fullpath.length() - 6;
+		if(start < 0) {
+			start = 0;
+		}
+		if(end < 0 || start >= end) {
+			// invalid (no .class extension)
+			return null;
+		}
+		return fullpath.substring(start, end);
+	}
+
+	public String extractPath(String fullpath) {
+		int start = 0;
+		int end = fullpath.length() - 6;
+		if(start < 0) {
+			start = 0;
+		}
+		if(end < 0 || start >= end) {
+			// invalid (no .class extension)
+			return null;
+		}
+		return fullpath.substring(start, end).replace('/','.');
+	}
+
 	protected static NV2DPlugin createPlugin(String name, String path)
 			throws PluginNotCreatedException {
 		/* As a general note, the only objects that should have access to the
