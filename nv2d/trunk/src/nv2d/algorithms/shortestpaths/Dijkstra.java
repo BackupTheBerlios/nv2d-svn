@@ -135,7 +135,6 @@ public class Dijkstra {
 			Edge e = (Edge) it.next();
 			// for each vertex v adjacent to u and not in S
 			Vertex v = e.getOpposite(u);
-			System.out.println("Opposite of " + u.id() + " is " + v.id());
 			if(!S.contains(v) && estimate(v) > (estimate(u) + e.length())) {
 				float vd = estimate(u) + e.length();
 

@@ -75,6 +75,6 @@ public class DataStoreTest extends TestCase {
 		B.setDatum(e);
 		B.setDatum(f);
 		B.setDatum(d);
-		assertTrue(!A.equals(B));
+		assertTrue(A.equals(B));
 	}
 }

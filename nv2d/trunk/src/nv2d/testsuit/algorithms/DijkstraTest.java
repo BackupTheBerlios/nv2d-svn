@@ -45,12 +45,12 @@ public class DijkstraTest extends TestCase {
 		try {
 			source = (DVertex) findNode(g, "a");
 		} catch (Exception e) {
-			System.out.println("Could not find node [a]");
+			// System.out.println("Could not find node [a]");
 			// inform JUnit there was an error
 			assertTrue(false);
 		}
 
-		System.out.println("Using Vertex [" + source.id() + "] as the source");
+		// System.out.println("Using Vertex [" + source.id() + "] as the source");
 
 		algorithm.init(g, source);
 		algorithm.run();
