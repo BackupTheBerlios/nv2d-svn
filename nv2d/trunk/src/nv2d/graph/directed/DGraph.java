@@ -5,7 +5,7 @@ import java.util.Iterator;
 import java.util.Set;
 import java.lang.IllegalArgumentException;
 
-import cern.colt.matrix.impl.SparseDoubleMatrix2D;
+// import cern.colt.matrix.impl.SparseDoubleMatrix2D;
 
 import nv2d.graph.Graph;
 import nv2d.graph.GraphElement;

@@ -2,8 +2,6 @@ package nv2d.graph;
 
 import java.util.Set;
 
-import cern.colt.Sorting;
-
 public abstract class Graph extends DataStore {
 	/* Accessors */
 	/** Get a set of the edges in the graph. */
