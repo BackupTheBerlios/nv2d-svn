@@ -1,6 +1,8 @@
 '''
 This is a little datamining script that gathers coauthor frequency and time
-data from the orgstudies database.
+data from the orgstudies database.  This script uses the the DBI api and so
+only a few lines (import & connect) need to be altered to switch databases.
+The data structures in this file are static.
 '''
 import MySQLdb
 import string
@@ -47,6 +49,10 @@ for entry in data:
 	for author2 in coauthors:
 		#name = name.replace("'", "\\'")
 		#author2 = author2.replace("'", "\\'")
+		author2id = string.replace(author2, ',', '');
+		author2id = string.replace(author2id, '.', '');
+		author2id = string.upper(author2id);
+
 		cursor.execute('select artl_title, artl_timep, authors FROM '\
 		+ 'articles_sample WHERE '\
 		+ 'locate("' + name + '", authors) > 0 and locate("' + author2 + '", authors) > 0 '\
@@ -55,9 +61,9 @@ for entry in data:
 		artl_common = cursor.fetchall();
 		if len(artl_common) < 1:
 			print "Error for " + name + " and " + author2 + " pair -- no articles found"
-			years.append(author2+'=0')
+			years.append(author2id+'=0')
 		else:
-			years.append(author2 + '=' + str(artl_common[0][1]))
+			years.append(author2id + '=' + str(artl_common[0][1]))
 
 		lengths.append(len(artl_common))
 
