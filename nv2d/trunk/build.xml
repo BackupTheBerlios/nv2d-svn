@@ -59,19 +59,6 @@
 	<!-- =============== RUN TESTS ==================== -->
 
 	<target name="nv2d" depends="build">
-		<java fork="yes" classname="nv2d.ui.NV2DMain">
-			<arg value="build/nv2d/plugins/standard" />
-			<arg value="NFileIO" />
-			<arg value="http://web.mit.edu/bshi/Public/test1.csv"/>
-            <classpath>
-                <pathelement location="./build" />
-				<pathelement location="./lib/prefuse.jar" />
-				<pathelement location="./lib/prefusex.jar" />
-            </classpath>
-		</java>
-	</target>
-
-	<target name="empty" depends="build">
 		<java fork="yes" classname="nv2d.ui.NApplet">
             <classpath>
                 <pathelement location="./build" />
