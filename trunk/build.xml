@@ -53,7 +53,9 @@
 		<javac srcdir="${src.dir}"
 			classpath="./lib/junit.jar:./lib/prefuse.jar"
 			destdir="${build.dir}"
-			debug="on">
+			target="1.4"
+			debug="off"
+			optimize="on">
 		</javac>
 	</target>
         
@@ -96,6 +98,8 @@
 		</java>
 	</target>
 
+	<!-- currently disabled because the test code got moved to
+	     another directory
 	<target name="unittest" depends="build">
         <java fork="yes" classname="nv2d.testsuit.graph.DataStoreTest">
             <classpath>
@@ -115,6 +119,6 @@
                 <pathelement location="./build" />
             </classpath>
         </java>
-    </target>
+    </target> -->
 
 </project>
