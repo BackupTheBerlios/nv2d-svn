@@ -29,7 +29,7 @@ public class DegreeFilter implements FilterInterface {
 			initialize(g, (Vertex) args[0], ((Integer) args[1]).intValue());
 			return;
 		}
-		System.err.println("Error: Arguments do no match required class type (Vector, Integer)");
+		System.err.println("Error: Arguments do no match required class type (Vertex, Integer)");
 	}
 
 	public Graph filter(Graph g) {
@@ -37,31 +37,48 @@ public class DegreeFilter implements FilterInterface {
 			System.err.println("Error: Degree filter has not been initialized.");
 			return null;
 		}
+
+		if(_deg == -1) {
+			// don't do any filtering
+			return g;
+		}
+
 		int i = _deg;
 		Set vertices = new HashSet();
-		Set tmpSet = new HashSet();
+		Set tmpSet = null;
 		vertices.add(_center);
 
-		tmpSet = _center.outEdges();
+		tmpSet = getOutNeighbors(_center);
 		vertices.addAll(tmpSet);
 		i--;
 
 		// grab vertices
 		for(int j = i; j > 0; j--) {
-			tmpSet = getOutEdges(tmpSet);
+			tmpSet = getOutNeighbors(tmpSet);
 			vertices.addAll(tmpSet);
 		}
 		return g.subset(vertices);
 	}
 
-	private Set getOutEdges(Set s) {
+	private Set getOutNeighbors(Set s) {
+		// s must be a set of vertices
 		Set outSet = new HashSet();
 		Iterator i = s.iterator();
 		while(i.hasNext()) {
-			outSet.addAll(((Vertex) i.next()).outEdges());
+			outSet.addAll(getOutNeighbors((Vertex) i.next()));
 		}
 		return outSet;
 	}
+
+	private Set getOutNeighbors(Vertex v) {
+		Set outSet = new HashSet();
+		Iterator i = v.outEdges().iterator();
+		while(i.hasNext()) {
+			outSet.add(((Edge) i.next()).getOpposite(v));
+		}
+		return outSet;
+	}
+
 
 	private void initialize(Graph g, Vertex center, int i) {
 		if(g == null) {
@@ -69,10 +86,10 @@ public class DegreeFilter implements FilterInterface {
 			_inited = false;
 			return;
 		}
-		if(i > 1) {
+		if(i >= -1 && i <= 6) {
 			_deg = i;
 		} else {
-			System.err.println("Error: attempted to set degree less than 1 (setting to 1)");
+			System.err.println("Error: attempted to set degree to an invalid value (setting to 1)");
 			_deg = 1;
 		}
 		if(g.getVertices().contains(center)) {
