@@ -21,6 +21,7 @@ package nv2d.ui;
 
 import java.util.*;
 
+import nv2d.graph.Datum;
 import nv2d.graph.Graph;
 import nv2d.graph.Vertex;
 
@@ -34,6 +35,7 @@ public class LegendMap {
 	
 	public LegendMap(Graph model) {
 		_g = model;
+		_colorLegends = new Hashtable();
 		
 		scan();
 	}
@@ -51,8 +53,8 @@ public class LegendMap {
 	}
 	
 	public ColorLegend getLegend(String attribute) {
-		if(_datums.contains(attribute)) {
-			if(_colorLegends.containsValue(attribute)) {
+		if(_datums.contains(new Datum(attribute, ""))) {
+			if(_colorLegends.containsKey(attribute)) {
 				return (ColorLegend) _colorLegends.get(attribute);
 			} else {
 				ColorLegend newLegend = new ColorLegend(_g, attribute);

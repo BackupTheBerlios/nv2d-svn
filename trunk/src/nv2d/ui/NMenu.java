@@ -81,22 +81,25 @@ public class NMenu extends JMenuBar {
 		_plugin.add(_separatorPlugin);
 	}
 	
-	public void setLegendMenu(LegendMap map) {
-		// TODO
+	public void setLegendMenu(final LegendMap map) {
 		// grab set of names/attributes
 		// alphabetize
 		// make menuitem for each name/attribute
 		// add listener which grabs legend
 		_legend.removeAll();
+		_legend.add(_legendDefaultColoring);
+		_legend.add(new JSeparator());
+
 		Object [] items = map.datumSet().toArray();
 		java.util.Arrays.sort(items);
 		for(int j = 0; j < items.length; j++) {
-			String name = ((nv2d.graph.Datum) items[j]).name();
+			final String name = ((nv2d.graph.Datum) items[j]).name();
 			JMenuItem item = new JMenuItem(name);
 			item.setToolTipText("Color vertices according to " + name);
 			_legend.add(item);
 			item.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
+					map.getLegend(name).assignColors();
 					_viewLegendMenuActionPerformed(e);
 				}
 			});
@@ -132,12 +135,21 @@ public class NMenu extends JMenuBar {
 	private JCheckBoxMenuItem _viewOutTxt;
 	
 	private JMenu _legend;
+	private JMenuItem _legendDefaultColoring;
 	
 	private JMenu _settings;
 	private JCheckBoxMenuItem _settingsAntialias;
 	
 	private void initComponents() {
 		_legend = new JMenu("Legend");
+		_legendDefaultColoring = new JMenuItem("Normal Color Scheme");
+		_legendDefaultColoring.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				_legendDefaultColoringActionPerformed(e);
+			}
+		});
+		_legend.add(_legendDefaultColoring);
+		_legend.add(new JSeparator());
 		
 		// initialize the modules menu
 		_mods = new JMenu("Import");
@@ -347,7 +359,10 @@ public class NMenu extends JMenuBar {
 		_renderbox.setHighQuality(_settingsAntialias.getState());	
 	}
 	
-	private void _viewLegendMenuActionPerformed(ItemEvent e) {
-		// TODO
+	private void _viewLegendMenuActionPerformed(ActionEvent e) {
+		_renderbox.useLegendColoring();
+	}
+	private void _legendDefaultColoringActionPerformed(ActionEvent e) {
+		_renderbox.useDefaultColoring();
 	}
 }

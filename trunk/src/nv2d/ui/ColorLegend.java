@@ -87,7 +87,7 @@ public class ColorLegend {
 			if(d == null) {
 				continue;
 			}
-			v.setDatum(new Datum(nv2d.render.LegendColorizer.DATUM_LEGENDCOLOR, getColor(d.name())));
+			v.setDatum(new Datum(nv2d.render.LegendColorizer.DATUM_LEGENDCOLOR, getColor(d.get())));
 		}
 	}
 	
@@ -109,7 +109,7 @@ public class ColorLegend {
 		return _legendListModel;
 	}
 	
-	public Color getColor(String value) {
+	public Color getColor(Object value) {
 		return (Color) _table.get(value);
 	}
 }
