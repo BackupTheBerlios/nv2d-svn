@@ -101,6 +101,8 @@ public class RenderBox extends Display {
 	
 	private boolean _empty;
 	private boolean _layoutRunning;
+	private boolean _isExternalLayoutHandler;
+	private boolean _first_initialization;
 	
 	// Standard Pre-defined Layouts
 	private ForceSimulator _fsim;
@@ -128,7 +130,9 @@ public class RenderBox extends Display {
 		//  the item registry stores all the visual
 		//  representations of different graph elements
 		super(new ItemRegistry(new DefaultGraph(true)));
-		
+
+	    //System.out.println("RenderBox Constructor");
+	    
 		// establish settings controller
 		_settings = new RenderSettings();
 		_pFactory = PopupFactory.getSharedInstance();
@@ -154,6 +158,27 @@ public class RenderBox extends Display {
 
 		_empty = true;
 		_layoutRunning = false;
+		_isExternalLayoutHandler = false;
+		_first_initialization = true;
+	}
+
+	// TODO
+	// this is a bad quick fix.  It requires that the caller of this (LayoutPlugin)
+	// have synchronized action lists and be responsible for cancelling an action
+	// when a new graph is opened while the current graph has a running action list
+	public void setExternalLayoutHandler(ActionList init_actions, boolean resetLayout) {
+	    if(resetLayout) {
+	        _layoutRunning = false;
+	    }
+	    
+	    //System.out.println("Setting External Layout Handler");
+	    _isExternalLayoutHandler = true;
+
+	    if(!_layoutRunning) {
+	        //System.out.println(" - layout not running, set layout to LP");
+	        setLayout(init_actions);
+	    }
+	    //else System.out.println(" - dont set, layout running");
 	}
 
 	public void useLegendColoring() {
@@ -165,7 +190,7 @@ public class RenderBox extends Display {
 		_colorizer.setEnabled(true);
 		_legendColorizer.setEnabled(false);
 	}
-	
+
 	public void clear() {
 		if(_empty) {
 			return;
@@ -193,7 +218,21 @@ public class RenderBox extends Display {
 	}
 	
 	public void initialize(Graph g) {
-	    // System.out.println("-- RENDERBOX Initialize() --");
+	    //System.out.println("-- RENDERBOX Initialize() --");
+	    
+	    // TODO
+	    // if layout is running, stop it and reset
+/*		if(_layoutRunning) {
+		    System.out.println(" - layout is running");
+		    try {
+		        System.out.println("    - cancelling layout");
+		        _actions.cancel();
+		    }
+		    catch (Exception e) {System.out.println("    - EXCEPTION: " + e);}
+			_layoutRunning = false;
+		}
+		else { System.out.println(" - no layout running");}*/
+	    
 		_g = g;
 		_registry = getRegistry();
 		_registry.setGraph(new PGraph(g));
@@ -203,23 +242,30 @@ public class RenderBox extends Display {
 		
 		// Initialize built-in Layouts
 		initStandardLayouts();
-		_actions = _fd_actions;		// set Force Directed as default
-		_empty = false;
-		
-		// always have Repaint and Color Actions running
-	    ActionList a = new ActionList(_registry, -1, 20);
-	    a.add(new RepaintAction());
-	    a.add(_colorizer);
-		a.add(_legendColorizer);
-	    a.runNow();
-		
+		if (!_layoutRunning && !_isExternalLayoutHandler) {
+		    //System.out.println("  - setting actions to RB.forcedir");
+		    _actions = _fd_actions;		// set Force Directed as default
+		}
+
+	    _empty = false;
+	    
+	    if(_first_initialization) {
+	        //System.out.println("- Run actionlist on first init");
+	        // always have Repaint and Color Actions running
+	        ActionList a = new ActionList(_registry, -1, 20);
+	        a.add(new RepaintAction());
+	        a.add(_colorizer);
+	        a.add(_legendColorizer);
+	        a.runNow();
+	    }
+	    
 		// Begin by randomly setting all the items
 		doSemiRandomLayout();
+		
+		_first_initialization = false;
 	}
 
 	private void initStandardLayouts() {
-		System.out.println("  - initializing Layouts");
-		
 		// Semi-Random Layout
 		_semiRandomLayout = new SemiRandomLayout(_ctl);		
 		_sr_actions = new ActionList(_registry);
@@ -266,19 +312,13 @@ public class RenderBox extends Display {
 	}
 	
 	public void setLayout(ActionList a) {
-	    System.out.println("SET LAYOUT");
-	    // TODO, do we need this if?
-		// A: not sure -- my reasoning was to stop
-		// any badness from happening if a null graph
-		// was passed in -bs
-	    if(_empty || _layoutRunning) {
-	        return;
-	    }
+	    //System.out.println("SET LAYOUT");
+	    stopLayout();
 	    _actions = a;
 	}
 	
 	public void startLayout() {
-	    System.out.println("START LAYOUT");
+	    //System.out.println("START LAYOUT");
 		if(_empty || _layoutRunning) {
 			return;
 		}
@@ -292,16 +332,22 @@ public class RenderBox extends Display {
 	// time things get clicked though so i bet it's another
 	// thread issue -bs
 	public void stopLayout() {
-	    System.out.println("STOP LAYOUT; empty= " + _empty + " running= " + _layoutRunning);
+	    //System.out.println("STOP LAYOUT;"); // empty= " + _empty + " running= " + _layoutRunning);
 		if(_empty) {
+		    //System.out.println(" - Graph Empty");
 			return;
 		}
-		System.out.println("  - cancelling layout");
-		try {
-			_actions.cancel();
+		//
+		if(_layoutRunning) {
+		    //System.out.println(" - layout is running");
+		    try {
+		        //System.out.println("  - cancelling layout");
+		        _actions.cancel();
+		    }
+		    catch (Exception e) {System.out.println("  - EXCEPTION:" + e);}
+			_layoutRunning = false;
 		}
-		catch (Exception e) {}
-		_layoutRunning = false;
+		//else { System.out.println(" - layout is not running");}
 	}
 
 	/** Randomly place the vertices of a graph on the drawing surface. */
@@ -347,8 +393,7 @@ public class RenderBox extends Display {
 	 *
 	 * @param filename	the name of the file to save to.
 	 */
-	/*
-	public void saveVisualFile(String filename) {
+/*	public void saveVisualFile(String filename) {
 		BufferedImage bi = new BufferedImage(
 				(int) getWidth(),
 				(int) getHeight(),
@@ -371,8 +416,8 @@ public class RenderBox extends Display {
 			System.out.println("Error: " + e);
 		}
 		g.dispose();
-	}
-	*/
+	}*/
+
 	
 	public void doSaveVertexLocations() {
 		// when graph is cleared, save the locations of the
