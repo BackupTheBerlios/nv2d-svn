@@ -11,5 +11,6 @@ default:
 	lgrind -t 4 -i -lverilog ../traffic_src/walk_register.v > walkregister.v.latex
 
 	latex report.tex
+	latex report_ci.tex
 	dvips -Pcmz -t letter report.dvi -o report.ps
-	ps2pdf report.ps
+	dvips -Pcmz -t letter report_ci.dvi -o report_ci.ps
