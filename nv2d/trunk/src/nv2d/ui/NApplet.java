@@ -9,33 +9,35 @@ import nv2d.plugins.IOInterface;
 import nv2d.plugins.NPluginManager;
 import nv2d.plugins.NPluginLoader;
 
-public class NV2DMain extends JFrame {
+public class NApplet extends JApplet {
 	static NPluginManager pm;
 	static Graph g;
 	static RenderBox r;
 	static String usage = "Backend [path to plugins] [io_plugin] [io parameters ...]";
 
-	public NV2DMain(String [] args) {
+	public void createGUI() {
+		String [] args = {"nv2d/plugins/standard", "Test1IO"};
 		loadModules(args);
 		r = new RenderBox(g);
 
-		setDefaultCloseOperation(EXIT_ON_CLOSE);
 		getContentPane().add(r);
-		setJMenuBar(new NMenu(r));
-		pack();
 		setVisible(true);
 
 		// run all scheduled actions in the RenderBox
 		r.init();
 	}
 
-	/* Current cmd-line:
-	 * Backend [path to plugins] [io_plugin] [io parameters ...]
-	 */
-	public static void main(String [] args) {
-		new NV2DMain(args);
+	public void init() {
+		try {
+			javax.swing.SwingUtilities.invokeAndWait(new Runnable() {
+				public void run() {
+					createGUI();
+				}
+			});
+		} catch (Exception e) {
+			System.err.println("createGUI didn't successfully complete");
+		}
 	}
-
 
 	public void loadModules(String [] args) {
 		pm = new NPluginManager();
