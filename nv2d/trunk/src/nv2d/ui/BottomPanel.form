@@ -102,7 +102,7 @@
       <Properties>
         <Property name="toolTipText" type="java.lang.String" value="Select the maximum degree separation from the center vertex."/>
         <Property name="preferredSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
-          <Dimension value="[64, 17]"/>
+          <Dimension value="[96, 17]"/>
         </Property>
       </Properties>
       <AuxValues>

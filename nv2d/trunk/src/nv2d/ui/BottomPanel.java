@@ -18,6 +18,8 @@ public class BottomPanel extends javax.swing.JPanel {
 	NController _ctl;
 	Graph _g;
 	
+	public static final int BUTTON_HEIGHT = 17;
+	
 	/** Creates new form BottomPanel */
 	public BottomPanel(NController ctl) {
 		_ctl = ctl;
@@ -29,6 +31,9 @@ public class BottomPanel extends javax.swing.JPanel {
 	
 	// TODO: does not update properly
 	public void validate() {
+		int maxStrLength = -1;
+		int width;
+		
 		super.validate();
 		// update needs to add the
 		Object [] vnames;
@@ -39,10 +44,21 @@ public class BottomPanel extends javax.swing.JPanel {
         } else {
             vnames = new Object [0];
         }
+		
+		// grab the new vertices
 		_dfVertices.removeAllItems();
 		for(int i = 0; i < vnames.length; i++) {
 			_dfVertices.addItem(vnames[i]);
+			// find out the length of the string
+			width = javax.swing.SwingUtilities.computeStringWidth(getFontMetrics(getFont()), vnames[i].toString());
+			maxStrLength = (width > maxStrLength ? width : maxStrLength);
 		}
+		
+		if(maxStrLength > 0) {
+			// resize the width of the component
+			_dfVertices.setPreferredSize(new java.awt.Dimension(maxStrLength, BUTTON_HEIGHT));
+		}
+		
 		_dfVertices.validate();
 		_dfDegree.validate();
 	}
@@ -127,7 +143,7 @@ public class BottomPanel extends javax.swing.JPanel {
         add(_dfVertices);
 
         _dfDegree.setToolTipText("Select the maximum degree separation from the center vertex.");
-        _dfDegree.setPreferredSize(new java.awt.Dimension(64, 17));
+        _dfDegree.setPreferredSize(new java.awt.Dimension(96, 17));
         add(_dfDegree);
 
         _doFilter.setText("Filter");
