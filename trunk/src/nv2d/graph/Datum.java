@@ -73,10 +73,17 @@ public class Datum implements Comparable {
 
 	/** Equality is determined only by name. */
 	public boolean equals(Object o) {
-		if(compareTo(o) == 0) {
-			return true;
+		if(o instanceof Datum) {
+			Datum d = (Datum) o;
+			if(d.name().equals(this.name())) {
+				return true;
+			}
 		}
 		return false;
+	}
+	
+	public int hashCode() {
+		return _name.hashCode();
 	}
 
 	/** Compares this Datum with another <b>based on name</b>.  That is to say

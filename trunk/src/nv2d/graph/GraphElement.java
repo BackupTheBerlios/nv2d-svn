@@ -67,6 +67,10 @@ public abstract class GraphElement extends DataStore implements Comparable {
 
 		return false;
 	}
+	
+	public int hashCode() {
+		return id().hashCode();
+	}
 
 	final public int compareTo(Object o) {
 		GraphElement ge = (GraphElement) o;

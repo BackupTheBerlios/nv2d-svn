@@ -33,10 +33,16 @@ public class UEdge extends Edge {
 	private double _len;
 	private Pair _v;
 	
+	String _id1, _id2;
+	
 	public UEdge(UVertex source, UVertex dest, double length) {
 		super("UndirectedEdge ["
 			+ source.id() + "]<->["
 			+ dest.id() + "]");
+		
+		// _id1 and _id2 are used to determine the hash code of this object
+		_id1 = "UndirectedEdge [" + source.id() + "]<->[" + dest.id() + "]";
+		_id2 = "UndirectedEdge [" + dest.id() + "]<->[" + source.id() + "]";
 
 		if(source == null || dest == null || source.equals(dest)) {
 			throw new java.lang.IllegalArgumentException("Could not create edge");
@@ -54,6 +60,12 @@ public class UEdge extends Edge {
 			}
 		}
 		return false;
+	}
+	
+	/** This method is overriden to preserve correct behavior when using the HashSet
+	 * class. */
+	public int hashCode() {
+		return java.lang.Math.min(_id1.hashCode(), _id2.hashCode());
 	}
 	
 	public double length() {
