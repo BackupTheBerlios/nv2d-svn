@@ -1,5 +1,5 @@
 // Analog->Digital controller
-module adc(clk, reset, start, busy, io_rwb, st_da, ad_status, ad_rwb, ad_cseb);
+module ad_fsm(clk, reset, start, busy, io_rwb, st_ad, ad_status, ad_rwb, ad_cseb);
    
    input clk, reset;
    
@@ -11,7 +11,7 @@ module adc(clk, reset, start, busy, io_rwb, st_da, ad_status, ad_rwb, ad_cseb);
    input ad_status; // from ad chip (status)
    output ad_rwb, ad_cseb; // go to the ad chip
    output busy; // to major fsm
-   output io_rwb; // control ioport
+   output io_rwb, st_ad; // control ioport
    
    parameter 	S_IDLE = 0;
    parameter 	S_SAMPLE = 1;
@@ -20,7 +20,7 @@ module adc(clk, reset, start, busy, io_rwb, st_da, ad_status, ad_rwb, ad_cseb);
    parameter 	S_DATA_READY = 4; // save to register
    
    // registers, control signals
-   reg 		busy, io_rwb, st_da;
+   reg 		busy, io_rwb, st_ad;
    // control signals sent to A/D chip (format and BPO are tied to source)
    reg [1:0] 	adsig; // [R/Wb, CEb = CSb]
    reg [2:0]    state;
@@ -41,7 +41,7 @@ module adc(clk, reset, start, busy, io_rwb, st_da, ad_status, ad_rwb, ad_cseb);
 	      adsig <= 2'b11;
 	      busy <= 0;
 	      io_rwb <= 0;
-	      st_da <= 0;
+	      st_ad <= 0;
 	   end
 	   S_SAMPLE: begin adsig <= 2'b00; busy <= 1; end
 	   S_SAMPLE_WAIT: adsig <= 2'b11;
@@ -52,7 +52,7 @@ module adc(clk, reset, start, busy, io_rwb, st_da, ad_status, ad_rwb, ad_cseb);
 	   S_DATA_READY: begin
 	      adsig <=2'b10;
 	      busy <= 0;
-	      st_da <= 1;
+	      st_ad <= 1;
 	   end
 	 endcase // case(state)
 	 
@@ -64,7 +64,7 @@ module adc(clk, reset, start, busy, io_rwb, st_da, ad_status, ad_rwb, ad_cseb);
        // wait until status goes low
 	   S_SAMPLE_WAIT: state <= ad_status ? S_SAMPLE_WAIT : S_READ;
 	   S_READ: state <= S_DATA_READY;
-	   S_DATA_READY: state <= done_reading ? S_IDLE : S_DATA_READY;
+	   S_DATA_READY: state <= S_IDLE;
 	 endcase // case(state)
       end // else: !if(reset)
    end // always @ (posedge clk)
