@@ -4,6 +4,7 @@ import edu.berkeley.guir.prefuse.graph.DefaultNode;
 
 import nv2d.graph.Datum;
 import nv2d.graph.Vertex;
+import nv2d.graph.GraphElement;
 
 public class PNode extends DefaultNode implements PElement {
 	private Vertex _v;
@@ -19,6 +20,10 @@ public class PNode extends DefaultNode implements PElement {
 	}
 
 	public Vertex v() {
+		return _v;
+	}
+
+	public GraphElement getNV2DGraphElement() {
 		return _v;
 	}
 

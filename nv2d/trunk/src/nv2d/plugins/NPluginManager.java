@@ -158,6 +158,7 @@ public class NPluginManager extends NPluginLoader {
 			throw new JARAccessException("No plugins found");
 		}
 		for(e = e; e.hasMoreElements();) {
+			boolean success = true;
 			try {
 				// pname = ((String) e.nextElement()).replace('/', '.');
 				String enum_str = (String) e.nextElement();
@@ -175,14 +176,19 @@ public class NPluginManager extends NPluginLoader {
 			} catch (ClassNotFoundException ex) {
 				System.err.println("  The plugin [" + pname + "] could not be found");
 				System.err.println(ex.toString());
+				success = false;
 			} catch(PluginNotCreatedException ex) {
 				// System.err.println("  There was an error loading the plugin [" + pname + "]");
 				// System.err.println("  -> " + ex.toString());
+				success = false;
 			} catch(ClassCastException ex) {
 				// System.err.println("  There was an error loading the plugin [" + pname + "]");
 				// System.err.println("  -> The file is not an NV2D plugin.");
+				success = false;
 			}
-			System.out.println("Loaded plugin [" + pname + "]");
+			if(success) {
+				System.out.println("Loaded plugin [" + pname + "]");
+			}
 		}
 	}
 }
