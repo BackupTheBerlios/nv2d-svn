@@ -15,12 +15,19 @@ public class DegreeFilter implements FilterInterface {
 	private boolean _inited;
 	private Vertex _center;
 	private Graph _g;
-
+	
+	private Object [] _lastArgs;
+	
 	public DegreeFilter() {
 		_inited = false;
 	}
+	
+	public Object [] lastArgs() {
+		return _lastArgs;
+	}
 
 	public void initialize(Graph g, Object [] args) {
+		_lastArgs = args;
 		_g = g;
 		if(args == null || args.length != 2) {
 			System.err.println("Error: wrong number of arguments for the degree filter.");

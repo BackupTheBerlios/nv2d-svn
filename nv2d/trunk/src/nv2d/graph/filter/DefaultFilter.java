@@ -10,6 +10,10 @@ public class DefaultFilter implements FilterInterface {
 	public void initialize(Graph g, Object [] args) {
 		_g = g;
 	}
+	
+	public Object [] lastArgs() {
+		return new Object[0];
+	}
 
 	public Graph filter() {
 		return _g;
