@@ -76,6 +76,6 @@ public class NFileIO implements IOInterface {
 	// means it will only be run when the class is loaded
 	static {
 		// put factory in the hashtable for detector factories.
-		NPluginLoader.ioRegistry.put("NFileIO", new SNA());
+		NPluginLoader.reg("NFileIO", new NFileIO());
 	}
 }

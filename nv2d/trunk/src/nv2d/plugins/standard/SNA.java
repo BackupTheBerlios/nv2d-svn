@@ -51,7 +51,7 @@ public class SNA implements NV2DPlugin  {
 	// means it will only be run when the class is loaded
 	static {
 		// put factory in the hashtable for detector factories.
-		NPluginLoader.pluginRegistry.put("SNA", new SNA());
+		NPluginLoader.reg("SNA", new SNA());
 	}
 }
 

@@ -1,4 +1,4 @@
-package nv2d.gui;
+package nv2d.ui;
 
 import javax.swing.*;
 

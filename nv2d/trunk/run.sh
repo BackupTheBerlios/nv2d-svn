@@ -11,6 +11,11 @@ if [ "$1" = "piccolo" ]; then
 	exit
 	fi
 
+if [ "$1" = "backend" ]; then
+	/mit/java/current/bin/java nv2d/ui/Backend build/nv2d/plugins/standard
+	exit
+	fi
+
 if [ "$1" = "path" ]; then
 	/mit/java/current/bin/java nv2d/algorithms/Test
 	exit

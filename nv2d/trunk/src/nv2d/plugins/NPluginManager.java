@@ -12,7 +12,7 @@ public class NPluginManager extends NPluginLoader
 	// public static final String PLUGIN_DIRECTORY = "./standard/";
 	private static String PLUGIN_DIRECTORY = "standard";
 
-	public static void load(String directory)
+	public void load(String directory)
 	{
 		if(directory != null) {
 			PLUGIN_DIRECTORY = directory;

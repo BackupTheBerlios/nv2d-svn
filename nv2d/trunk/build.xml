@@ -37,8 +37,9 @@
 	</target>
 
 	<target name="build" depends="prepare">
+		<!-- classpath="./lib/colt.jar:./lib/commons-collections-3.0.jar:./lib/junit.jar:./lib/piccolo.jar:./lib/piccolox.jar" -->
 		<javac srcdir="${src.dir}"
-			classpath="./lib/colt.jar:./lib/commons-collections-3.0.jar:./lib/junit.jar:./lib/piccolo.jar:./lib/piccolox.jar"
+			classpath="./lib/commons-collections-3.0.jar:./lib/junit.jar:./lib/piccolo.jar:./lib/piccolox.jar"
 			destdir="${build.dir}"
 			debug="on">
 		</javac>
