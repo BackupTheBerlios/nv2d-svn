@@ -18,6 +18,10 @@ public abstract class Vertex extends GraphElement {
 	/** Return all nodes which share an edge with this node. */
 	public abstract Set neighbors();
 
+	public String toString() {
+		return id();
+	}
+
 	/** A valid edge parameter must at least contain this vertex.  This is
 	 * protected, only <code>Graph</code> should be able to access this. */
 	//abstract void addInEdge(Edge e);
