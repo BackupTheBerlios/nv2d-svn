@@ -31,6 +31,7 @@ public class DegreeFilterUI {
 		
 		if(g == null) {
 			nctl.errorPopup("No Graph Loaded", "You must load a graph before using a filter.", null);
+			return null;
 		}
 		
 		JPanel ui;
