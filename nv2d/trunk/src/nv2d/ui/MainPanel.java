@@ -18,7 +18,7 @@ import nv2d.plugins.NPluginManager;
 import nv2d.plugins.NPluginLoader;
 import nv2d.plugins.NV2DPlugin;
 
-public class MainPanel extends JPanel implements NController {
+public class MainPanel implements NController {
 	private NPluginManager _pm;
 	private Graph _g;
 	private RenderBox _r;
@@ -53,8 +53,6 @@ public class MainPanel extends JPanel implements NController {
 		_menu = new NMenu(this, _r);
 		_tabs = new JTabbedPane();
 
-		_tabs.setPreferredSize(new Dimension(700, 500));
-
 		// trap output to standard streams and display them in a text box
 		JTextArea errTxt = new JTextArea();
 		JTextArea outTxt = new JTextArea();
@@ -75,19 +73,20 @@ public class MainPanel extends JPanel implements NController {
 		try {
 			loadModules();
 		} catch (java.security.AccessControlException e) {
-			add(new JLabel("Due to security restrictions, this applet cannot load the appropriate plugins."));
-			setVisible(true);
+			_tabs.add("Fatal Error", new JLabel("Due to security restrictions, this applet cannot load the appropriate plugins."));
 			return;
 		}
+	}
 
-		add(_tabs);
+	public JTabbedPane getTabs() {
+		return _tabs;
 	}
 
 	public void start() {
 		try {
 			initialize(null);
 		} catch (java.security.AccessControlException e) {
-			add(new JLabel("Due to security restrictions, this applet cannot load the appropriate plugins."));
+			_tabs.add("Fatal Error", new JLabel("Due to security restrictions, this applet cannot load the appropriate plugins."));
 			return;
 		}
 	}

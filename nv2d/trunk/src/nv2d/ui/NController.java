@@ -4,6 +4,7 @@ import java.lang.String;
 import java.net.URL;
 import java.util.Set;
 import javax.swing.JMenuBar;
+import javax.swing.JTabbedPane;
 
 import nv2d.graph.FilterInterface;
 
@@ -20,6 +21,7 @@ public interface NController {
 	public void displayOutTextBox(boolean b);
 	public void displayErrTextBox(boolean b);
 	public JMenuBar getMenu();
+	public JTabbedPane getTabs();
 
 	// plugin controls
 	public Set findPlugins(String url);

@@ -22,7 +22,7 @@ public class NApplet extends JApplet {
 	MainPanel panel;
 	public void init() {
 		panel = new MainPanel();
-		getContentPane().add(panel);
+		getContentPane().add(panel.getTabs());
 		setJMenuBar(panel.getMenu());
 		setVisible(true);
 	}
