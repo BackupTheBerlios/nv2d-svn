@@ -218,7 +218,7 @@ public class NMenu extends JMenuBar {
 		_viewFilter = new JMenu("Graph Filters");
 		_viewFilterDegree = new JMenuItem("Degree Filter");
 		_viewHistoryPanel = new JCheckBoxMenuItem("History", false);
-		_viewSouthPanel = new JCheckBoxMenuItem("Bottom Control Panel", true);
+		_viewSouthPanel = new JCheckBoxMenuItem("Layout Control", true);
 		_viewErrTxt = new JCheckBoxMenuItem("Error Messages", true);
 		_viewOutTxt = new JCheckBoxMenuItem("Program Output", true);
 
@@ -327,7 +327,7 @@ public class NMenu extends JMenuBar {
 	}
 
 	private void _viewSouthPanelActionPerformed(ActionEvent e) {
-		_ctl.displayBottomPane(_viewSouthPanel.getState());
+		_ctl.getView().toggleBottomPane(_viewSouthPanel.getState());
 	}
 
 	private void _viewVLabelItemStateChanged(ItemEvent e) {
@@ -350,7 +350,7 @@ public class NMenu extends JMenuBar {
 	}
 
 	private void _viewHistoryPanelActionPerformed(ActionEvent e) {
-		// TODO
+		_ctl.getView().toggleSidePane(_viewHistoryPanel.getState());
 	}
 		
 	private void _settingsAntialiasItemStateChanged(ItemEvent e) {

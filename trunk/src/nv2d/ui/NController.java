@@ -90,7 +90,7 @@ public interface NController {
 	 * @param returns a {@link java.awt.Frame} or {@link java.awt.Applet} object
 	 * @deprecated Please use <code>getView().getWindow()</code>
 	 */
-	public Container getWindow();
+	public RootPaneContainer getWindow();
 	
 	// other accessors
 	/**
@@ -135,13 +135,6 @@ public interface NController {
 	public void displayErrTextBox(boolean b);
 	
 	/**
-	 * Show the bottom button panel.
-	 * @param b on/off
-	 * @deprecated Please use <code>getView().getBottomPane().setVisible(false)</code>
-	 */
-	public void displayBottomPane(boolean b);
-	
-	/**
 	 * Get the instance of the main menu.
 	 * @return a {@link NMenu} object.
 	 * @deprecated Please use <code>getView().getMenu()</code>
@@ -152,18 +145,9 @@ public interface NController {
 	 * @return the center container in the GUI
 	 * @deprecated Please use <code>getView().getCenterPane()</code>
 	 */
-	public Container getCenterPane();
-	
-	/**
-	 * Get the instance of the JComponent containing the top level bottom GUI component.
-	 * @return the bottom container of the GUI
-	 * @deprecated Please use <code>getView().getBottomPane()</code>
-	 */
-	public Container getBottomPane();
 	
 	/**
 	 * Get the Graph history
-	 * @deprecated This method is scheduled for removal
 	 */
 	public ListModel getHistory();
 	

@@ -1,3 +1,22 @@
+/**
+ * NV2D - Social Network Visualization
+ * Copyright (C) 2005 Bo Shi
+ * 
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ */
+
 package nv2d.ui;
 
 import java.awt.*;
@@ -14,39 +33,31 @@ public interface ViewInterface {
 	 * Returns a Frame or Applet depending on the top level container.
 	 * @param returns a {@link java.awt.Frame} or {@link java.awt.Applet} object
 	 */
-	public Container getWindow();
+	public RootPaneContainer getRootPaneContainer();
 	
 	/**
 	 * Get the instance of the main menu.
 	 * @return a {@link NMenu} object.
 	 */
 	public NMenu getMenu();
-
+	
+	public void validate();
+	
+	public void toggleSidePane(boolean b);
+	
+	public void toggleBottomPane(boolean b);
 	/**
-	 * Get the instance of the JComponent containing the top level center GUI component.
-	 * @return a {@link javax.swing.JTabbedPane} instance.
-	 */
-	public Container getCenterPane();
-
-	/**
-	 * Add a visual component into the GUI.  An integer reference value is returned.
-	 * To remove the component, 
+	 * Add a visual component into the GUI.  This class uses a {@link Set} to keep
+	 * track of all added components.
 	 * @param component a GUI component
 	 * @param location this interface defines a few fields which can be used for this
 	 *   parameter (i.e. MAIN_PANEL, etc)
-	 * @return a unique ID for the component useful for the removal operation
+	 * @return a boolean representing whether the component was successfully added
 	 * @see {@link #removeComponent(int)}
 	 */
-	public int addComponent(Container component, int location);
+	public boolean addComponent(Container component, String name, int location);
 
 	public boolean removeComponent(Container component);
-
-	public boolean removeComponent(int id);
-	
-	/**
-	 * Get the instance of the JComponent containing the top level bottom GUI component.
-	 * @return a {@link javax.swing.JPanel} instance */
-	public Container getBottomPane();
 	
 	/**
 	 * Show a warning dialog and log the error message.

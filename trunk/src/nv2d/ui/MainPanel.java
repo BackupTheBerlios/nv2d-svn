@@ -42,8 +42,6 @@ public class MainPanel implements NController {
 	private RenderBox _r;
 	private ViewInterface _view;
 
-	private Container _topLevelContainer;
-
 	private FilterInterface _filter;
 	private Set _allowedURLs;
 	
@@ -54,50 +52,24 @@ public class MainPanel implements NController {
 	
 	private DegreeFilter _degreeFilter = new DegreeFilter();
 	
-	public MainPanel(Container topLevel, Container parent) {
-		/* The following font bit is taken from
-		 * http://forum.java.sun.com/thread.jsp?thread=125315&forum=57&message=330309
-		 * Thanks to 'urmasoft' for the post
-		 */
-		Hashtable oUIDefault = UIManager.getDefaults();
-		Enumeration oKey = oUIDefault.keys();
-		String oStringKey = null;
-		
-		while (oKey.hasMoreElements()) {
-			oStringKey = oKey.nextElement().toString();
-			if (oStringKey.endsWith("font") || oStringKey.endsWith("acceleratorFont")) {
-				UIManager.put(oStringKey, new Font("Dialog", Font.PLAIN, 11));
-			}
-		}
-		
+	public MainPanel(RootPaneContainer rootPaneContainer) {
 		/* initialize the history mechanism */
 		_history = new DefaultListModel();
-		
-		/* save pointers to the applet/frame object and the contentplane */
-		_topLevelContainer = topLevel;
 		
 		/* Important: this must be the order (loadmodules then renderbox as last two) */
 		_pm = new NPluginManager();
 		_filter = new DefaultFilter();
 		_r = new RenderBox(this);
 
-		_view = new NGUI(this, _topLevelContainer);
+		_view = new NGUI(this, rootPaneContainer);
 		
 		_view.gui().setPreferredSize(new Dimension(700, 500));
 		
 		loadModules();
 	}
 	
-	public Container getWindow() {
-		return _topLevelContainer;
-	}
-	
-	public Container getCenterPane() {
-		return _view.getCenterPane();
-	}
-	
-	public Container getBottomPane() {
-		return _view.getBottomPane();
+	public RootPaneContainer getWindow() {
+		return _view.getRootPaneContainer();
 	}
 	
 	public ListModel getHistory() {
@@ -119,7 +91,7 @@ public class MainPanel implements NController {
 		}
 
 		this.reinitModules(false);	// do not save in history
-		getBottomPane().validate();
+		_view.validate();
 	}
 	
 	public void initialize(String [] args) {
@@ -179,7 +151,7 @@ public class MainPanel implements NController {
 		// maybe have interface w/ update method
 		// and keep track of all the panels in use and update all of them as needed
 		// ((BottomPanel) getBottomPane()).validate();
-		getBottomPane().validate();
+		_view.validate();
 	}
 	
 	public void errorPopup(String title, String msg, String extra) {

@@ -561,7 +561,7 @@ public class RenderBox extends Display {
 				// top level container, so we need to add an offset to the popup to
 				// fix this.
 				Point pRenderBox = _parent.getLocationOnScreen();
-				Point pWindow = _ctl.getWindow().getLocationOnScreen();
+				Point pWindow = _ctl.getView().gui().getLocationOnScreen();
 				_xOffset = (int) (pRenderBox.getX() - pWindow.getX());
 				_yOffset = (int) (pRenderBox.getY() - pWindow.getX());
 

@@ -21,17 +21,37 @@ package nv2d.ui;
 
 import javax.swing.*;
 
-public class NV2DMain extends JFrame {
+public class NV2DMain extends JApplet {
+	public static final String PARAM_DATAFILE = "NFileIO";
+	public static final String PARAM_DEGREEFILTER = "DegreeFilter";
+	
+	private static MainPanel panel;
+	
 	public NV2DMain() {
-		MainPanel panel = new MainPanel(this, getContentPane());
+		JFrame frame = new JFrame("NV2D");
+		panel = new MainPanel(frame);
 		panel.initialize(null);
+		frame.setJMenuBar(panel.getMenu());
 		
-		setDefaultCloseOperation(EXIT_ON_CLOSE);
-		setContentPane(panel.getView().gui());
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.pack();
+		frame.setVisible(true);
+	}
+	
+	public void init() {
+		panel = new MainPanel(this);
 		setJMenuBar(panel.getMenu());
-		setTitle("NV2D");
-		pack();
 		setVisible(true);
+	}
+	
+	/* TODO: figure out a scheme for command line arguments which are passed in*/
+	public void start() {
+		String dataFile = getParameter(PARAM_DATAFILE);
+		if(dataFile == null) {
+			panel.initialize(null);
+		} else {
+			panel.initialize(new String[] {"NFileIO", dataFile});
+		}
 	}
 	
 	public static void main(String [] args) {
