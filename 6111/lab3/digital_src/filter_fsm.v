@@ -2,7 +2,7 @@ module filter_fsm(clk, reset, start, ram_ptr,
 	// control signals
 	busy,
 	acc_zero, acc_en,
-	da_reg_rwb,
+	dar_we,
 	rom_addr,
 	ram_addr, ram_we);
 	
@@ -14,7 +14,7 @@ module filter_fsm(clk, reset, start, ram_ptr,
 	input [4:0] ram_ptr;
 	
 	// control signals
-	output acc_zero, acc_en, da_reg_rwb, ram_we;
+	output acc_zero, acc_en, dar_we, ram_we;
 	output [4:0] rom_addr, ram_addr;
 	
 		
@@ -29,7 +29,7 @@ module filter_fsm(clk, reset, start, ram_ptr,
 	reg [5:0] state;
 	
 	//control signal registers -- prevents glitching
-	reg acc_zero, acc_en, da_reg_rwb, ram_we;
+	reg acc_zero, acc_en, dar_we, ram_we;
 	reg [4:0] rom_addr, ram_addr;
 	
 	always @ (posedge clk) begin
@@ -43,7 +43,7 @@ module filter_fsm(clk, reset, start, ram_ptr,
 		else if (state[5] != 1) state <= state + 1;
 		
 		// wait a few cycles to write to the D-A buffer
-		da_reg_rwb <= (state[5] && ~state[4] && ~state[3] && ~state[2] && state[1] && state[0]);
+		dar_we <= (state[5] && ~state[4] && ~state[3] && ~state[2] && state[1] && state[0]);
 		
 		// addresses
 		rom_addr <= state[4:1];
