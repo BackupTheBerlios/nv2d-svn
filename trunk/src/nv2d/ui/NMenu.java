@@ -259,20 +259,20 @@ public class NMenu extends JMenuBar {
 	}
 
 	private void _optimizeStartActionPerformed(ActionEvent e) {
-		_renderbox.startForceDirectedLayout();
+		_renderbox.startLayout();
 	}
 
 	private void _optimizeStopActionPerformed(ActionEvent e) {
-		_renderbox.stopForceDirectedLayout();
+		_renderbox.stopLayout();
 	}
 
 	private void _optimizeCenterActionPerformed(ActionEvent e) {
-		_renderbox.stopForceDirectedLayout();
+		_renderbox.stopLayout();
 		_renderbox.doCenterLayout();
 	}
 
 	private void _optimizeResetActionPerformed(ActionEvent e) {
-		_renderbox.stopForceDirectedLayout();
+		_renderbox.stopLayout();
 		_renderbox.doRandomLayout();
 	}
 
@@ -283,7 +283,7 @@ public class NMenu extends JMenuBar {
 		JDialog _degreeFilterDialog = DegreeFilterUI.getJDialog(_ctl);
 		if(_degreeFilterDialog != null) {
 			_degreeFilterDialog.pack();
-			_degreeFilterDialog.setVisible(true);
+			_degreeFilterDialog.show();
 		}
 	}
 

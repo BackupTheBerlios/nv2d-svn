@@ -39,6 +39,7 @@ import java.awt.event.ActionEvent;
 import java.awt.Point;
 import java.util.Iterator;
 import javax.imageio.ImageIO;
+import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.JSeparator;
@@ -51,10 +52,17 @@ import edu.berkeley.guir.prefuse.NodeItem;
 import edu.berkeley.guir.prefuse.EdgeItem;
 import edu.berkeley.guir.prefuse.VisualItem;
 import edu.berkeley.guir.prefuse.action.RepaintAction;
+import edu.berkeley.guir.prefuse.action.animate.ColorAnimator;
+import edu.berkeley.guir.prefuse.action.animate.PolarLocationAnimator;
 import edu.berkeley.guir.prefuse.action.filter.GraphFilter;
+import edu.berkeley.guir.prefuse.action.filter.TreeFilter;
 import edu.berkeley.guir.prefuse.activity.ActionList;
+import edu.berkeley.guir.prefuse.activity.SlowInSlowOutPacer;
+//import edu.berkeley.guir.prefuse.demos.RadialGraphDemo.DemoColorFunction;
 import edu.berkeley.guir.prefuse.event.ControlAdapter;
 import edu.berkeley.guir.prefuse.graph.DefaultGraph;
+import edu.berkeley.guir.prefuse.graph.Entity;
+import edu.berkeley.guir.prefuse.graph.Node;
 import edu.berkeley.guir.prefusex.controls.DragControl;
 import edu.berkeley.guir.prefusex.controls.PanControl;
 import edu.berkeley.guir.prefusex.controls.ZoomControl;
@@ -64,8 +72,11 @@ import edu.berkeley.guir.prefusex.force.ForceSimulator;
 import edu.berkeley.guir.prefusex.force.NBodyForce;
 import edu.berkeley.guir.prefusex.force.SpringForce;
 import edu.berkeley.guir.prefusex.layout.ForceDirectedLayout;
+import edu.berkeley.guir.prefusex.layout.RadialTreeLayout;
+import edu.berkeley.guir.prefusex.layout.RandomLayout;
 
 import nv2d.graph.Datum;
+import nv2d.graph.Edge;
 import nv2d.graph.Graph;
 import nv2d.graph.Path;
 import nv2d.graph.Vertex;
@@ -91,8 +102,14 @@ public class RenderBox extends Display {
 	private boolean _empty;
 	private boolean _layoutRunning;
 	
+	// Standard Pre-defined Layouts
 	private ForceSimulator _fsim;
 	private ForceDirectedLayout _flayout;
+	private ActionList _fd_actions;
+	private ActionList _sr_actions;
+	private ActionList _ra_actions;
+	private ActionList _rg_actions;
+	private ActionList _rg_animate;
 	private RandomLayout _randomLayout;
 	private SemiRandomLayout _semiRandomLayout;
 	
@@ -157,10 +174,49 @@ public class RenderBox extends Display {
 	}
 	
 	public void initialize(Graph g) {
+	    // System.out.println("-- RENDERBOX Initialize() --");
 		_g = g;
 		_registry = getRegistry();
 		_registry.setGraph(new PGraph(g));
 		
+		// antialias?
+		setHighQuality(_settings.getBoolean(RenderSettings.ANTIALIAS));
+		
+		// Initialize built-in Layouts
+		initStandardLayouts();
+		_actions = _fd_actions;		// set Force Directed as default
+		_empty = false;
+		
+		// always have Repaint and Color Actions running
+	    ActionList a = new ActionList(_registry, -1, 20);
+	    a.add(new RepaintAction());
+	    a.add(new Colorizer());
+	    a.runNow();
+		
+		// Begin by randomly setting all the items
+		doSemiRandomLayout();
+	}
+
+	private void initStandardLayouts() {
+		System.out.println("  - initializing Layouts");
+		
+		// Semi-Random Layout
+		_semiRandomLayout = new SemiRandomLayout(_ctl);		
+		_sr_actions = new ActionList(_registry);
+		_sr_actions.add(new GraphFilter());
+		_sr_actions.add(new Colorizer()); 		// colors nodes & edges
+		_sr_actions.add(new RepaintAction());
+		_sr_actions.add(_semiRandomLayout);
+		
+		// init random layout
+		_randomLayout = new RandomLayout();
+		_ra_actions = new ActionList(_registry);
+		_ra_actions.add(new GraphFilter());
+		_ra_actions.add(new Colorizer()); 		// colors nodes & edges
+		_ra_actions.add(new RepaintAction());
+		_ra_actions.add(_randomLayout);
+		
+		// init fd layout
 		// set up attract/repulse
 		_fsim = new ForceSimulator();
 		_fsim.addForce(new NBodyForce(-0.4f, -1f, 0.9f));
@@ -168,51 +224,107 @@ public class RenderBox extends Display {
 		_fsim.addForce(new DragForce(-0.005f));
 		_flayout = new ForceDirectedLayout(_fsim, false, false);
 		
-		// other layouts
-		_randomLayout = new RandomLayout();
-		_semiRandomLayout = new SemiRandomLayout(_ctl);
+		_fd_actions = new ActionList(_registry, -1, 20);
+		_fd_actions.add(new GraphFilter());
+		_fd_actions.add(new Colorizer()); 		// colors nodes & edges
+		_fd_actions.add(new RepaintAction());
+		_fd_actions.add(_flayout);
 		
-		// create a new action list that
-		// (a) filters visual representations from the original graph
-		// (b) performs a random layout of graph nodes
-		// (c) calls repaint on displays so that we can see the result
-		_actions = new ActionList(_registry, -1, 20);
-		_actions.add(new GraphFilter());
-		_actions.add(new Colorizer()); 		// colors nodes & edges
-		_actions.add(new RepaintAction());
-		
-		// antialias?
-		setHighQuality(_settings.getBoolean(RenderSettings.ANTIALIAS));
-		
-		_empty = false;
-		
-		// now execute the actions to visualize the graph
-		_actions.runNow();
-		
-		// randomly set all the items
-		doSemiRandomLayout();
+		// Radial Graph Layout
+		_rg_actions = new ActionList(_registry);
+		_rg_actions.add(new TreeFilter(true));
+		_rg_actions.add(new RadialTreeLayout());
+        _rg_animate = new ActionList(_registry, 1500, 20);
+        _rg_animate.setPacingFunction(new SlowInSlowOutPacer());
+        _rg_animate.add(new PolarLocationAnimator());
+        _rg_animate.add(new ColorAnimator());
+        _rg_animate.add(new RepaintAction());
+        _rg_animate.alwaysRunAfter(_rg_actions);
 	}
 	
-	public void startForceDirectedLayout() {
+	public void setLayout(ActionList a) {
+	    System.out.println("SET LAYOUT");
+	    // TODO, do we need this if?
+		// A: not sure -- my reasoning was to stop
+		// any badness from happening if a null graph
+		// was passed in -bs
+	    if(_empty || _layoutRunning) {
+	        return;
+	    }
+	    _actions = a;
+	}
+	
+	public void startLayout() {
+	    System.out.println("START LAYOUT");
 		if(_empty || _layoutRunning) {
 			return;
 		}
-		_actions.add(_flayout);
+		_actions.runNow();
 		_layoutRunning = true;
 	}
-	
-	public void stopForceDirectedLayout() {
-		if(_empty || !_layoutRunning) {
+
+	// TODO: there is a bug that sometimes the layout does not
+	// stop, in which case it can never be stopped and things
+	// get all messed up.  this bug can not be reproduced every
+	// time things get clicked though so i bet it's another
+	// thread issue -bs
+	public void stopLayout() {
+	    System.out.println("STOP LAYOUT; empty= " + _empty + " running= " + _layoutRunning);
+		if(_empty) {
 			return;
 		}
-		_actions.remove(_flayout);
+		System.out.println("  - cancelling layout");
+		try {
+		_actions.cancel();
+		}
+		catch (Exception e) {}
 		_layoutRunning = false;
+	}
+
+	/** Randomly place the vertices of a graph on the drawing surface. */
+	public void doRandomLayout() {
+		if(_empty) {
+			return;
+		}
+		_ra_actions.runNow();
+	}
+	
+	public void doSemiRandomLayout() {
+		if(_empty) {
+			return;
+		}
+		_sr_actions.runNow();
+	}
+	
+	public void doCenterLayout() {
+		if(_empty) {
+			return;
+		}
+//	    ActionList a = new ActionList(_registry);
+//		if(!_layoutRunning) {
+//		    // start a run-once action list
+//		    a.add(new RepaintAction());
+//		    a.runNow();
+//		}
+		int ct = 0;
+		double x = 0, y = 0;
+		Iterator nodeIter = _registry.getNodeItems();
+		while ( nodeIter.hasNext() ) {
+			VisualItem item = (VisualItem) nodeIter.next();
+			x += item.getLocation().getX();
+			y += item.getLocation().getY();
+			ct++;
+		}
+		x = x / (double) ct;
+		y = y / (double) ct;
+		panToAbs(new java.awt.geom.Point2D.Double(x, y));
 	}
 	
 	/** TODO: Saves the current visualization to a PNG or JPEG file.
 	 *
 	 * @param filename	the name of the file to save to.
 	 */
+	/*
 	public void saveVisualFile(String filename) {
 		BufferedImage bi = new BufferedImage(
 				(int) getWidth(),
@@ -237,47 +349,7 @@ public class RenderBox extends Display {
 		}
 		g.dispose();
 	}
-	
-	/** Randomly place the vertices of a graph on the drawing surface. */
-	public void doRandomLayout() {
-		if(_empty) {
-			return;
-		}
-		// run once action list
-		ActionList act = new ActionList(_registry);
-		act.add(_randomLayout);
-		// act.add(_semiRandomLayout);
-		act.runNow();
-	}
-	
-	public void doSemiRandomLayout() {
-		if(_empty) {
-			return;
-		}
-		// run once action list
-		ActionList act = new ActionList(_registry);
-		act.add(_semiRandomLayout);
-		act.runNow();		
-	}
-	
-	public void doCenterLayout() {
-		if(_empty) {
-			return;
-		}
-		
-		int ct = 0;
-		double x = 0, y = 0;
-		Iterator nodeIter = _registry.getNodeItems();
-		while ( nodeIter.hasNext() ) {
-			VisualItem item = (VisualItem) nodeIter.next();
-			x += item.getLocation().getX();
-			y += item.getLocation().getY();
-			ct++;
-		}
-		x = x / (double) ct;
-		y = y / (double) ct;
-		panToAbs(new java.awt.geom.Point2D.Double(x, y));
-	}
+	*/
 	
 	public void doSaveVertexLocations() {
 		// when graph is cleared, save the locations of the
@@ -364,12 +436,14 @@ public class RenderBox extends Display {
 			//g.translate(-(x1+x2)/2, -(y1+y2)/2);
 		}
 		
+		/*
 		String [][] test = {{"test", "12"},
 		{"\\hline",""},
 		{"asd","3232"},
 		{"\\hline",""},
 		{"test2","135"}};
 		renderTable(g, (int) getDisplayX() + 5, (int) getDisplayY() + 5, "", test);
+		*/
 	}
 	
 	private double getTheta(int x1, int y1, int x2, int y2) {
@@ -380,6 +454,7 @@ public class RenderBox extends Display {
 		g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, alpha));
 	}
 	
+	/*
 	private void renderTable(Graphics2D g, int x, int y, String layout, String [][] content) {
 		// overridden method to paint stuff _after_ graph elements
 		// have been drawn
@@ -429,6 +504,7 @@ public class RenderBox extends Display {
 			}
 		}
 	}
+	*/
 	
 	private class MouseAdapter extends ControlAdapter {
 		private RenderBox _parent;

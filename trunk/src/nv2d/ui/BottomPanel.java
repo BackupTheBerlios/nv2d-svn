@@ -107,7 +107,7 @@ public class BottomPanel extends javax.swing.JPanel {
         setBorder(new javax.swing.border.LineBorder(new java.awt.Color(0, 0, 0)));
         setPreferredSize(new java.awt.Dimension(2, 0));
         _start.setText(" Start ");
-        _start.setToolTipText("Start the interative layout.");
+        _start.setToolTipText("Start the interactive layout.");
         _start.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(0, 0, 0)));
         _start.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -201,11 +201,11 @@ public class BottomPanel extends javax.swing.JPanel {
 	}//GEN-LAST:event__doFilterActionPerformed
 	
     private void _startActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event__startActionPerformed
-		_ctl.getView().startForceDirectedLayout();
+		_ctl.getView().startLayout();
     }//GEN-LAST:event__startActionPerformed
 	
     private void _stopActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event__stopActionPerformed
-		_ctl.getView().stopForceDirectedLayout();
+		_ctl.getView().stopLayout();
     }//GEN-LAST:event__stopActionPerformed
 	
     private void _centerActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event__centerActionPerformed
@@ -213,7 +213,7 @@ public class BottomPanel extends javax.swing.JPanel {
     }//GEN-LAST:event__centerActionPerformed
 	
     private void _resetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event__resetActionPerformed
-		_ctl.getView().stopForceDirectedLayout();
+		_ctl.getView().stopLayout();
 		_ctl.getView().doRandomLayout();
     }//GEN-LAST:event__resetActionPerformed
 	

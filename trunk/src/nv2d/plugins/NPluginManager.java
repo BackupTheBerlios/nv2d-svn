@@ -48,6 +48,7 @@ public class NPluginManager extends NPluginLoader {
 		_securityList = new HashSet();
 		addSecureLocation("www.netvis.org");
 		addSecureLocation("web.mit.edu/bshi");
+		addSecureLocation("web.mit.edu/prentice");
 	}
 	
 	public void addSecureLocation(String loc) {
