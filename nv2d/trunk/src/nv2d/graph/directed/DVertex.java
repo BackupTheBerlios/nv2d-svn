@@ -66,6 +66,10 @@ public class DVertex extends Vertex {
 		throw new IllegalArgumentException("Could not add edge to this vertex");
 	}
 
+	boolean removeEdge(Edge e) {
+		return (_inEdges.remove(e) || _outEdges.remove(e));
+	}
+
 
 
 	/** <p>This class (along withany implementation of Edge) is suspected of
