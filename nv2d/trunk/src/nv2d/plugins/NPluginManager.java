@@ -125,11 +125,10 @@ public class NPluginManager extends NPluginLoader {
 					if(pluginRegistry.containsKey(filename) || ioRegistry.containsKey(filename)) {
 						// don't reload plugins
 						System.err.println("Warning: plugin with name [" + filename + "] already loaded.  Ignoring.");
-						continue;
+					} else {
+						NV2DPlugin s = createPlugin(filename, PLUGIN_DIRECTORY);
+						System.out.println(" * " + filename + " plug-in loaded");
 					}
-
-					NV2DPlugin s = createPlugin(filename, PLUGIN_DIRECTORY);
-					System.out.println(" * " + filename + " plug-in loaded");
 				} catch(PluginNotCreatedException e) {
 					// System.err.println("  There was an error loading the plugin [" + filename + "]");
 					// System.err.println("  -> " + e.toString());
@@ -197,13 +196,12 @@ public class NPluginManager extends NPluginLoader {
 				if(pluginRegistry.containsKey(pname) || ioRegistry.containsKey(pname)) {
 					// don't reload plugins
 					System.err.println("Warning: plugin with name [" + pname + "] already loaded.  Ignoring.");
-					continue;
+				} else {
+					// Load class from class loader. argv[0] is the name of the class to be loaded
+					Class c = loader.loadClass(fullname);
+					// Create an instance of the class just loaded
+					NV2DPlugin s = createPlugin(c, pname);
 				}
-
-				// Load class from class loader. argv[0] is the name of the class to be loaded
-				Class c = loader.loadClass(fullname);
-				// Create an instance of the class just loaded
-				NV2DPlugin s = createPlugin(c, pname);
 			} catch (ClassNotFoundException ex) {
 				System.err.println("  The plugin [" + pname + "] could not be found");
 				System.err.println(ex.toString());
