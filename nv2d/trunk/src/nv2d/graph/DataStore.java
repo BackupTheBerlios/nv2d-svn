@@ -32,6 +32,10 @@ public class DataStore {
 	public void setDatum(Datum d) {
 		_store.put(d.name(), d);
 	}
+        
+        public void remDatum(String a) {
+            _store.remove(a);
+        }
 
 	/** Return a list of keys available for display in a user interface.
 	 * Remember that internal variables are also stored but their keys
