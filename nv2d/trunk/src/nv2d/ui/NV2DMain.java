@@ -11,7 +11,7 @@ import nv2d.plugins.NPluginManager;
 import nv2d.plugins.NPluginLoader;
 import nv2d.plugins.NV2DPlugin;
 
-public class NV2DMain extends JFrame {
+public class NV2DMain extends JFrame implements NController {
 	static NPluginManager pm;
 	static Graph g;
 	static RenderBox r;
@@ -31,7 +31,9 @@ public class NV2DMain extends JFrame {
 		setTitle("NV2D");
 		pack();
 		setVisible(true);
+	}
 
+	public void initialize(String [] args) {
 		// run all scheduled actions in the RenderBox
 		r.initialize(g);
 	}
@@ -48,7 +50,7 @@ public class NV2DMain extends JFrame {
 		pm = new NPluginManager();
 
 		if(args.length < 2) {
-			System.out.println("Please provide a plugin directory");
+			System.err.println("Please provide a plugin directory");
 			errormsg();
 			return;
 		}
@@ -59,7 +61,7 @@ public class NV2DMain extends JFrame {
 		// select io module
 		String io_mod = args[1];
 		if(pm.type(io_mod) != NPluginLoader.PLUGIN_TYPE_IO) {
-			System.out.println("Could not find IO-Plugin '" + io_mod + "'");
+			System.err.println("Could not find IO-Plugin '" + io_mod + "'");
 			errormsg();
 			return;
 		}
@@ -76,9 +78,9 @@ public class NV2DMain extends JFrame {
 		}
 		String [] reqArgs = io.requiredArgs();
 		if(reqArgs.length != io_args.length) {
-			System.out.println("This IO-Plugin requires " + reqArgs.length + " arguments.");
+			System.err.println("This IO-Plugin requires " + reqArgs.length + " arguments.");
 			for(int j = 0; j < reqArgs.length; j++) {
-				System.out.println("   [" + j + "] " + reqArgs[j]);
+				System.err.println("   [" + j + "] " + reqArgs[j]);
 			}
 			errormsg();
 			return;
@@ -86,14 +88,14 @@ public class NV2DMain extends JFrame {
 		try {
 			g = (Graph) io.getData(io_args);
 		} catch (IOException ioe) {
-			System.out.println("There was an error importing data from this IO-Plugin.");
-			System.out.print("-> " + ioe.toString());
+			System.err.println("There was an error importing data from this IO-Plugin.");
+			System.err.print("-> " + ioe.toString());
 			errormsg();
 			return;
 		}
 
 		/* initialize modules */
-		pm.all_initialize(g, this);
+		pm.all_initialize(g, r, this);
 
 		/* add module UI to top level UI */
 		Iterator j = pm.iterator();
@@ -113,7 +115,7 @@ public class NV2DMain extends JFrame {
 	}
 
 	public static void errormsg() {
-		System.out.println(usage);
+		System.err.println(usage);
 	}
 
 }

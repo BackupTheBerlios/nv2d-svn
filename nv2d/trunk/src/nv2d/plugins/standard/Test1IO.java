@@ -14,6 +14,7 @@ import nv2d.graph.Graph;
 import nv2d.graph.directed.DEdge;
 import nv2d.graph.directed.DGraph;
 import nv2d.graph.directed.DVertex;
+import nv2d.ui.NController;
 
 public class Test1IO implements IOInterface {
 	String _desc;
@@ -39,7 +40,7 @@ public class Test1IO implements IOInterface {
 		return r;
 	}
 
-	public void initialize(Graph g, Container view) {
+	public void initialize(Graph g, Container view, NController control) {
 		// io-plugins can ignore this
 	}
 

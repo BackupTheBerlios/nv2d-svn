@@ -8,6 +8,7 @@ import java.util.Iterator;
 
 import nv2d.graph.Graph;
 import nv2d.exceptions.PluginNotCreatedException;
+import nv2d.ui.NController;
 
 public class NPluginManager extends NPluginLoader
 {
@@ -19,7 +20,7 @@ public class NPluginManager extends NPluginLoader
 		return ((NV2DPlugin) pluginRegistry.get(name));
 	}
 
-	public void all_initialize(Graph g, Container view) {
+	public void all_initialize(Graph g, Container view, NController control) {
 		/* TODO: check that requirements are met */
 
 		/* init all the valid plugins */
@@ -27,7 +28,7 @@ public class NPluginManager extends NPluginLoader
 		for ( Enumeration e = pluginRegistry.keys() ; e.hasMoreElements() ; ) {
 			String pname = (String) e.nextElement();
 			System.out.print("[" + pname + "] ");
-			getp(pname).initialize(g, view);
+			getp(pname).initialize(g, view, control);
 		}
 	}
 

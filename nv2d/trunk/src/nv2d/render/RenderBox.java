@@ -106,11 +106,12 @@ public class RenderBox extends Display {
 		// establish settings controller
 		_settings = new RenderSettings();
 
+		_empty = false;
+
 		// now execute the actions to visualize the graph
 		_actions.runNow();
 		doRandomLayout();
 
-		_empty = false;
 	}
 
 	public void startForceDirectedLayout() {

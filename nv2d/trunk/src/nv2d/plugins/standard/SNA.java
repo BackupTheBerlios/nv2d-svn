@@ -18,6 +18,7 @@ import nv2d.graph.Edge;
 import nv2d.graph.Graph;
 import nv2d.graph.Vertex;
 import nv2d.algorithms.shortestpaths.Dijkstra;
+import nv2d.ui.NController;
 
 /** Plugin for Social Network Analysis (SNA) calculations.
  *
@@ -55,7 +56,7 @@ public class SNA implements NV2DPlugin  {
 		_author= new String("Bo Shi");
 	}
 
-	public void initialize(Graph g, Container view) {
+	public void initialize(Graph g, Container view, NController control) {
 		System.out.print("--> initialize()\n");
 		_graph = g;
 

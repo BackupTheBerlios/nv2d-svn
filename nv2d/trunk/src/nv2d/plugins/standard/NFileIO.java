@@ -18,22 +18,24 @@ import java.util.Iterator;
 import java.util.Vector;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-
-import nv2d.plugins.NPluginLoader;
-import nv2d.plugins.NV2DPlugin;
-import nv2d.plugins.IOInterface;
 
 import nv2d.graph.Graph;
 import nv2d.graph.directed.DGraph;
 import nv2d.graph.directed.DEdge;
 import nv2d.graph.directed.DVertex;
+import nv2d.plugins.NPluginLoader;
+import nv2d.plugins.NV2DPlugin;
+import nv2d.plugins.IOInterface;
+import nv2d.ui.NController;
 
 public class NFileIO implements IOInterface {
 	String _desc;
 	String _name;
 	String _author;
 	Container _view;
+	NController _control;
 
 	private String _arg;	// argument for this module supplied from JMenu
 
@@ -41,22 +43,33 @@ public class NFileIO implements IOInterface {
 		_desc = new String("This IO plugins allows you to import graphs from NV2D data files.");
 		_name = new String("NFileIO");
 		_author= new String("Bo Shi");
+		_arg = null;
 	}
 
 	/** Construct a new graph from the data. */
 	public Graph getData(String [] args) throws IOException {
 		FileIO fio = new FileIO();
 		Graph g;
-		if(args.length == 1) {
-			try {
-				fio.setup(args[0]);
-				fio.read();
-			} catch (IOException e) {
-				System.err.println(e.toString());
+		String loc;
+		if(args.length == 0) {
+			if(_arg == null) {
+				System.err.print("Error, no argument provided.");
 				return null;
 			}
+			loc = _arg;
+		}
+		else if(args.length == 1) {
+			loc = args[0];
 		} else {
 			System.err.print("Error, wrong number of arguments");
+			return null;
+		}
+
+		try {
+			fio.setup(loc);
+			fio.read();
+		} catch (IOException e) {
+			System.err.println(e.toString());
 			return null;
 		}
 
@@ -74,7 +87,8 @@ public class NFileIO implements IOInterface {
 		return r;
 	}
 
-	public void initialize(Graph g, Container view) {
+	/* Model, view, controller -> g, view, controller */
+	public void initialize(Graph g, Container view, NController control) {
 		System.out.print("--> initialize()\n");
 	}
 
@@ -94,7 +108,7 @@ public class NFileIO implements IOInterface {
 		JMenu mod = new JMenu("NFileIO");
 		JMenuItem open = new JMenuItem("Open");
 		mod.add(open);
-		mod.addActionListener(new MenuListener());
+		open.addActionListener(new MenuListener());
 		return mod;
 	}
 
@@ -122,6 +136,14 @@ public class NFileIO implements IOInterface {
 	private class MenuListener implements ActionListener {
 		public void actionPerformed(ActionEvent e) {
 			// open up a dialog asking for one argument
+			String s = JOptionPane.showInputDialog(
+					null,
+					"Please provide the location on disk or URL of the data file");
+
+			//If a string was returned, say so.
+			if ((s != null) && (s.length() > 0)) {
+				System.out.println("Argument provided '" + s + "'");
+			}
 		}
 	}
 }
