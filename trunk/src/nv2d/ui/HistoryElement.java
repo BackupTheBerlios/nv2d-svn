@@ -38,7 +38,7 @@ public class HistoryElement {
 
 	public HistoryElement(NController ctl) {
 		_ctl = ctl;
-		RenderBox display = (RenderBox) ctl.getView();
+		RenderBox display = (RenderBox) ctl.getRenderBox();
 		BufferedImage bi = new BufferedImage(
 				(int) display.getWidth(),
 				(int) display.getHeight(),

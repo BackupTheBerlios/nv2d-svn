@@ -200,20 +200,20 @@ public class BottomPanel extends javax.swing.JPanel {
 	}//GEN-LAST:event__doFilterActionPerformed
 	
     private void _startActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event__startActionPerformed
-		_ctl.getView().startLayout();
+		_ctl.getRenderBox().startLayout();
     }//GEN-LAST:event__startActionPerformed
 	
     private void _stopActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event__stopActionPerformed
-		_ctl.getView().stopLayout();
+		_ctl.getRenderBox().stopLayout();
     }//GEN-LAST:event__stopActionPerformed
 	
     private void _centerActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event__centerActionPerformed
-		_ctl.getView().doCenterLayout();
+		_ctl.getRenderBox().doCenterLayout();
     }//GEN-LAST:event__centerActionPerformed
 	
     private void _resetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event__resetActionPerformed
-		_ctl.getView().stopLayout();
-		_ctl.getView().doRandomLayout();
+		_ctl.getRenderBox().stopLayout();
+		_ctl.getRenderBox().doRandomLayout();
     }//GEN-LAST:event__resetActionPerformed
 	
 	

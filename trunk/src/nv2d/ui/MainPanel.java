@@ -339,8 +339,13 @@ public class MainPanel implements NController {
 		return _g;
 	}
 	
-	public RenderBox getView() {
+	public RenderBox getRenderBox() {
 		return _r;
+	}
+
+	public ViewInterface getView() {
+		// TODO
+		return null;
 	}
 	
 	public DegreeFilter getDegreeFilter() {

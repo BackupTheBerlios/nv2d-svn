@@ -70,11 +70,16 @@ public interface NController {
 	public Graph getSubgraph();
 
 	/**
-	 * Returns the current instance of the view (as per the Model-View-Controller
-	 * paradigm).  The view for NV2D is the {@link nv2d.render.RenderBox} object.
+	 * Returns the instance of the RenderBox
 	 * @return returns a {@link nv2d.render.RenderBox} object.
 	 */
-	public RenderBox getView();
+	public RenderBox getRenderBox();
+
+
+	/**
+	 * Returns the GUI object.
+	 */
+	public ViewInterface getView();
 	
 	/**
 	 * Get the main DegreeFilter object.  The Degree Filter is used as the
@@ -86,12 +91,14 @@ public interface NController {
 	/**
 	 * Returns the parent container for the main panel.
 	 * @return returns a content pane object which holds this controller.
+	 * @deprecated Please use <code>getView().getParent()</code>
 	 */
 	public Container getParent();
 	
 	/**
 	 * Returns a Frame or Applet depending on the top level container.
 	 * @param returns a {@link java.awt.Frame} or {@link java.awt.Applet} object
+	 * @deprecated Please use <code>getView().getWindow()</code>
 	 */
 	public Container getWindow();
 	
@@ -127,39 +134,48 @@ public interface NController {
 	/**
 	 * Toggle the Output tab.
 	 * @param b On/Off
+	 * @deprecated This method is scheduled for removal
 	 */
 	public void displayOutTextBox(boolean b);
 	/**
 	 * Toggle the Error Messages tab.
 	 * @param b On/Off
+	 * @deprecated This method is scheduled for removal
 	 */
 	public void displayErrTextBox(boolean b);
 	
 	/**
 	 * Show the bottom button panel.
 	 * @param b on/off
+	 * @deprecated Please use <code>getView().getBottomPane().setVisible(false)</code>
 	 */
 	public void displayBottomPane(boolean b);
 	
 	/**
 	 * Get the instance of the main menu.
 	 * @return a {@link NMenu} object.
+	 * @deprecated Please use <code>getView().getMenu()</code>
 	 */
 	public JMenuBar getMenu();
 	/**
 	 * Get the instance of the JComponent containing the top level center GUI component.
 	 * @return a {@link javax.swing.JTabbedPane} instance.
+	 * @deprecated Please use <code>getView().getCenterPane()</code>
 	 */
 	public JTabbedPane getCenterPane();
 	
 	/**
 	 * Get the instance of the JComponent containing the top level bottom GUI component.
-	 * @return a {@link javax.swing.JPanel} instance */
+	 * @return a {@link javax.swing.JPanel} instance
+	 * @deprecated Please use <code>getView().getBottomPane()</code>
+	 */
 	public JPanel getBottomPane();
 	
 	/**
 	 * Get the {@link javax.swing.JPanel} component containing the graph history list.
-	 * @return a {@link javax.swing.JPanel} instance */
+	 * @return a {@link javax.swing.JPanel} instance
+	 * @deprecated This method is scheduled for removal
+	 */
 	public JPanel getHistoryPane();
 	
 	// plugin controls
@@ -178,6 +194,7 @@ public interface NController {
 	 * @param title the title of the dialog window
 	 * @param msg error message to be logged and shown
 	 * @param extra details about the error
+	 * @deprecated Please use <code>getView().errorPopup(...)</code>
 	 */
 	public void errorPopup(String title, String msg, String extra);
 }
