@@ -33,7 +33,7 @@ public class NMenu extends JMenuBar {
 		add(_menu_importers);
 		add(_menu_plugins);
 		add(new nmOptimization());
-		add(new nmShowHide());
+		add(new nmView());
 		add(new nmSettings());
 	}
 
@@ -117,8 +117,9 @@ public class NMenu extends JMenuBar {
 		}
 	}
 
-	public class nmShowHide extends JMenu implements ItemListener {
+	public class nmView extends JMenu implements ItemListener {
 		JMenu _visualization;
+		JMenu _filter;
 		JCheckBoxMenuItem _nlabel = new JCheckBoxMenuItem("Labels", true);
 		JCheckBoxMenuItem _stress = new JCheckBoxMenuItem("Stress", true);
 		JCheckBoxMenuItem _length = new JCheckBoxMenuItem("Length", true);
@@ -126,20 +127,33 @@ public class NMenu extends JMenuBar {
 		JCheckBoxMenuItem _errTxt = new JCheckBoxMenuItem("Error Messages", true);
 		JCheckBoxMenuItem _outTxt = new JCheckBoxMenuItem("Program Output", true);
 
-		public nmShowHide() {
+
+		public nmView() {
 			super("View");
 			_visualization = new JMenu("Visualization");
+			_filter = new JMenu("Graph Filters");
+
+			// event listeners
 			_nlabel.addItemListener(this);
 			_stress.addItemListener(this);
 			_length.addItemListener(this);
 			_errTxt.addItemListener(this);
 			_outTxt.addItemListener(this);
+
+			// visualization submenu
 			_visualization.add(_nlabel);
 			_visualization.add(_stress);
 			_visualization.add(_length);
 
+			// filter submenu
+			_filter.add(new JMenuItem("Degree"));
+			_filter.add(new JMenuItem("Measure"));
+
+			add(_filter);
+			add(new JSeparator());
 			add(_errTxt);
 			add(_outTxt);
+			add(new JSeparator());
 			add(_visualization);
 		}
 
