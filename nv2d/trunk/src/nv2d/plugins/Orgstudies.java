@@ -139,6 +139,7 @@ public class Orgstudies implements NV2DPlugin, FilterInterface {
             // and or < > <= >= ==
             // # of arguments must be even (<1983, >=1984, etc)
         }
+        
 	public Graph filter(Graph g) {
             return null;
         }

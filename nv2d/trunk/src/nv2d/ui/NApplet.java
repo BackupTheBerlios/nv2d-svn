@@ -21,8 +21,9 @@ import nv2d.plugins.NV2DPlugin;
 public class NApplet extends JApplet {
 	MainPanel panel;
 	public void init() {
-		panel = new MainPanel();
-		getContentPane().add(panel.getTabs());
+		panel = new MainPanel(getContentPane());
+		getContentPane().add(panel.getCenterPane(), "Center");
+                getContentPane().add(panel.getBottomPane(), "South");
 		setJMenuBar(panel.getMenu());
 		setVisible(true);
 	}

@@ -21,6 +21,7 @@ import nv2d.plugins.NPluginLoader;
 import nv2d.plugins.NV2DPlugin;
 
 public class MainPanel implements NController {
+        private Container _parentContainer;
 	private NPluginManager _pm;
 	private Graph _g;	// current view
 	private Graph _originalGraph;	// original full set
@@ -29,12 +30,13 @@ public class MainPanel implements NController {
 	private JTabbedPane _tabs;
 	private FilterInterface _filter;
 	private Set _allowedURLs;
+        private JPanel _bottomPane;
 
 	private JComponent _outTextBox, _errTextBox;
 
 	private NPrintStream _err, _out;
 
-	public MainPanel() {
+	public MainPanel(Container parent) {
 		/* The following font bit is taken from
 		 * http://forum.java.sun.com/thread.jsp?thread=125315&forum=57&message=330309
 		 * Thanks to 'urmasoft' for the post
@@ -50,6 +52,9 @@ public class MainPanel implements NController {
 			}
 		}
 
+                _parentContainer = parent;
+                _bottomPane = new BottomPanel(this);
+                
 		// Important: this must be the order (loadmodules then renderbox as last two)
                 _pm = new NPluginManager();
 		_filter = new DefaultFilter();
@@ -58,7 +63,7 @@ public class MainPanel implements NController {
 		_tabs = new JTabbedPane();
 
 
-		_r.setPreferredSize(new Dimension(700, 500));
+		_parentContainer.setPreferredSize(new Dimension(700, 500));
 		
 		// trap output to standard streams and display them in a text box
 		JTextArea errTxt = new JTextArea();
@@ -85,9 +90,13 @@ public class MainPanel implements NController {
 		}
 	}
 
-	public JTabbedPane getTabs() {
+	public JTabbedPane getCenterPane() {
 		return _tabs;
 	}
+        
+        public JPanel getBottomPane() {
+            return _bottomPane;
+        }
 
 	public void start() {
 		try {
@@ -161,6 +170,12 @@ public class MainPanel implements NController {
 		_tabs.validate();
 		_tabs.repaint();
 	}
+        
+        public void displayBottomPane(boolean b) {
+                _bottomPane.setVisible(b);
+                _parentContainer.validate();
+                _parentContainer.repaint();
+        }
 
 	public void setFilter(FilterInterface filter) {
 		if(filter != null) {

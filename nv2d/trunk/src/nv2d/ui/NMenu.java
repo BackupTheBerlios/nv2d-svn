@@ -85,26 +85,16 @@ public class NMenu extends JMenuBar {
 		JMenuItem _center = new JMenuItem("Center");
 		JMenuItem _reset= new JMenuItem("Reset");
 
-		// status of the optimization
-		boolean running;
-
 		public nmOptimization() {
 			super("Optimization");
-			running = false;
 			_start.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
-					if(!running) {
 						_renderbox.startForceDirectedLayout();
-						running = true;
-					}
 				}
 			});
 			_stop.addActionListener(new ActionListener () {
 				public void actionPerformed(ActionEvent e) {
-					if(running) {
 						_renderbox.stopForceDirectedLayout();
-						running = false;
-					}
 				}
 			});
 			_center.addActionListener(new ActionListener () {
@@ -113,10 +103,7 @@ public class NMenu extends JMenuBar {
 			});
 			_reset.addActionListener(new ActionListener () {
 				public void actionPerformed(ActionEvent e) {
-					if(running) {
-						_renderbox.stopForceDirectedLayout();
-						running = false;
-					}
+                                    _renderbox.stopForceDirectedLayout();
 					_renderbox.doRandomLayout();
 				}
 			});
@@ -143,6 +130,7 @@ public class NMenu extends JMenuBar {
 		// degree filter stuff
 		DegreeFilter _degreeFilterObject = new DegreeFilter();
 
+		JCheckBoxMenuItem _bottomPanel = new JCheckBoxMenuItem("Bottom Control Panel", true);
 		JCheckBoxMenuItem _errTxt = new JCheckBoxMenuItem("Error Messages", true);
 		JCheckBoxMenuItem _outTxt = new JCheckBoxMenuItem("Program Output", true);
 
@@ -169,6 +157,12 @@ public class NMenu extends JMenuBar {
 					}
 				}
 			});
+                        
+                        _bottomPanel.addActionListener(new ActionListener() {
+                            public void actionPerformed(ActionEvent e) {
+                                _topLevel.displayBottomPane(_bottomPanel.getState());
+                            }
+                        });
 
 			// visualization submenu
 			_visualization.add(_nlabel);
@@ -179,6 +173,7 @@ public class NMenu extends JMenuBar {
 			_filter.add(_degreeFilter);
 			_filter.add(_measureFilter);
 
+                        add(_bottomPanel);
 			add(_errTxt);
 			add(_outTxt);
 			add(new JSeparator());

@@ -67,6 +67,7 @@ public class RenderBox extends Display {
 	private Graph _g;
 
 	private boolean _empty;
+        private boolean _layoutRunning;
 
 	private ForceSimulator _fsim;
 	private ForceDirectedLayout _flayout;
@@ -101,6 +102,7 @@ public class RenderBox extends Display {
         addControlListener(new ZoomControl());
 
 		_empty = true;
+                _layoutRunning = false;
 	}
 
 	public void clear() {
@@ -144,17 +146,19 @@ public class RenderBox extends Display {
 	}
 
 	public void startForceDirectedLayout() {
-		if(_empty) {
+		if(_empty || _layoutRunning) {
 			return;
 		}
 		_actions.add(_flayout);
+                _layoutRunning = true;
 	}
 
 	public void stopForceDirectedLayout() {
-		if(_empty) {
+		if(_empty || !_layoutRunning) {
 			return;
 		}
 		_actions.remove(_flayout);
+                _layoutRunning = false;
 	}
 
 	/** Saves the current visualization to a PNG or JPEG file.

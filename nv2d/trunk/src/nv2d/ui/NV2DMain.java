@@ -18,11 +18,12 @@ import nv2d.plugins.NV2DPlugin;
 
 public class NV2DMain extends JFrame {
 	public NV2DMain() {
-		MainPanel panel = new MainPanel();
+		MainPanel panel = new MainPanel(getContentPane());
 		panel.start();
 
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
-		getContentPane().add(panel.getTabs());
+		getContentPane().add(panel.getCenterPane(), "Center");
+                getContentPane().add(panel.getBottomPane(), "South");
 		setJMenuBar(panel.getMenu());
 		setTitle("NV2D");
 		pack();
