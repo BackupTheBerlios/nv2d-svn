@@ -39,7 +39,7 @@ public class DatumTest extends TestCase {
 		boolean passed = false;
 		try {
 			a = new Datum(null, Color.red);
-		} catch(IllegalArgumentException e) {
+		} catch(IllegalArgumentException ex) {
 			passed = true;
 		}
 		assertTrue(passed);
@@ -47,9 +47,9 @@ public class DatumTest extends TestCase {
 		passed = false;
 		try {
 			a = new Datum("a", Color.blue);
-			String d = new String("test");
-			a.compareTo(d);
-		} catch(ClassCastException e) {
+			String ds = new String("test");
+			a.compareTo(ds);
+		} catch(ClassCastException ex) {
 			passed = true;
 		}
 		assertTrue(passed);

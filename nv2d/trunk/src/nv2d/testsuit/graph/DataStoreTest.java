@@ -77,4 +77,9 @@ public class DataStoreTest extends TestCase {
 		B.setDatum(d);
 		assertTrue(A.equals(B));
 	}
+
+	public void testNull() {
+		a.set(null);
+		assertTrue(null == a.get());
+	}
 }
