@@ -113,6 +113,7 @@ public class SNA implements NV2DPlugin  {
 	public JPanel ui() {
 		return null;
 	}
+	
 	public JMenu menu() {
 		JMenu m = new JMenu("Social Network Analysis");
 		JMenuItem recalc = new JMenuItem("(re)Calculate Measures");
@@ -121,15 +122,15 @@ public class SNA implements NV2DPlugin  {
 		final JMenuItem sizeby_degree = new JMenuItem("Degree");
 		final JMenuItem sizeby_indeg = new JMenuItem("Indegree");
 		final JMenuItem sizeby_outdeg = new JMenuItem("Outdegree");
-
+		
 		recalc.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-                            if(_graph != null) {
-                                indecize();
-                                calculate();
-                            }
-
-                            _inited = true;
+				if(_graph != null) {
+					indecize();
+					calculate();
+				}
+				
+				_inited = true;
 			}
 		});
 		ActionListener resizeActions = new ActionListener() {
@@ -154,7 +155,7 @@ public class SNA implements NV2DPlugin  {
 		sizeby_degree.addActionListener(resizeActions);
 		sizeby_indeg.addActionListener(resizeActions);
 		sizeby_outdeg.addActionListener(resizeActions);
-
+		
 		m.add(recalc);
 		m.add(new JSeparator());
 		m.add(sizeby_betw);
@@ -190,9 +191,15 @@ public class SNA implements NV2DPlugin  {
 	      Visualization Functions
 	 * ===================================== */
 	private void resizeNodes(String measure) {
-		if(!_inited || _graph == null) {
-			System.err.println("Error: could not resize nodes because measures have not been calculated.");
+		if(_graph == null) {
+			System.err.println("Error: could not resize nodes no graph has been loaded.");
 			return;
+		}
+		
+		/* TODO: should probably give user some sort of notice */
+		if(!_inited) {
+			indecize();
+			calculate();
 		}
 
 		RenderBox r = (RenderBox) _view;
