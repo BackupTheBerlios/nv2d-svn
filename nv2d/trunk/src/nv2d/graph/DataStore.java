@@ -2,7 +2,10 @@ package nv2d.graph;
 
 import nv2d.exceptions.QueryNotFound;
 
+import java.util.HashSet;
 import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.Set;
 
 
 /** This is the fundamental data structure contained in the <code>graph</code>
@@ -28,6 +31,24 @@ public class DataStore {
 	 * equals() method for details. */
 	public void setDatum(Datum d) {
 		_store.put(d.name(), d);
+	}
+
+	/** Return a list of keys available for display in a user interface.
+	 * Remember that internal variables are also stored but their keys
+	 * begin with two underscores (__).  These should not be displayed.
+	 */
+	public Set getDatumSet() {
+		Set ds = new HashSet();
+		Iterator i = _store.values().iterator();
+
+		// add, filtering out datums which aren't supposed to be seen
+		while(i.hasNext()) {
+			Datum d = (Datum) i.next();
+			if(d.name().length() > 1 && !d.name().substring(0,2).equals("__")) {
+				ds.add(d);
+			}
+		}
+		return ds;
 	}
 
 	/** Equality test; two Datum are considered 'equal' if their names are the

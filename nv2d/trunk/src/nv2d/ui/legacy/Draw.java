@@ -37,9 +37,9 @@ public class Draw {
 
 	public static int PADDING = 10;	// amount of padding text boxes get
 
-	public Draw(Graphics2D g, FontMetrics fm) {
+	public Draw(Graphics g, FontMetrics fm) {
 		_fm = fm;
-		_g = g;
+		_g = (Graphics2D) g;
 	}
 
 	public void setAntialiasing(boolean tf) {

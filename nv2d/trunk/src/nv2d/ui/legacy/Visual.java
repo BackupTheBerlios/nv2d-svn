@@ -45,8 +45,8 @@ public class Visual extends JPanel {
 	 * @param e program environment data (user settings, etc)
 	 * @param n	network data
 	 */
-    public Visual(Graph g, Draw d/*, MouseHandler m*/) {
-		_draw = d;
+    public Visual(Graph g/*, MouseHandler m*/) {
+		_draw = new Draw(this.getGraphics(), this.getGraphics().getFontMetrics());
 		_graph = g;
 		//_mouse = m;
 

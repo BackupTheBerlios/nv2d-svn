@@ -71,7 +71,7 @@
 		<java fork="yes" classname="nv2d.ui.NV2DMain">
             <classpath>
                 <pathelement location="./build" />
-                <pathelement location="../lib/piccolo.jar" />
+                <pathelement location="./lib/piccolo.jar" />
             </classpath>
 		</java>
 	</target>
