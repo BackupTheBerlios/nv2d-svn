@@ -17,7 +17,7 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-package nv2d.graph.directed;
+package nv2d.graph.undirected;
 
 import java.io.Serializable;
 import java.lang.IllegalArgumentException;
@@ -31,42 +31,36 @@ import nv2d.graph.Edge;
 import nv2d.graph.Graph;
 import nv2d.graph.GraphElement;
 
-public class DVertex extends Vertex implements Serializable {
+public class UVertex extends Vertex implements Serializable {
 	// the intersection of the following two sets should be null
-	transient private Set _inEdges;
-	transient private Set _outEdges;
+	transient private Set _edges;
 
-	public DVertex(String id) {
+	public UVertex(String id) {
 		super(id);
-		_inEdges = new HashSet();
-		_outEdges = new HashSet();
+		_edges = new HashSet();
 	}
 
 	public Set inEdges() {
-		return _inEdges;
+		return _edges;
 	}
 
 	public Set outEdges() {
-		return _outEdges;
+		return _edges;
 	}
 
 	public Set neighbors() {
 		HashSet set = new HashSet();
 		Iterator it;
 
-		for(it = _inEdges.iterator(); it.hasNext(); ) {
+		for(it = _edges.iterator(); it.hasNext(); ) {
 			set.add(((Edge) it.next()).getOpposite(this));
 		}
 
-		for(it = _outEdges.iterator(); it.hasNext(); ) {
-			set.add(((Edge) it.next()).getOpposite(this));
-		}
-		
 		return set;
 	}
 
 	public GraphElement clone(Graph destGraph) {
-		DVertex v = new DVertex(id());
+		UVertex v = new UVertex(id());
 		Set attr = getDatumSet();
 		Iterator i = attr.iterator();
 		while(i.hasNext()) {
@@ -79,26 +73,17 @@ public class DVertex extends Vertex implements Serializable {
 		return v;
 	}
 
-	void addInEdge(Edge e) {
+	public void addEdge(Edge e) {
 		// make sure arguments are okay
-		if(e.getClass() == DEdge.class && ((DEdge) e).getDest().equals(this)) {
-			_inEdges.add(e);
+		if(e instanceof UEdge && e.getEnds().contains(this)) {
+			_edges.add(e);
 			return;
 		}
 
 		throw new IllegalArgumentException("Could not add edge to this vertex");
 	}
-
-	void addOutEdge(Edge e) {
-		// make sure arguments are okay
-		if(e.getClass() == DEdge.class && ((DEdge) e).getSource().equals(this)) {
-			_outEdges.add(e);
-			return;
-		}
-		throw new IllegalArgumentException("Could not add edge to this vertex");
-	}
-
-	boolean removeEdge(Edge e) {
-		return (_inEdges.remove(e) || _outEdges.remove(e));
+	
+	public boolean removeEdge(Edge e) {
+		return _edges.remove(e);
 	}
 }

@@ -40,12 +40,4 @@ public abstract class Vertex extends GraphElement {
 	public String toString() {
 		return id();
 	}
-
-	/** A valid edge parameter must at least contain this vertex.  This is
-	 * protected, only <code>Graph</code> should be able to access this. */
-	//abstract void addInEdge(Edge e);
-
-	/** A valid edge parameter must at least contain this vertex.  This is
-	 * protected, only <code>Graph</code> should be able to access this. */
-	//abstract void addOutEdge(Edge e);
 }

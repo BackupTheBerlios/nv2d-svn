@@ -36,18 +36,8 @@ import nv2d.graph.Path;
 import nv2d.graph.Vertex;
 
 /** This class takes a Graph and computes shortest paths using Dijkstra's algorithm.
- *
- * <b>Requirements</b>
- * <ol>
- * 	<li><b>Graph input:</b> The graph must be directed. NOTE: this is not enforced.  You can use a generic graph, but the results are not guaranteed to be correct.</li>
- * 	<li><b>Caching:</b> The results of a search shall not be discarded.
- * 	<ol>
- * 		<li>If a subsequent search uses the same source Vertex, the class shall look at the destination Vertex for cached information.</li>
- * 	</ol>
- * 	<li><b>Options</b></li>
- * </ol>
- * */
-
+ * TODO: test this class with undirected graphs.
+ */
 public class Dijkstra implements APSPInterface {
 	protected boolean _cached;
 	protected Graph _g;		// graph

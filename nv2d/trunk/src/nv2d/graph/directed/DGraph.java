@@ -19,14 +19,11 @@
 
 package nv2d.graph.directed;
 
+import java.io.Serializable;
 import java.util.Arrays;
-import java.util.Hashtable;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
-import java.lang.IllegalArgumentException;
-
-// import cern.colt.matrix.impl.SparseDoubleMatrix2D;
 
 import nv2d.algorithms.APSPInterface;
 import nv2d.algorithms.shortestpaths.Dijkstra;
@@ -37,7 +34,7 @@ import nv2d.graph.GraphElement;
 import nv2d.graph.Path;
 import nv2d.graph.Vertex;
 
-public class DGraph extends Graph {
+public class DGraph extends Graph implements Serializable {
 	protected Set _e;	// edges
 	protected Set _v;	// vertices
 
@@ -164,10 +161,11 @@ public class DGraph extends Graph {
 			return _e.add(ge);
 		}
 
-		/* TODO: need to add cases for other types here */
-		throw new IllegalArgumentException("You must add a Directed graph element to a Directed Graph.");
+		System.err.println("You must add a Directed graph element to a Directed Graph.");
+		return false;
 	}
 
+	/*// this method was generalized (and moved to Graph) testing in progress
 	public Graph subset(Set graphelements) {
 		// filter for those edges which contain only the vertices we want
 		DGraph g = new DGraph();
@@ -223,8 +221,9 @@ public class DGraph extends Graph {
 
 		return g;
 	}
+	*/
 
-	/** Remove a graph element from the graph. */
+	/** Remove a graph element from the graph.  TODO: has not been properly tested */
 	public boolean remove(GraphElement ge) {
 		_indecized = false;
 		if(_e.contains(ge) || _v.contains(ge)) {
@@ -233,7 +232,7 @@ public class DGraph extends Graph {
 			return false;
 		}
 
-		if(ge.getClass() == DVertex.class) {
+		if(ge instanceof DVertex) {
 			_e.removeAll(((DVertex) ge).inEdges());
 			_e.removeAll(((DVertex) ge).outEdges());
 			_v.remove(ge);
@@ -242,10 +241,9 @@ public class DGraph extends Graph {
 			_minEdgeLengthCache = 0;
 			_shortestPathsCache = false;
 
-			/* This return value is meaningless for now */
 			return true;
 		}
-		if(ge.getClass() == DEdge.class) {
+		if(ge instanceof DEdge) {
 			_e.remove(ge);
 			cleanupVertex((DVertex) ((DEdge) ge).getSource());
 			cleanupVertex((DVertex) ((DEdge) ge).getDest());
@@ -253,12 +251,10 @@ public class DGraph extends Graph {
 			_minEdgeLengthCache = 0;
 			_shortestPathsCache = false;
 
-			/* This return value is meaningless for now */
 			return true;
 		}
 
-		/* TODO: need to add cases for other types here */
-		throw new IllegalArgumentException("You must add a Directed graph element to a Directed Graph.");
+		return false;
 	}
 
 	public Vertex findVertex(String id) {
