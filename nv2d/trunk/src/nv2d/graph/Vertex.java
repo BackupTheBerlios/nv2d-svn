@@ -1,8 +1,5 @@
 package nv2d.graph;
 
-import java.lang.ClassCastException;
-import java.lang.IllegalArgumentException;
-
 import java.util.Set;
 
 public abstract class Vertex extends GraphElement {

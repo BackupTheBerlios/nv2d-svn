@@ -1,11 +1,16 @@
 package nv2d.ui;
 
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.ItemEvent;
+import java.util.Iterator;
 import javax.swing.JMenuItem;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
+
+import edu.berkeley.guir.prefuse.VisualItem;
 
 import nv2d.render.RenderBox;
 import nv2d.render.RenderSettings;
@@ -36,17 +41,46 @@ public class NMenu extends JMenuBar {
 		}
 	}
 
-	public class nmOptimization extends JMenu {
+	public class nmOptimization extends JMenu implements ActionListener {
 		JMenuItem _start = new JMenuItem("Start");
 		JMenuItem _stop = new JMenuItem("Stop");
 		JMenuItem _center = new JMenuItem("Center");
 		JMenuItem _reset= new JMenuItem("Reset");
+
+		// status of the optimization
+		boolean running;
+
 		public nmOptimization() {
 			super("Optimization");
+			running = false;
+			_start.addActionListener(this);
+			_stop.addActionListener(this);
+			_center.addActionListener(this);
+			_reset.addActionListener(this);
 			add(_start);
 			add(_stop);
 			add(_center);
 			add(_reset);
+		}
+
+		public void actionPerformed(ActionEvent e) {
+			if(e.getSource().equals(_start)) {
+				if(!running) {
+					_renderbox.startForceDirectedLayout();
+					running = true;
+				}
+			} else if (e.getSource().equals(_stop)) {
+				if(running) {
+					_renderbox.stopForceDirectedLayout();
+					running = false;
+				}
+			} else if (e.getSource().equals(_reset)) {
+				if(running) {
+					_renderbox.stopForceDirectedLayout();
+					running = false;
+				}
+				_renderbox.doRandomLayout();
+			}
 		}
 	}
 
@@ -75,8 +109,16 @@ public class NMenu extends JMenuBar {
 		public void itemStateChanged(ItemEvent e) {
 			if(e.getSource().equals(_vertex)) {
 				_renderbox.getRenderSettings().setBoolean(RenderSettings.SHOW_VERTICES, _vertex.getState());
+				Iterator i = _renderbox.getItemRegistry().getNodeItems();
+				while(i.hasNext()) {
+					((VisualItem) i.next()).setVisible(_vertex.getState());
+				}
 			} else if (e.getSource().equals(_edge)) {
 				_renderbox.getRenderSettings().setBoolean(RenderSettings.SHOW_EDGES, _edge.getState());
+				Iterator i = _renderbox.getItemRegistry().getEdgeItems();
+				while(i.hasNext()) {
+					((VisualItem) i.next()).setVisible(_edge.getState());
+				}
 			} else if (e.getSource().equals(_nlabel)) {
 				_renderbox.getRenderSettings().setBoolean(RenderSettings.SHOW_LABELS, _nlabel.getState());
 			} else if (e.getSource().equals(_stress)) {
