@@ -14,10 +14,13 @@ import java.io.IOException;
 import java.lang.Math;
 import java.awt.image.BufferedImage;
 import java.awt.image.RenderedImage;
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
 import java.util.Iterator;
 import javax.imageio.ImageIO;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
 import javax.swing.JSeparator;
 
@@ -44,9 +47,10 @@ import edu.berkeley.guir.prefusex.force.SpringForce;
 import edu.berkeley.guir.prefusex.layout.ForceDirectedLayout;
 import edu.berkeley.guir.prefusex.layout.RandomLayout;
 
-import nv2d.graph.Graph;
-import nv2d.graph.Vertex;
 import nv2d.graph.Edge;
+import nv2d.graph.Graph;
+import nv2d.graph.Path;
+import nv2d.graph.Vertex;
 
 /**
  * Creates a new graph and draws it on the screen.
@@ -57,6 +61,7 @@ public class RenderBox extends Display {
 	private ItemRegistry _registry;
 	private ActionList _actions;
 	private RenderSettings _settings;
+	private Graph _g;
 
 	private boolean _empty;
 
@@ -64,6 +69,9 @@ public class RenderBox extends Display {
 	private ForceDirectedLayout _flayout;
 
 	private PopupMenu _vertexMenu;
+
+	// for the mouse interface
+	private static VisualItem _lastItemClicked;
 	
 	public RenderBox() {
 		// (1) convert NV2D graph to a data structure usable by Prefuse
@@ -74,6 +82,7 @@ public class RenderBox extends Display {
 
 		// setup the popup menu for vertices
 		_vertexMenu = new PopupMenu();
+		_lastItemClicked = null;
 
 		// create a new display component to show the data
 		setSize(400,400);
@@ -97,6 +106,7 @@ public class RenderBox extends Display {
 	}
 
 	public void initialize(Graph g) {
+		_g = g;
 		_registry = getRegistry();
 		_registry.setGraph(new PGraph(g));
 
@@ -310,7 +320,7 @@ public class RenderBox extends Display {
 		}
 	}
 
-	public class MouseController extends ControlAdapter {
+	class MouseController extends ControlAdapter {
 		public void itemEntered(VisualItem item, MouseEvent e) {
 			((Display)e.getSource()).setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 			item.setHighlighted(true);
@@ -320,6 +330,7 @@ public class RenderBox extends Display {
 		public void itemPressed(VisualItem item, MouseEvent e) {
 			// first click selects, second click deselects
 			item.setFixed(!item.isFixed());
+			_lastItemClicked = item;
 			maybeShowPopup(e);
 		}
 
@@ -334,19 +345,67 @@ public class RenderBox extends Display {
 			}
 		}
 	}
-}
 
-class PopupMenu extends JPopupMenu {
-	public PopupMenu() {
-		JMenuItem _centerDegreeFilter = new JMenuItem("Center DegreeFilter here");
-		JMenuItem _setStartPoint = new JMenuItem("Set start vertex");
-		JMenuItem _setEndPoint = new JMenuItem("Highlight APSP");
+	class PopupMenu extends JPopupMenu {
+		private Vertex _apspSource;
+		private JMenuItem _centerDegreeFilter = new JMenuItem("Center DegreeFilter here");
+		private JMenuItem _setStartPoint = new JMenuItem("Set start vertex");
+		private JMenuItem _setEndPoint = new JMenuItem("Highlight APSP");
 
-		//_setEndPoint.setLabel(new JLabel("Calculate and highlight the all-pairs shortest path from the start vertex to this vertex."));
+		public PopupMenu() {
+			_apspSource = null;
 
-		add(_centerDegreeFilter);
-		add(new JSeparator());
-		add(_setStartPoint);
-		add(_setEndPoint);
+			//_setEndPoint.setLabel(new JLabel("Calculate and highlight the all-pairs shortest path from the start vertex to this vertex."));
+			_setStartPoint.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					Vertex v = ((PNode) _lastItemClicked.getEntity()).v();
+					_apspSource = v;
+				}
+			});
+
+			_setEndPoint.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					Vertex v = ((PNode) _lastItemClicked.getEntity()).v();
+					Path p = _g.shortestPath(_apspSource, v);
+
+					if(p == null) {
+						JOptionPane.showMessageDialog(null,
+							"There is no path from " + _apspSource.id() + " to " + v.id() + ".",
+							"Path Error",
+							JOptionPane.ERROR_MESSAGE);
+						return;
+					}
+
+					// run through all the visible nodes
+					Iterator i = _registry.getNodeItems();
+					PNode pnode = null;
+					while(i.hasNext()) {
+						pnode = (PNode) ((VisualItem) i.next()).getEntity();
+						pnode.setPathElement(p.contains(pnode.v()) ? true : false);
+						pnode.setStartPoint(pnode.v().equals(p.start()) ? true : false);
+						pnode.setEndPoint(false);
+					}
+					pnode.setEndPoint(true);
+
+					i = _registry.getEdgeItems();
+					while(i.hasNext()) {
+						PEdge pedge = (PEdge) ((VisualItem) i.next()).getEntity();
+						if(p.contains(pedge.e())) {
+							pedge.setPathElement(true);
+						} else {
+							pedge.setPathElement(false);
+						}
+					}
+				}
+			});
+				
+
+
+
+			add(_centerDegreeFilter);
+			add(new JSeparator());
+			add(_setStartPoint);
+			add(_setEndPoint);
+		}
 	}
 }

@@ -10,6 +10,7 @@ import nv2d.graph.directed.DEdge;
 
 public class PEdge extends DefaultEdge {
 	private Edge _e;
+	private boolean _isPathElement; // is this edge part of a path?
 
 	public PEdge(Edge e, DefaultNode car, DefaultNode cdr) {
 		// Directed edges must be created through constructor.
@@ -20,5 +21,13 @@ public class PEdge extends DefaultEdge {
 	
 	public Edge e() {
 		return _e;
+	}
+
+	public void setPathElement(boolean b) {
+		_isPathElement = b;
+	}
+
+	public boolean isPathElement() {
+		return _isPathElement;
 	}
 }

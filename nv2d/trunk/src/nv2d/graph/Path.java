@@ -23,6 +23,33 @@ public class Path {
 		_p.add(v);
 	}
 
+	public boolean contains(Vertex v) {
+		return _p.contains(v);
+	}
+
+	public Vertex start() {
+		if(_p == null || _p.size() < 1) {
+			return null;
+		}
+		return (Vertex) _p.get(0);
+	}
+
+	public boolean contains(Edge e) {
+		int a = _p.indexOf(e.getEnds().car());
+		int b = _p.indexOf(e.getEnds().cdr());
+		if(a < 0 || b < 0) {
+			return false;
+		}
+		if(b == (a + 1)) {
+			return true;
+		}
+		// NOTE: the code below is a hack so that nodes can be seen
+		if(a == (b + 1)) {
+			return true;
+		}
+		return false;
+	}
+
 	/* TODO: Needs testing */
 	public double totalLength() {
 		double length = 0.0;

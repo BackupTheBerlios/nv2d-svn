@@ -36,6 +36,7 @@ public class DGraph extends Graph {
 	/** This variable keeps track of the last source used in a
 	 * shortestPathLen() call.  */
 	private boolean _shortestPathsCache;
+	private Vertex _apspSource;
 
 
 	public DGraph() {
@@ -46,6 +47,7 @@ public class DGraph extends Graph {
 		_shortestPaths = new Dijkstra(this);
 		_minEdgeLengthCache = 0;
 		_shortestPathsCache = false;
+		_apspSource = null;
 	}
 
 	public Set getEdges() {
@@ -89,9 +91,9 @@ public class DGraph extends Graph {
 		return 0.0;
 	}
 
-	public double shortestPathLen(Vertex source, Vertex dest) {
+	public Path shortestPath(Vertex source, Vertex dest) {
 		Path p = null;
-		if(!_shortestPathsCache) {
+		if(!_shortestPathsCache || !source.equals(_apspSource)) {
 			_shortestPaths.init(this, source);
 			_shortestPaths.run();
 		}
@@ -99,10 +101,10 @@ public class DGraph extends Graph {
 			p = _shortestPaths.getPath(source, dest);
 		}
 		catch (NoPathExists e) {
-			return 0.0;
+			return null;
 		}
-
-		return p.totalLength();
+		_apspSource = source;
+		return p;
 	}
 
 	public double minEdgeLength() {

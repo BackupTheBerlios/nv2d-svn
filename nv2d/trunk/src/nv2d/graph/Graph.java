@@ -33,7 +33,7 @@ public abstract class Graph extends DataStore {
 	/** Find the shortest path length between 2 vertices.  Calculate the
 	 * shortest paths using one of the algorithms provided in
 	 * nv2d.algorithms.shortestpaths package. */
-	public abstract double shortestPathLen(Vertex source, Vertex dest);
+	public abstract Path shortestPath(Vertex source, Vertex dest);
 
 	/** Add a <code>GraphElement</code> to the graph.  Note that unless there
 	 * is a class which knows how to render the graph element, it will not be

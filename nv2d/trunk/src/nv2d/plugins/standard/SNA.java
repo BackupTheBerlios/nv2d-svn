@@ -23,6 +23,7 @@ import nv2d.algorithms.shortestpaths.Dijkstra;
 import nv2d.graph.Datum;
 import nv2d.graph.Edge;
 import nv2d.graph.Graph;
+import nv2d.graph.Path;
 import nv2d.graph.Vertex;
 import nv2d.render.PGraph;
 import nv2d.render.PNode;
@@ -245,7 +246,11 @@ public class SNA implements NV2DPlugin  {
 	/** Wrapper funtion to get the geodesic distance between two vertices. Does not check
 	 * to see if indices provided are within bounds. */
 	private double shortestPathLen(int source, int dest) {
-		return _graph.shortestPathLen(_vtx_index_tbl[source], _vtx_index_tbl[dest]);
+		Path p = _graph.shortestPath(_vtx_index_tbl[source], _vtx_index_tbl[dest]);
+		if(p == null) {
+			return 0.0;
+		}
+		return  p.totalLength();
 	}
 
 	/* TODO */
