@@ -1,7 +1,8 @@
-\documentclass{article}
+\documentclass[11]{article}
 \usepackage{lgrind}
 \usepackage{fullpage}
 \usepackage{graphicx}
+\usepackage{xtab}
 
 \author{Bo Shi}
 \title{6.111 Lab Report 2 \\ Traffic Light Controller}
@@ -36,17 +37,17 @@ controller.
 % \setcounter{page}{1}
 \section{Design Overview}
 	\subsection{Requirements}
-	The intersection of Main Street and Side Street is having a traffic
-	light installed.  Both streets will have a red, yellow, and green light
-	signal.  There will also be a single walk signal which will halt all
-	traffic and serve pedestrians crossing either street.  A sensor is
-	installed on Side street to monitor traffic.  The behavior of the
-	controller should also take into consideration traffic conditions,
-	provided by a sensor.  In particular, if traffic is heavy along Side
-	street, the time duration of Main Street's green signal should be
-	shortened.  Similarly, the time duration of Side Street's green signal
-	should be lengthened if the sensor detects traffic on Side Street.
-		
+	This documents details the design for a traffic light controller at the
+	intersection of Main Street and Side Street.  Both street lights are
+	capable of sending a red, yellow, and green signal.  A walk signal is also
+	available for pedestrians.  When the walk signal is on, all vehicle is
+	halted.  A sensor is installed on Side street to monitor traffic.  The
+	timing for each set of light signals depends on two things --- the values
+	programmed into the controller by user input, and traffic conditions on
+	Side Street.  If Side street has heavy traffic, Main Street's green signal
+	length is shortened.  Conversely, Side street's green signal is lengthened
+	under heavy traffic conditions.
+
 	\subsection{Setup}
 	The traffic light controller accepts four asynchronous inputs and two
 	2-bit and 4-bit synchronized inputs and has a seven bit output
@@ -66,13 +67,13 @@ controller.
 	Table~\ref{tbl:output} shows.  The FPGA used is an Altera Flex 10K10
 	clocked with a 1.8432 Mhz crystal oscillator.
 	\begin{table}
+	\topcaption{Output Setup}
 	\centering
 		\begin{tabular}{|c|c|c|c|c|c|c|}
 		\hline
 		Bit 6 & Bit 5 & Bit 4 & Bit 3 & Bit 2 & Bit 1 & Bit 0 \\ \hline
 		Main Red & Main Yellow & Main Green & Side Red & Side Yellow & Side Green & Walk \\ \hline
 		\end{tabular}
-	\caption{Output Setup}
 	\label{tbl:output}
 	\end{table}
 	
@@ -201,6 +202,7 @@ controller.
 	from any state.
 	
 	\begin{table}
+	\topcaption{Default Timing Parameters}
 	\centering
 		\begin{tabular}{|c|c|c|c|c|}
 		\hline
@@ -209,7 +211,6 @@ controller.
 		Extended & $t_{ext}$ & \texttt{01} & 3 & \texttt{0011} \\ \hline
 		Yellow & $t_{yel}$ & \texttt{10} & 2 & \texttt{0010} \\ \hline
 		\end{tabular}
-	\caption{Default Timing Parameters}
 	\label{tbl:timeparam}
 	\end{table}
 
