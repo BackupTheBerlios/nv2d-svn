@@ -125,7 +125,7 @@ public class DGraph extends Graph {
 			return _v.add(ge);
 		}
 		if(ge.getClass() == DEdge.class) {
-			// ouch. looks like lisp
+			// update the affected nodes - ouch. looks like lisp
 			((DVertex) ((DEdge) ge).getDest()).addInEdge( (DEdge) ge );
 			((DVertex) ((DEdge) ge).getSource()).addOutEdge( (DEdge) ge );
 			ge.setParent(this);
