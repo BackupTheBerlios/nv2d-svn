@@ -26,6 +26,24 @@ if [ "$1" = "unit" ]; then
 	exit
 	fi
 
+if [ "$1" = "package" ]; then
+	cp ./doc/distfiles/NV2D.manifest ./build
+	cp ./lib/piccolo.jar ./build
+	cp ./lib/piccolox.jar ./build
+	cp ./lib/colt.jar ./build
+	cp ./lib/junit.jar ./build
+	cd build
+	jar xf colt.jar cern/colt edu/cornell cern/jet
+	jar xf piccolo.jar edu
+	jar xf piccolox.jar edu
+	jar xf junit.jar junit
+	rm colt.jar
+	rm piccolo.jar
+	rm junit.jar
+	jar cmf NV2D.manifest ../dist/NV2D.jar *
+	exit
+	fi
+
 if [ "$1" = "help" ]; then
 	echo "Arguments:"
 	echo "  piccolo - run GUI example"
