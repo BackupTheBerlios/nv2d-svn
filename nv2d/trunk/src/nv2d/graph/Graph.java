@@ -20,7 +20,17 @@ public abstract class Graph extends DataStore {
 	 * parameter Set. */
 	public abstract Graph subset(Set vertices);
 
+	/** Find the edge length between two vertices.  If they are not
+	 * adjacent, return 0. */
+	public abstract double edgeLen(Vertex source, Vertex dest);
+
 	/* Modifiers */
+
+	/** Find the shortest path length between 2 vertices.  Calculate the
+	 * shortest paths using one of the algorithms provided in
+	 * nv2d.algorithms.shortestpaths package. */
+	public abstract double shortestPathLen(Vertex source, Vertex dest);
+
 	/** Add a <code>GraphElement</code> to the graph.  Note that unless there
 	 * is a class which knows how to render the graph element, it will not be
 	 * shown. */

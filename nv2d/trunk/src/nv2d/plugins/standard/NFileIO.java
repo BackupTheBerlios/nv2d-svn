@@ -4,10 +4,11 @@ import java.io.IOException;
 import javax.swing.JMenu;
 import javax.swing.JPanel;
 
-import nv2d.graph.Graph;
 import nv2d.plugins.NPluginLoader;
 import nv2d.plugins.NV2DPlugin;
 import nv2d.plugins.IOInterface;
+
+import nv2d.graph.Graph;
 
 public class NFileIO implements IOInterface {
 	String _desc;
@@ -38,16 +39,16 @@ public class NFileIO implements IOInterface {
 		return r;
 	}
 
-	public void initialize(/* Model, View */) {
-		System.out.print("\n--> initialize()\n");
+	public void initialize(Graph g/* Model, View */) {
+		System.out.print("--> initialize()\n");
 	}
 
 	public void heartbeat() {
-		System.out.print("\n--> heartbeat()\n");
+		System.out.print("--> heartbeat()\n");
 	}
 
 	public void cleanup() {
-		System.out.print("\n--> cleanup()\n");
+		System.out.print("--> cleanup()\n");
 	}
 
 	public JPanel ui() {

@@ -1,15 +1,36 @@
 package nv2d.plugins.standard;
 
+import java.lang.Integer;
+import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.Set;
+import java.util.Vector;
+import java.util.Stack;
 import javax.swing.JMenu;
 import javax.swing.JPanel;
 
 import nv2d.plugins.NPluginLoader;
 import nv2d.plugins.NV2DPlugin;
 
+import nv2d.graph.Datum;
+import nv2d.graph.Edge;
+import nv2d.graph.Graph;
+import nv2d.graph.Vertex;
+import nv2d.algorithms.shortestpaths.Dijkstra;
+
+/** Plugin for Social Network Analysis (SNA) calculations.
+ *
+ * Italicized descriptions are taken from from the following text:
+ * <p>Wasserman, Stanley and Katherine Faust.  <u>Social Network Analysis:
+ * Methods and Applications</u>.  Cambridge University Press, 1994.
+ * @see Matrix
+ */
 public class SNA implements NV2DPlugin  {
 	String _desc;
 	String _name;
 	String _author;
+
+	Graph _graph;
 
 	public SNA() {
 		_desc = new String("This plugin calculates basic social network analysis measures for a graph and it's elements.");
@@ -17,14 +38,18 @@ public class SNA implements NV2DPlugin  {
 		_author= new String("Bo Shi");
 	}
 
-	public void initialize(/* Model, View */) {
-		System.out.print("\n--> initialize()\n");
+	public void initialize(Graph g/* Model, View */) {
+		System.out.print("--> initialize()\n");
+		_graph = g;
+
+		indecize();
+		calculate();
 	}
 	public void heartbeat() {
-		System.out.print("\n--> heartbeat()\n");
+		System.out.print("--> heartbeat()\n");
 	}
 	public void cleanup() {
-		System.out.print("\n--> cleanup()\n");
+		System.out.print("--> cleanup()\n");
 	}
 	public JPanel ui() {
 		return null;
@@ -53,121 +78,168 @@ public class SNA implements NV2DPlugin  {
 		// put factory in the hashtable for detector factories.
 		NPluginLoader.reg("SNA", new SNA());
 	}
-}
+
+	/* ===================================== *
+	      SNA Functions
+	 * ===================================== */
 
 
-/* Mod_SNA.java - Standard network analysis statistical routines.
-   Copyright (C) 2003,04 Bo Shi.
+	/** Datum name for current index */
+	public static final String DATUM_SNA_INDEX = "__sna_index";
 
-   NV2D is free software; you can redistribute it and/or modify it under the
-   terms of the GNU General Public License as published by the Free
-   Software Foundation; either version 2.1 of the License, or (at your option)
-   any later version.
+	/** Lookup-table to map vertices to indeces of the generated adjacency
+	 * matrices */
+	Vertex [] _vtx_index_tbl = null;
 
-   NV2D is distributed in the hope that it will be useful, but WITHOUT ANY
-   WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-   FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
-   more details.
+	/** Assign an integer index to every Vertex in the graph.  This does not
+	 * sort the vertices in any fashion. */
+	private void indecize() {
+		Set v = _graph.getVertices();
+		Iterator i = v.iterator();
+		int index = 0;
 
-   You should have received a copy of the GNU General Public License
-   along with NV2D; if not, write to the Free Software Foundation, Inc., 59
-   Temple Place, Suite 330, Boston, MA 02111-1307 USA.
-*/
+		_vtx_index_tbl = new Vertex[v.size()];
 
-/*
-package nvg;
+		while(i.hasNext()) {
+			Vertex vtx = (Vertex) i.next();
 
-import java.util.Vector;
-import java.util.Stack;
-*/
+			// index -> vertex map
+			_vtx_index_tbl[index] = vtx;
+
+			// vertex -> index map
+			vtx.setDatum(new Datum(DATUM_SNA_INDEX, new Integer(index)));
+
+			index++;
+		}
+	}
+
+	/** Wrapper funtion to get the distance between two vertices. Does not check
+	 * to see if indices provided are within bounds. */
+	private double edgeLen(int source, int dest) {
+		return _graph.edgeLen(_vtx_index_tbl[source], _vtx_index_tbl[dest]);
+	}
+
+	/** Wrapper funtion to get the geodesic distance between two vertices. Does not check
+	 * to see if indices provided are within bounds. */
+	private double shortestPathLen(int source, int dest) {
+		return _graph.shortestPathLen(_vtx_index_tbl[source], _vtx_index_tbl[dest]);
+	}
+
+	/* TODO */
+	private void calculate() {
+		if (_vtx_index_tbl == null || _vtx_index_tbl.length < 1) {
+			System.out.println("[SNA] Warning: no graph loaded or graph contains no vertices.");
+			return;
+		}
+		int v;
+		double m_grpDensity = grp_density();
+		double m_grpTransitivity = grp_transitivity();
+		double [] m_betweenness = compute_betweenness();
+		double m_grpBetweenness = grp_betweenness(m_betweenness);
+		double [] m_closeness = compute_closeness();
+		double m_grpCloseness = grp_closeness(m_closeness);
+		int [] m_degree = compute_totaldegree();
+		int [] m_indegree = compute_indegree();
+		int [] m_outdegree = compute_outdegree();
+		double m_grpDegree = grp_degree(m_degree);
+
+		_graph.setDatum(new Datum("Group Density", new Double(m_grpDensity)));
+		System.out.println("   Group Density = " + m_grpDensity);
+
+		_graph.setDatum(new Datum("Group Transitivity", new Double(m_grpTransitivity)));
+		System.out.println("   Group Transitivity = " + m_grpTransitivity);
+
+		_graph.setDatum(new Datum("Group Betweenness", new Double(m_grpBetweenness)));
+		System.out.println("   Group Betweenness= " + m_grpBetweenness);
+
+		_graph.setDatum(new Datum("Group Closeness", new Double(m_grpCloseness)));
+		System.out.println("   Group Closeness= " + m_grpCloseness);
+
+		_graph.setDatum(new Datum("Group Degree", new Double(m_grpDegree)));
+		System.out.println("   Group Degree = " + m_grpDegree);
+
+		System.out.println("   Betweenness:");
+		for(v = 0; v < _graph.numVertices(); v++) {
+			_vtx_index_tbl[v].setDatum(new Datum("Betweenness", new Double(m_betweenness[v])));
+			System.out.println("      [" + v + "] " + m_betweenness[v]);
+		}
+
+		System.out.println("   Closeness:");
+		for(v = 0; v < _graph.numVertices(); v++) {
+			_vtx_index_tbl[v].setDatum(new Datum("Closeness", new Double(m_closeness[v])));
+			System.out.println("      [" + v + "] " + m_closeness[v]);
+		}
+
+		System.out.println("   Degree:");
+		for(v = 0; v < _graph.numVertices(); v++) {
+			_vtx_index_tbl[v].setDatum(new Datum("Total Degree", new Double(m_degree[v])));
+			System.out.println("      [" + v + "] " + m_degree[v]);
+		}
+
+		System.out.println("   In-Degree:");
+		for(v = 0; v < _graph.numVertices(); v++) {
+			_vtx_index_tbl[v].setDatum(new Datum("In-Degree", new Double(m_indegree[v])));
+			System.out.println("      [" + v + "] " + m_indegree[v]);
+		}
+
+		System.out.println("   Out-Degree:");
+		for(v = 0; v < _graph.numVertices(); v++) {
+			_vtx_index_tbl[v].setDatum(new Datum("Out-Degree", new Double(m_outdegree[v])));
+			System.out.println("      [" + v + "] " + m_outdegree[v]);
+		}
+	}
 
 
-/** Routines for Social Network Analysis (SNA) calculations.  This class makes
- * extensive use of the <b>Matrix</b> class.
- *
- * Italicized descriptions are taken from from the following text:
- * <p>Wasserman, Stanley and Katherine Faust.  <u>Social Network Analysis:
- * Methods and Applications</u>.  Cambridge University Press, 1994.
- * @see Matrix
- */
-
-/*
-public class Mod_SNA extends CalcModule {
-    Network _n;		// pointer to the network
-
-    int[][] ADJ;
-    int[][] PATHS;
-*/
-
-	/** Run through calculations. This is used on startup and whenever the
-	 * graph changes; i.e. the graph was made directed/undirected or a node or
-	 * edge was added/removed)
-     */
-/*
-    public void populate(Network n) {
-    }
-
-    public String output(short mode) {
-        return "Bah! [String] nvg.Mod_SNA.output(short) is NOT DONE";
-    }
-
-    public void init_vars(Network N) {
-        ADJ = N.getAdjacency();
-		PATHS = geodist2(ADJ);
-    }
-*/
+	/*===========================================================*/
+	// SNA algorithms
+	/*===========================================================*/
 
     /** Calculate the density measure for a group.
      *
 	 * <p><i>The density of a graph is perhaps the most widely used group-level
 	 * index.  It is a recommended measure of group cohesion...  Bott (1957)
 	 * used densities to quantify network "knittedness," while Barnes (1969b)
-	 * used them to determine how "closeknit" empirical networds were...
+	 * used them to determine how "closeknit" empirical networks were...
 	 * Density takes on values between 0 (empty graph) and 1 (complete graph),
 	 * and is the average of the standardized actor degree indices, as well as
 	 * the fraction of possible ties present in the network for the relation
 	 * under study. (181-2)</i>
      *
-     * @param m adjacency matrix for a group
      * @return group density
      */    
-/*
-    public static double grp_density(int[][] m) {
-        int sum = 0;
-        int total = m.length * (m.length - 1);
+	private double grp_density() {
+		double sum = 0;
+		double total = _graph.numVertices() * (_graph.numVertices() - 1);
 
-        for (int r = 0; r < m.length; r++) {
-            for (int c = 0; c < m.length; c++) {
-                sum += m[r][c];
-            }
-        }
-        if (total == 0) {
-            return 0;
-        }
-        return ((double) sum / (double) total);
-    }
-*/
+		for (int r = 0; r < _graph.numVertices(); r++) {
+			for (int c = 0; c < _graph.numVertices(); c++) {
+				sum += edgeLen(r, c);
+			}
+		}
+		if (total == 0.0) {
+			return 0.0;
+		}
+		return sum / total;
+	}
 
     /** Calculates the transitivity measure for a group.
      *
 	 * <i>Transitivity is a property that considers patterns of triples of
 	 * actors in a etwork or triples of nodes in a graph. (165).</i>
-     * @param m adjacency matrix for a group
      * @return transitivity
      */
-/*
-    public static double grp_transitivity(int[][] m) {
+	private double grp_transitivity() {
         int count = 0;
         // count triads, and transitive triads
         int total = 0;
 
-        for (int i = 0; i < m.length; i++) {
-            for (int j = 0; j < m.length; j++) {
-                for (int k = 0; k < m.length; k++) {
-                    if (i != j && j != k && k != i && m[i][j] != 0
-                            && m[j][k] != 0) {
+        for (int i = 0; i < _graph.numVertices(); i++) {
+            for (int j = 0; j < _graph.numVertices(); j++) {
+                for (int k = 0; k < _graph.numVertices(); k++) {
+                    if (i != j && j != k && k != i && edgeLen(i, j) != 0.0
+                            && edgeLen(j, k) != 0.0) {
                         total++;
-                        if (m[i][k] != 0) {
+                        if (edgeLen(i, k) != 0.0) {
                             count++;
                         }
                     }
@@ -178,98 +250,10 @@ public class Mod_SNA extends CalcModule {
             return 0.0;
         }
         return ((double) count / (double) total);
-    }
-
-	public static int [][] geodist2 (int [][] m) {
-		int r, c, s, i;
-		int len = m.length;
-		int [][] dists = new int[len][len];
-		for(r = 0; r < len; r++) {
-			for(c = 0; c < len; c++) {
-				dists[r][c] = 0;
-			}
-		}
-
-		for(s = 0; s < len; s++) {
-			Stack stack = new Stack();
-			int [] dist = new int[len];
-			for(i = 0; i < len; i++) {
-				if(i == s) {
-					dist[i] = 0;
-				} else {
-					dist[i] = -1;
-				}
-			}
-			Vector q = new Vector();
-			enq(q, s);
-			while(!q.isEmpty()) {
-				int v = deq(q);
-				push(stack, v);
-				for(int w = 0; w < len; w++) {
-					if(m[v][w] == 1) {
-						if(dist[w] < 0) {
-							enq(q, w);
-							dist[w] = dist[v] + 1;
-						}
-					}
-				}
-			}
-			// normalize lengths
-			for(i = 0; i < len; i++) {
-				dists[s][i] = dist[i];
-				if(dist[i] == -1) {
-					dists[s][i] = 0;
-				}
-			}
-		}
-		return dists;
 	}
-
-	public static int [][] geodist(int [][] m) {
-		int len = m.length;
-		Integer [][] dists = new Integer[len][len];
-
-		for(int i = 0; i < len; i++) {
-			dists[i][i] = (new Integer(0));
-			Vector curr_nodes = new Vector();
-			curr_nodes.addElement((new Integer(i)));
-			for(int j = 1; j < len; j++) {
-				Vector next_nodes = new Vector();
-				for(int k = 0; k < curr_nodes.size(); k++) {
-					for(int l = 0; l < len; l++) {
-						if(dists[i][l] == null) {
-							dists[i][l] = (new Integer(Integer.MAX_VALUE));
-						}
-						int cnk = ((Integer) curr_nodes.elementAt(k)).intValue();
-						int dists_i_l = ((Integer) dists[i][l]).intValue();
-						if(l != i && m[cnk][l] > 0 && dists_i_l == Integer.MAX_VALUE) {
-							dists[i][l] = (new Integer(j));
-							next_nodes.addElement((new Integer(l)));
-						}
-					}
-				}
-				curr_nodes = next_nodes;
-			}
-		}
-		// convert a matrix of objects to a matrix of ints
-		int [][] rval = new int[len][len];
-		int dd;
-		for(int r = 0; r < len; r++) {
-			for(int c = 0; c < len; c++) {
-				dd = 0;
-				if(dists[r][c] != null) {
-					dd = dists[r][c].intValue();
-				}
-				rval[r][c] = dd;
-			}
-		}
-		return rval;
-
-	}
-*/
 
     /** Compute the betweenness measure for the nodes of a graph using Brandes'
-     * algorithm.
+     * algorithm. Assumes that edges cannot have negative lengths.
      *
 	 * <p><i>The important idea here is that an actor is central if it lies
 	 * between other actors on their geodesics, implying that to have a large
@@ -281,24 +265,24 @@ public class Mod_SNA extends CalcModule {
 	 * index of each value corresponds with the index of the node for which it
 	 * applies.
      */
-/*
-    public static double[] compute_betweenness(int[][] m) {
+    private double[] compute_betweenness() {
+		int numv = _graph.numVertices();
         int v, w, t;
-        double[] betw = new double[m.length];
+        double[] betw = new double[numv];
 
-        for (t = 0; t < m.length; t++) {
+        for (t = 0; t < numv; t++) {
             betw[t] = 0.0;
         }
 
         int s;
 
-        for (s = 0; s < m.length; s++) {
-            int[] sigma = new int[m.length];
-            int[] d = new int[m.length];
+        for (s = 0; s < numv; s++) {
+            int[] sigma = new int[numv];
+            int[] d = new int[numv];
             Stack S = new Stack();
             Vector P = new Vector();
 
-            for (t = 0; t < m.length; t++) {
+            for (t = 0; t < numv; t++) {
                 P.addElement(new Vector());
                 sigma[t] = ((t == s) ? 1 : 0);
                 d[t] = ((t == s) ? 0 : -1);
@@ -311,8 +295,8 @@ public class Mod_SNA extends CalcModule {
                 v = deq(Q);
                 push(S, v);
                 // for each neighbor w of v
-                for (w = 0; w < m.length; w++) {
-                    if (m[v][w] == 1) {
+                for (w = 0; w < numv; w++) {
+                    if (edgeLen(v, w) > 0.0) {
                         // it is a neighbor
                         if (d[w] < 0) {
                             enq(Q, w);
@@ -327,9 +311,9 @@ public class Mod_SNA extends CalcModule {
                 }
             }
 
-            double[] delta = new double[m.length];
+            double[] delta = new double[numv];
 
-            for (t = 0; t < m.length; t++) {
+            for (t = 0; t < numv; t++) {
                 delta[t] = 0.0;
             }
 
@@ -346,17 +330,12 @@ public class Mod_SNA extends CalcModule {
             }
         }
 
-		for(int i = 0; i < m.length; i++) {
-			System.out.println("{" + betw[i] + "}");
-		}
-
-		for(int i = 0; i < m.length; i++) {
+		for(int i = 0; i < numv; i++) {
 			betw[i] = betw[i] / 2.0;
 		}
 
         return betw;
     }
-*/
 			
 	/** Support function for Stack/Queue operations in
 	 * <b>compute_betweenness()</b>
@@ -365,44 +344,36 @@ public class Mod_SNA extends CalcModule {
      * @param v value to push onto stack <b>s</b>
      * @see Stack
      */
-/*
-    private static void push(Stack s, int v) {
+    private void push(Stack s, int v) {
         s.push(new Integer(v));
     }
-*/
 
 	/** Support function for Stack/Queue operations in
 	 * <b>compute_betweenness()</b> @param s stack from which to pop
      * @return the value popped from the stack
      * @see Stack
      */    
-/*
-    private static int pop(Stack s) {
+    private int pop(Stack s) {
         return ((Integer) (s.pop())).intValue();
     }
-*/
 
 	/** Support function for Stack/Queue operations in
 	 * <b>compute_betweenness()</b> @param q enqueue a value
      * @param v value to place into queue
      * @see Vector
      */    
-/*
-    private static void enq(Vector q, int v) {
+    private void enq(Vector q, int v) {
         q.addElement(new Integer(v));
     }
-*/
 
 	/** Support function for Stack/Queue operations in
 	 * <b>compute_betweenness()</b> @param q enqueue a value
      * @return the value removed from the queue
      * @see Vector
      */    
-/*
-    private static int deq(Vector q) {
+    private int deq(Vector q) {
         return ((Integer) (q.remove(0))).intValue();
     }
-*/
 
 	/** Support function for Stack/Queue operations in
 	 * <b>compute_betweenness()</b> @param P a vector of vectors
@@ -410,13 +381,11 @@ public class Mod_SNA extends CalcModule {
      * @param val the value to place into the vector
      * @see Vector
      */
-/*
-    private static void appendP(Vector P, int where, int val) {
+    private void appendP(Vector P, int where, int val) {
         Vector V = (Vector) (P.elementAt(where));
 
         V.addElement(new Integer(val));
     }
-*/
 
 	/** Support function for Stack/Queue operations in
 	 * <b>compute_betweenness()</b> @param P a vector of vectors
@@ -424,13 +393,11 @@ public class Mod_SNA extends CalcModule {
      * @return the size of the vector at <b>where</b>
      * @see Vector
      */
-/*
-    private static int sizeP(Vector P, int where) {
+    private int sizeP(Vector P, int where) {
         Vector V = (Vector) (P.elementAt(where));
 
         return V.size();
     }
-*/
 
 	/** Support function for Stack/Queue operations in
 	 * <b>compute_betweenness()</b> @param P a vector of vectors
@@ -439,40 +406,38 @@ public class Mod_SNA extends CalcModule {
      * @return the value at <b>P[row][col]</b>
      * @see Vector
      */
-/*
-    private static int getP(Vector P, int row, int col) {
+    private int getP(Vector P, int row, int col) {
         Vector V = (Vector) (P.elementAt(row));
         Integer i = (Integer) V.elementAt(col);
 
         return i.intValue();
     }
-*/
 
 	/** A measure of the variability of betweenness measures among the nodes of
-	 * a group.  @param m adjacency matrix for a group
-     * @return group betweenness
+	 * a group.  Requires that you have already computed the individual
+	 * betweenness scores of all the vertices.
+	 *
+	 * @return group betweenness
      */
-/*
-    public static double grp_betweenness(int[][] m) {
-        int nn = m.length;
+    private double grp_betweenness(double [] betweenness) {
+        int numv = _graph.numVertices();
         int i;
-		double dd = (double) nn;	// save some typing
+		double dd = (double) numv;	// save some typing
 		double denom = (((dd - 1.0) * (dd - 1.0) * (dd - 2.0) / 2.0));
 
         if (denom == 0.0) {
             return 0.0;
         }
-        double[] betweenness = compute_betweenness(m);
         double max = -1.0;
         double grp_betweenness = 0.0;
 
-        for (i = 0; i < nn; i++) {
+        for (i = 0; i < numv; i++) {
             if (betweenness[i] > max) {
                 max = betweenness[i];
             }
         }
 
-        for (i = 0; i < nn; i++) {
+        for (i = 0; i < numv; i++) {
             grp_betweenness += max - betweenness[i];
         }
 
@@ -482,55 +447,56 @@ public class Mod_SNA extends CalcModule {
 
         return (grp_betweenness / denom);
     }
-*/
 
-    /** Calculate the closeness centrality of a node.
+    /** Calculate the closeness centrality of a vertex. TODO: broken
      *
 	 * <p><i>The measure focuses on how close an actor is to all the other
 	 * actors in the set of actors.  The idea is that an actor is central if it
 	 * can quickly interact with all others.  In the context of a communication
 	 * relation, such actors need not rely on other actors for the relaying of
 	 * information... (183) </i>
-     * @param paths a matrix containing the shortest paths between each pair of nodes in a network.
-     * @param ego the index of the node in the matrix
+	 *
+     * @param paths a matrix containing the shortest paths between each pair of vertices in a network.
+     * @param ego the index of the vertex in the matrix
      * @return ego (or actor) centrality
      */
-/*
-    public static double ego_closeness(int[][] paths, int ego) {
+    private double ego_closeness(int ego) {
         int clo = 0;
-        int len = paths.length;
+		int numv = _graph.numVertices();
 
-        for (int i = 0; i < paths.length; i++) {
-            if (i != ego && paths[ego][i] == 0) {
+        for (int i = 0; i < numv; i++) {
+            if (i != ego && shortestPathLen(ego, i) == 0.0) {
+				// there is no connection between the two vertices
                 clo += 100000;
             } else {
-                clo += paths[ego][i];
+                clo += shortestPathLen(ego, i);
             }
         }
-
-        // debug
-        // System.out.println("   ego_closeness() [sum = " + clo + " ]");
-        // debug
 
         if (clo == 0) {
             return 0;
         }
-        return ((double) (paths.length - 1) / (double) clo);
+        return ((double) (numv - 1) / (double) clo);
     }
-*/
 
-    /* takes the geodesics matrix of a graph */
-    
-    /** A measure of the variability of closeness measures among the nodes of a group.
-     * @param paths a matrix containing the geodesics for each pair of nodes in a group.
+	private double [] compute_closeness() {
+		double [] closeness = new double[_graph.numVertices()];
+		for(int i = 0; i < _graph.numVertices(); i++) {
+			closeness[i] = ego_closeness(i);
+		}
+		return closeness;
+	}
+
+
+	/** A measure of the variability of closeness measures among the vertices
+	 * of a group.
+	 *
      * @return group closeness
      */    
-/*
-    public static double grp_closeness(int[][] paths) {
+    public double grp_closeness(double [] clo) {
         int i;
-        double nn = (double) paths.length;
-        double[] clo = new double[(int) nn];
-		double denom = ((nn - 2.0) * (nn - 1.0)) / (2.0 * nn - 3.0);
+        double numv = _graph.numVertices();
+		double denom = ((numv - 2.0) * (numv - 1.0)) / (2.0 * numv - 3.0);
         double group_clo;
         double max = -1;
 
@@ -538,33 +504,26 @@ public class Mod_SNA extends CalcModule {
             return 0.0;
         }
 
-        for (i = 0; i < paths.length; i++) {
-            clo[i] = ego_closeness(paths, i);
+        for (i = 0; i < numv; i++) {
             if (clo[i] > max) {
                 max = clo[i];
             }
         }
 
         group_clo = 0.0;
-        for (i = 0; i < paths.length; i++) {
+        for (i = 0; i < numv; i++) {
             group_clo += max - clo[i];
         }
         return (group_clo / denom);
     }
-*/
 
-	/** A measure of the variability of degree measures among the nodes of a
+	/** A measure of the variability of degree measures among the vertices of a
 	 * group.
-	 *
-     * @param m adjacency matrix for a group
-     * @return group degree
      */    
-/*
-    public static double grp_degree(int[][] m) {
+    public double grp_degree(int [] degs) {
         int i;
-        int nn = m.length;
-        int[] degs = new int[nn];
-        int denom = (nn - 1) * 2 * (nn - 2);
+        int numv = _graph.numVertices();
+        int denom = (numv - 1) * 2 * (numv - 2);
         int max = -1;
         double group_deg;
 
@@ -572,84 +531,69 @@ public class Mod_SNA extends CalcModule {
             return 0.0;
         }
 
-        for (i = 0; i < nn; i++) {
-            degs[i] = 0;
-            for (int j = 0; j < nn; j++) {
-                degs[i] += m[i][j] + m[j][i];
-            }
+        for (i = 0; i < numv; i++) {
             if (degs[i] > max) {
                 max = degs[i];
             }
         }
 
         group_deg = 0.0;
-        for (i = 0; i < nn; i++) {
+        for (i = 0; i < numv; i++) {
             group_deg += max - degs[i];
         }
 
         return ((double) group_deg / (double) denom);
     }
-*/
 
-    /** Calculate the indegree measure for a node.
+    /** Calculate the indegree measure for a vertex.
      *
 	 * <p><i>... the indegrees are measures of </i>receptivity<i>, or
 	 * </i>popularity<i>.  If we consider the sociometric relation of
 	 * friendship ... [an] actor with a large indegree is one whom many others
 	 * nominate as a friend, and an actor with a small indegree is chosen by
 	 * few others. (126) </i>
-     * @param m adjacency matrix for a group
-     * @param ego the index of the node in the matrix
-     * @return indegree
-     */    
-/*
-    public static int ego_indegree(int[][] m, int ego) {
-        int count = 0;
+     */
+	public int [] compute_indegree() {
+		int [] indeg = new int[_graph.numVertices()];
+		for(int i = 0; i < _graph.numVertices(); i++) {
+			indeg[i] = _vtx_index_tbl[i].inEdges().size();
+		}
+		return indeg;
+	}
 
-        for (int i = 0; i < m.length; i++) {
-            if (m[i][ego] == 1) {
-                count++;
-            }
-        }
-        return count;
-    }
-*/
-
-    /** Calculate the outdegree measure for a node.
+    /** Calculate the outdegree measure for a vertex.
      *
 	 * <p><i>Outdegrees are measures of </i>expansiveness<i>... If we consider
 	 * the sociometric relation of friendship, and actor with a large outdegree
 	 * is one who nominates many others as friends. (126)</i>
-     * @param m adjacency matrix for a group
-     * @param ego the index of the node in the matrix
-     * @return outdegreer 
      */    
-/*
-    public static int ego_outdegree(int[][] m, int ego) {
-        int count = 0;
+	public int [] compute_outdegree() {
+		int [] outdeg = new int[_graph.numVertices()];
+		for(int i = 0; i < _graph.numVertices(); i++) {
+			outdeg[i] = _vtx_index_tbl[i].outEdges().size();
+		}
+		return outdeg;
+	}
 
-        for (int i = 0; i < m.length; i++) {
-            if (m[ego][i] == 1) {
-                count++;
-            }
-        }
-        return count;
-    }
-*/
-
-    /** Calculate the total degree of a node.  Higher degree indicates higher
+    /** Calculate the total degree of a vertex.  Higher degree indicates higher
      * interaction with others in the group.
      *
 	 * <p><i>The </i>degree<i> of a node ... is the number of lines that are
 	 * incident with it... Degrees are very easy to compute, and yet can be
 	 * quite informative in many applications. (100)</i>
-     * @param m adjacency matrix for a group
-     * @param ego the index of the node in the matrix
-     * @return total degree 
      */
-/*
-    public static int ego_totaldegree(int[][] m, int ego) {
-        return ego_indegree(m, ego) + ego_outdegree(m, ego);
+    public int [] compute_totaldegree() {
+		int [] deg = new int[_graph.numVertices()];
+		for(int i = 0; i < _graph.numVertices(); i++) {
+			Vertex v = _vtx_index_tbl[i];
+			if (v.inEdges().equals(v.outEdges())) {
+				// undirected graph
+				deg[i] = v.inEdges().size();
+			} else {
+				// directed
+				deg[i] = v.inEdges().size() + v.outEdges().size();
+			}
+		}
+		return deg;
     }
 }
-*/

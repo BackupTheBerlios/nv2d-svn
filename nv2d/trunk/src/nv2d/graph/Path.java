@@ -23,6 +23,23 @@ public class Path {
 		_p.add(v);
 	}
 
+	/* TODO: Needs testing */
+	public double totalLength() {
+		double length = 0.0;
+		ListIterator i = _p.listIterator();
+		if(i.hasNext()) {
+			Vertex prev = (Vertex) i.next();
+			Vertex curr = null;
+			while(i.hasNext()) {
+				curr = (Vertex) i.next();
+				length += _gref.edgeLen(prev, curr);
+				prev = curr;
+			}
+		}
+		// System.out.println("   (path length = " + length + ")");
+		return length;
+	}
+
 	public String toString() {
 		ListIterator i = _p.listIterator();
 		StringBuffer buf = new StringBuffer();

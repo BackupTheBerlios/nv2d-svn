@@ -3,12 +3,18 @@ package nv2d.plugins;
 import javax.swing.JPanel;
 import javax.swing.JMenu;
 
+import nv2d.graph.Graph;
+
 public interface NV2DPlugin {
-	/* We need to pass this the model, view, controller.
-	 * Model --> Graph 
+	/** This method is invoked by the plugin manager after NV2D core
+	 * initialization is done [most importantly, the current Model (the graph)
+	 * is done].  We need to pass this the model, view, controller.
+	 *
+	 * Model -->
+	 * Graph 
 	 * View --> TBD
 	 * */
-	void initialize(/* Model, View */);
+	void initialize(Graph g/* Model, View */);
 
 	/** This method is called periodically by the plugin manager.  If you need
 	 * to schedule actions, use this method.

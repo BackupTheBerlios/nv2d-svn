@@ -7,8 +7,14 @@ import java.lang.IllegalArgumentException;
 
 // import cern.colt.matrix.impl.SparseDoubleMatrix2D;
 
+import nv2d.algorithms.APSPInterface;
+import nv2d.algorithms.shortestpaths.Dijkstra;
+import nv2d.exceptions.NoPathExists;
+import nv2d.graph.Edge;
 import nv2d.graph.Graph;
 import nv2d.graph.GraphElement;
+import nv2d.graph.Path;
+import nv2d.graph.Vertex;
 
 public class DGraph extends Graph {
 	protected Set _e;	// edges
@@ -22,12 +28,24 @@ public class DGraph extends Graph {
 	 * check for the minimum length. */
 	private double _minEdgeLengthCache;
 
+	/** Keeps track of shortest paths in the graph using an all pairs shortest
+	 * path algorithm.  It is important to make sure that the algorithm is
+	 * re-run after a change to the graph. */
+	private APSPInterface _shortestPaths;
+
+	/** This variable keeps track of the last source used in a
+	 * shortestPathLen() call.  */
+	private boolean _shortestPathsCache;
+
+
 	public DGraph() {
 		_e = (Set) (new HashSet());
 		_v = (Set) (new HashSet());
 		_o = (Set) (new HashSet());
 
+		_shortestPaths = new Dijkstra(this);
 		_minEdgeLengthCache = 0;
+		_shortestPathsCache = false;
 	}
 
 	public Set getEdges() {
@@ -50,6 +68,39 @@ public class DGraph extends Graph {
 		return _e.size();
 	}
 
+	public double edgeLen(Vertex source, Vertex dest) {
+		if (!source.neighbors().contains(dest)) {
+			return 0.0;
+		}
+		Set edges = source.outEdges();
+		Iterator i = edges.iterator();
+		while(i.hasNext()) {
+			Edge e = (Edge) i.next();
+			if (e.getOpposite(source).equals(dest)) {
+				return e.length();
+			}
+		}
+		// we should never reach here.
+		assert(false);
+		return 0.0;
+	}
+
+	public double shortestPathLen(Vertex source, Vertex dest) {
+		Path p = null;
+		if(!_shortestPathsCache) {
+			_shortestPaths.init(this, source);
+			_shortestPaths.run();
+		}
+		try {
+			p = _shortestPaths.getPath(source, dest);
+		}
+		catch (NoPathExists e) {
+			return 0.0;
+		}
+
+		return p.totalLength();
+	}
+
 	public double minEdgeLength() {
 		if(_minEdgeLengthCache != 0) {
 			return _minEdgeLengthCache;
@@ -70,6 +121,7 @@ public class DGraph extends Graph {
 			ge.setParent(this);
 			// invalidate _minEdgeLengthCache
 			_minEdgeLengthCache = 0;
+			_shortestPathsCache = false;
 			return _v.add(ge);
 		}
 		if(ge.getClass() == DEdge.class) {
@@ -79,6 +131,7 @@ public class DGraph extends Graph {
 			ge.setParent(this);
 			// invalidate _minEdgeLengthCache
 			_minEdgeLengthCache = 0;
+			_shortestPathsCache = false;
 			return _e.add(ge);
 		}
 
@@ -100,6 +153,7 @@ public class DGraph extends Graph {
 			cleanupVertex(((DVertex) ge).neighbors());
 			// invalidate _minEdgeLengthCache
 			_minEdgeLengthCache = 0;
+			_shortestPathsCache = false;
 
 			/* This return value is meaningless for now */
 			return true;
@@ -110,6 +164,7 @@ public class DGraph extends Graph {
 			cleanupVertex((DVertex) ((DEdge) ge).getDest());
 			// invalidate _minEdgeLengthCache
 			_minEdgeLengthCache = 0;
+			_shortestPathsCache = false;
 
 			/* This return value is meaningless for now */
 			return true;
@@ -149,6 +204,10 @@ public class DGraph extends Graph {
 		/* removing all the nodes using the remove() method should handle
 		 * clearing all the object references. */
 		Iterator i = _v.iterator();
+
+		_minEdgeLengthCache = 0;
+		_shortestPathsCache = false;
+
 		while(i.hasNext()) {
 			remove((GraphElement) i.next());
 		}

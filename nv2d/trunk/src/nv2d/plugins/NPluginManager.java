@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FilenameFilter;
 import java.util.Enumeration;
 
+import nv2d.graph.Graph;
 import nv2d.exceptions.PluginNotCreatedException;
 
 public class NPluginManager extends NPluginLoader
@@ -11,6 +12,30 @@ public class NPluginManager extends NPluginLoader
 	// public static final String PLUGIN_DIRECTORY = "nv2d/plugins/standard";
 	// public static final String PLUGIN_DIRECTORY = "./standard/";
 	private static String PLUGIN_DIRECTORY = "standard";
+
+	public NV2DPlugin getp(String name) {
+		return ((NV2DPlugin) pluginRegistry.get(name));
+	}
+
+	public void all_initialize(Graph g) {
+		/* check that requirements are met */
+
+		/* init all the valid plugins */
+		System.out.println("Initializing all plugins:");
+		for ( Enumeration e = pluginRegistry.keys() ; e.hasMoreElements() ; ) {
+			String pname = (String) e.nextElement();
+			System.out.print("[" + pname + "] ");
+			getp(pname).initialize(g);
+		}
+	}
+
+	public void all_heartbeat() {
+
+	}
+
+	public void all_cleanup() {
+
+	}
 
 	public void load(String directory)
 	{
@@ -42,28 +67,15 @@ public class NPluginManager extends NPluginLoader
 				// we have found a file corresponding to a public class
 				try {
 					NV2DPlugin s = createPlugin(filename, PLUGIN_DIRECTORY);
-					System.out.println(filename + " plug-in loaded");
-					System.out.println("Description: " + s.description());
+					System.out.println(" * " + filename + " plug-in loaded");
 				} catch(PluginNotCreatedException e) {
-					System.out.println("There was an error loading the plugin [" + filename + "]");
+					System.out.println("  There was an error loading the plugin [" + filename + "]");
 					System.out.println("  -> " + e.toString());
 				} catch(ClassCastException e) {
-					System.out.println("There was an error loading the plugin [" + filename + "]");
+					System.out.println("  There was an error loading the plugin [" + filename + "]");
 					System.out.println("  -> The file is not an NV2D plugin.");
 				}
 			}
-		}
-
-		// Now print some info about the loaded plug-ins
-		System.out.println(pluginRegistry.size() + " plug-in(s) loaded. Names are:");
-		for ( Enumeration e = pluginRegistry.keys() ; e.hasMoreElements() ; ) {
-			System.out.println(e.nextElement());
-		}
-
-		// Now print some info about the loaded IO plug-ins
-		System.out.println(ioRegistry.size() + " IO plug-in(s) loaded. Names are:");
-		for ( Enumeration e = ioRegistry.keys() ; e.hasMoreElements() ; ) {
-			System.out.println(e.nextElement());
 		}
 	}
 }

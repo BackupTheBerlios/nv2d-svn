@@ -8,6 +8,7 @@ import java.util.Set;
 import java.util.Vector;
 
 import nv2d.algorithms.AlgConst;
+import nv2d.algorithms.APSPInterface;
 import nv2d.exceptions.NoPathExists;
 import nv2d.graph.Datum;
 import nv2d.graph.Edge;
@@ -28,7 +29,7 @@ import nv2d.graph.Vertex;
  * </ol>
  * */
 
-public class Dijkstra {
+public class Dijkstra implements APSPInterface {
 	protected boolean _cached;
 	protected Graph _g;		// graph
 	protected Vertex _s;	// source
@@ -58,40 +59,6 @@ public class Dijkstra {
 		init(_g, _s);
 		run();
 		return buildPath(dest);
-	}
-
-	/** Build a path starting with endpoint.
-	 * <p>We build a path from <code>_s</code> to <code>end</code>.</p>
-	 * */
-	private Path buildPath(Vertex end) throws NoPathExists {
-		Path p = new Path(_g);
-		List l = new Vector();
-		l.add(0, end);
-
-		if(end.equals(_s)) {
-			// this is silly, but somebody might do it.
-			p.addVertex(_s);
-			return p;
-		}
-
-		Vertex v = predecessor(end);
-		l.add(v);
-		while(!v.equals(_s)) {
-			v = predecessor(v);
-			if(v == null) {
-				// there was no predecessor -- this means that there is no path
-				// between the source and dest
-				throw new NoPathExists(_s, end);
-			}
-
-			l.add(v);
-		}
-
-		// current list is in reverse order, so reverse when adding to path
-		for(int i = l.size() - 1; i >= 0; i--) {
-			p.addVertex((Vertex) l.get(i));
-		}
-		return p;
 	}
 
 	/** Prepare a graph for the algorithm. */
@@ -127,6 +94,43 @@ public class Dijkstra {
 		}
 
 		_cached = true;
+	}
+
+	/** Build a path starting with endpoint.
+	 * <p>We build a path from <code>_s</code> to <code>end</code>.</p>
+	 * */
+	private Path buildPath(Vertex end) throws NoPathExists {
+		Path p = new Path(_g);
+		List l = new Vector();
+		l.add(0, end);
+
+		if(end.equals(_s)) {
+			// this is silly, but somebody might do it.
+			p.addVertex(_s);
+			return p;
+		}
+
+		Vertex v = predecessor(end);
+		if(v == null) {
+			// there was no predecessor -- this means that there is no path
+			// between the source and dest
+			throw new NoPathExists(_s, end);
+		}
+		l.add(v);
+		while(!v.equals(_s)) {
+			v = predecessor(v);
+			if(v == null) {
+				throw new NoPathExists(_s, end);
+			}
+
+			l.add(v);
+		}
+
+		// current list is in reverse order, so reverse when adding to path
+		for(int i = l.size() - 1; i >= 0; i--) {
+			p.addVertex((Vertex) l.get(i));
+		}
+		return p;
 	}
 
 	private void relax(Vertex u) {
