@@ -1,5 +1,6 @@
 package nv2d.graph.directed;
 
+import java.util.Arrays;
 import java.util.Hashtable;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -33,6 +34,10 @@ public class DGraph extends Graph {
 	 * re-run after a change to the graph. */
 	private APSPInterface _shortestPaths;
 
+	/** This variable keeps track of whether things have been indecized */
+	private boolean _indecized;
+	private Object [] _vertexIndex;
+
 	/** This variable keeps track of the last source used in a
 	 * shortestPathLen() call.  */
 	private boolean _shortestPathsCache;
@@ -47,6 +52,7 @@ public class DGraph extends Graph {
 		_minEdgeLengthCache = 0;
 		_shortestPathsCache = false;
 		_apspSource = null;
+		_indecized = false;
 	}
 
 	public Set getEdges() {
@@ -118,6 +124,7 @@ public class DGraph extends Graph {
 	}
 
 	public boolean add(GraphElement ge) {
+		_indecized = false;
 		// if(ge.getClass() == DVertex.class) {
 		if(ge instanceof DVertex) {
 			ge.setParent(this);
@@ -199,6 +206,7 @@ public class DGraph extends Graph {
 
 	/** Remove a graph element from the graph. */
 	public boolean remove(GraphElement ge) {
+		_indecized = false;
 		if(ge.getClass() == DVertex.class) {
 			_e.removeAll(((DVertex) ge).inEdges());
 			_e.removeAll(((DVertex) ge).outEdges());
@@ -227,7 +235,19 @@ public class DGraph extends Graph {
 		throw new IllegalArgumentException("You must add a Directed graph element to a Directed Graph.");
 	}
 
+	public Vertex findVertex(String id) {
+		if(!_indecized) {
+			indecize();
+		}
+		int idx = Arrays.binarySearch(_vertexIndex, new DVertex(id));
+		if(idx < 0) {
+			return null;
+		}
+		return (Vertex) _vertexIndex[idx];
+	}
+
 	private void cleanupVertex(Set vertices) {
+		_indecized = false;
 		Iterator i = vertices.iterator();
 		while(i.hasNext()) {
 			cleanupVertex((DVertex) i.next());
@@ -237,6 +257,7 @@ public class DGraph extends Graph {
 	/* The remove operation sometimes leave vertices with pointers to edges
 	 * that no longer exist.  This method should be called to clean them up. */
 	private void cleanupVertex(DVertex v) {
+		_indecized = false;
 		Iterator j = v.inEdges().iterator();
 		while(j.hasNext()) {
 			DEdge e = (DEdge) j.next();
@@ -253,10 +274,18 @@ public class DGraph extends Graph {
 		}
 	}
 
+	/* Organize all the vertices into an array which can be searched. */
+	private void indecize() {
+		_vertexIndex = getVertices().toArray();
+		Arrays.sort(_vertexIndex);
+	}
+
 	public void clear() {
 		/* removing all the nodes using the remove() method should handle
 		 * clearing all the object references. */
 		Iterator i = _v.iterator();
+
+		_indecized = false;
 
 		_minEdgeLengthCache = 0;
 		_shortestPathsCache = false;

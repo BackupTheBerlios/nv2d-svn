@@ -28,6 +28,8 @@ public abstract class Graph extends DataStore {
 	/** Create a new graph of this type (mainly for filters). */
 	public abstract Graph newInstance();
 
+	public abstract Vertex findVertex(String id);
+
 	/* Modifiers */
 
 	/** Find the shortest path length between 2 vertices.  Calculate the
