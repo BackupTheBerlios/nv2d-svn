@@ -21,6 +21,7 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
+import nv2d.graph.Datum;
 import nv2d.graph.Graph;
 import nv2d.graph.directed.DGraph;
 import nv2d.graph.directed.DEdge;
@@ -122,6 +123,7 @@ public class NFileIO implements IOInterface {
 	public String name() {
 		return _name;
 	}
+
 	public String description() {
 		return _desc;
 	}
@@ -165,6 +167,7 @@ class FileIO {
 	public static final int VERTEX_OUTEDGE = 1;
 	public static final int VERTEX_EDGELEN = 2;
 	public static final int VERTEX_FULLID = 3;
+	public static final int VERTEX_CUSTOM = 4;
 
 	public void setup(String params) throws IOException {
 		// we need to test for url or file
@@ -232,6 +235,14 @@ class FileIO {
 					// don't process the first line (extension parameters)
 					if(line != 0) {
 						process(v);
+					} else {
+						// process the extension parameters (first line)
+						_attributes = v;
+						for(int i = 0; i < _attributes.length; i++) {
+							if(_attributes[i] == null || _attributes[i].length() < 1) {
+								_attributes[i] = new String("Unnamed Attribute " + i);
+							}
+						}
 					}
 					buf = new StringBuffer();
 					line = line + 1;
@@ -315,7 +326,8 @@ class FileIO {
 				}
 			}
 		}
-		// reuse i
+
+		// reuse i - construct the graph
 		graph = new DGraph();
 		i = vertmap.values().iterator();
 		while(i.hasNext()) {
@@ -324,6 +336,20 @@ class FileIO {
 		i = edgemap.values().iterator();
 		while(i.hasNext()) {
 			graph.add((DEdge) i.next());
+		}
+
+		// enter in extra attributes
+		i = vertmap.values().iterator();
+		while(i.hasNext()) {
+			DVertex v = (DVertex) i.next();
+			String [] data = (String []) _data.get(v.id());
+			for(j = VERTEX_CUSTOM; j < data.length; j++) {
+				if(j - VERTEX_CUSTOM < _attributes.length) {
+					v.setDatum(new Datum(_attributes[j - VERTEX_CUSTOM], data[j]));
+				} else {
+					System.err.println("Syntax error: too many attributes for vertex '" + v.id() + "'");
+				}
+			}
 		}
 
 		return graph;
