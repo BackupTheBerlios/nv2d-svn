@@ -50,7 +50,7 @@ public class PopupProp extends JPanel {
 		
 		makeCompactGrid(this,
 				datums.length, 2,
-				0, 0,
+				1, 0,
 				5, 0);
 	}
 	

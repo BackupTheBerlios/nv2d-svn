@@ -16,6 +16,7 @@ import java.awt.image.BufferedImage;
 import java.awt.image.RenderedImage;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
+import java.awt.Point;
 import java.util.Iterator;
 import javax.imageio.ImageIO;
 import javax.swing.JMenu;
@@ -340,7 +341,8 @@ public class RenderBox extends Display {
 	}
 	
 	private class MouseAdapter extends ControlAdapter {
-		RenderBox _parent;
+		private RenderBox _parent;
+		private int _xOffset, _yOffset;
 		
 		public MouseAdapter(RenderBox parent) {
 			_parent = parent;
@@ -365,18 +367,26 @@ public class RenderBox extends Display {
 			// first click selects, second click deselects
 			if(checkMask(e.getModifiers(), MouseEvent.BUTTON1_MASK) && item.getEntity() instanceof PElement) {
 				p.setSelected(!p.isSelected());
-			}
-			
-			if(_popup == null) {
-				// show popup
-				nv2d.graph.GraphElement geData = p.getNV2DGraphElement();
-				_popup = _pFactory.getPopup(_parent, new PopupProp(_ctl, geData), e.getX(), e.getY());
-				_popup.show();
-			} else {
-				_popup.hide();
-				nv2d.graph.GraphElement geData = p.getNV2DGraphElement();
-				_popup = _pFactory.getPopup(_parent, new PopupProp(_ctl, geData), e.getX(), e.getY());
-				_popup.show();
+
+				// when showing popups, coordinates are calculated relative to the
+				// top level container, so we need to add an offset to the popup to
+				// fix this.
+				Point pRenderBox = _parent.getLocationOnScreen();
+				Point pWindow = _ctl.getWindow().getLocationOnScreen();
+				_xOffset = (int) (pRenderBox.getX() - pWindow.getX());
+				_yOffset = (int) (pRenderBox.getY() - pWindow.getX());
+
+				if(_popup == null) {
+					// show popup
+					nv2d.graph.GraphElement geData = p.getNV2DGraphElement();
+					_popup = _pFactory.getPopup(_parent, new PopupProp(_ctl, geData), e.getX() + _xOffset, e.getY() + _yOffset);
+					_popup.show();
+				} else {
+					_popup.hide();
+					nv2d.graph.GraphElement geData = p.getNV2DGraphElement();
+					_popup = _pFactory.getPopup(_parent, new PopupProp(_ctl, geData), e.getX() + _xOffset, e.getY() + _yOffset);
+					_popup.show();
+				}
 			}
 			
 			_lastItemClicked = item;
@@ -428,6 +438,7 @@ public class RenderBox extends Display {
 					_ctl.runFilter(fargs, true);
 				}
 			});
+
 			
 			_clearPath.setToolTipText("Clear any highlighted paths.");
 			_clearPath.addActionListener(new ActionListener() {
