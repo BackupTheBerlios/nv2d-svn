@@ -16,13 +16,17 @@ public abstract class Graph extends DataStore {
 	/** Returns the number of unique edges in the graph. */
 	public abstract int numEdges();
 
-	/** Returns a subset of the graph containing only the vertices in the
-	 * parameter Set. */
-	public abstract Graph subset(Set vertices);
+	/** Returns a subset of the graph containing only the vertices and edges
+	 * in the parameter Set.  Edges whose vertices are not also in the
+	 * parameter Set will have them added.  */
+	public abstract Graph subset(Set graphelements);
 
 	/** Find the edge length between two vertices.  If they are not
 	 * adjacent, return 0. */
 	public abstract double edgeLen(Vertex source, Vertex dest);
+
+	/** Create a new graph of this type (mainly for filters). */
+	public abstract Graph newInstance();
 
 	/* Modifiers */
 

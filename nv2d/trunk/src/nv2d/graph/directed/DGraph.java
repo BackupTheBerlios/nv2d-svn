@@ -68,6 +68,10 @@ public class DGraph extends Graph {
 		return _e.size();
 	}
 
+	public Graph newInstance() {
+		return new DGraph();
+	}
+
 	public double edgeLen(Vertex source, Vertex dest) {
 		if (!source.neighbors().contains(dest)) {
 			return 0.0;
@@ -117,14 +121,16 @@ public class DGraph extends Graph {
 	}
 
 	public boolean add(GraphElement ge) {
-		if(ge.getClass() == DVertex.class) {
+		// if(ge.getClass() == DVertex.class) {
+		if(ge instanceof DVertex) {
 			ge.setParent(this);
 			// invalidate _minEdgeLengthCache
 			_minEdgeLengthCache = 0;
 			_shortestPathsCache = false;
 			return _v.add(ge);
 		}
-		if(ge.getClass() == DEdge.class) {
+		// if(ge.getClass() == DEdge.class) {
+		if(ge instanceof DEdge) {
 			// update the affected nodes - ouch. looks like lisp
 			((DVertex) ((DEdge) ge).getDest()).addInEdge( (DEdge) ge );
 			((DVertex) ((DEdge) ge).getSource()).addOutEdge( (DEdge) ge );
@@ -139,9 +145,31 @@ public class DGraph extends Graph {
 		throw new IllegalArgumentException("You must add a Directed graph element to a Directed Graph.");
 	}
 
-	public Graph subset(Set vertices) {
-		/* NOT IMPLEMENTED */
-		return null;
+	public Graph subset(Set graphelements) {
+		// filter for those edges which contain only the vertices we want
+		DGraph g = new DGraph();
+		Iterator i = graphelements.iterator();
+		while(i.hasNext()) {
+			Object o = i.next();
+			if(o instanceof Vertex) {
+				g.add((Vertex) o);
+			} else if(o instanceof Edge) {
+				g.add((Vertex) ((Edge) o).getEnds().car());
+				g.add((Vertex) ((Edge) o).getEnds().cdr());
+				g.add((Edge) o);
+			}
+		}
+
+		// add any additional edges for the vertices which were not
+		// included
+		i = getEdges().iterator();
+		while(i.hasNext()) {
+			Edge e = (Edge) i.next();
+			if(graphelements.contains(e.getEnds().car()) && graphelements.contains(e.getEnds().cdr())) {
+				g.add(e);
+			}
+		}
+		return g;
 	}
 
 	/** Remove a graph element from the graph. */
