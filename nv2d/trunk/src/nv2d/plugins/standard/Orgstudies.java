@@ -16,7 +16,6 @@ import java.awt.event.ActionEvent;
 import javax.swing.JPanel;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
 
 import nv2d.graph.Graph;
 import nv2d.graph.Vertex;

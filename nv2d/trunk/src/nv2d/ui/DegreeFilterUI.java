@@ -17,7 +17,6 @@ import javax.swing.JComboBox;
 import javax.swing.JCheckBox;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 
 import nv2d.graph.Graph;
 import nv2d.graph.Vertex;
