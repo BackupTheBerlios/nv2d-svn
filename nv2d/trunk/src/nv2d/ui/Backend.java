@@ -62,6 +62,7 @@ public class Backend {
 			g = (Graph) io.getData(io_args);
 		} catch (IOException ioe) {
 			System.out.println("There was an error importing data from this IO-Plugin.");
+			System.out.print("-> " + ioe.toString());
 			errormsg();
 			return;
 		}

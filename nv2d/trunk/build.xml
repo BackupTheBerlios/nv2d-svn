@@ -29,7 +29,7 @@
 		</exec>
 	</target>
 
-	<target name="prepare" depends="ctags">
+	<target name="prepare">
 		<mkdir dir="${build.dir}"/>
 		<mkdir dir="${dist.dir}"/>
 		<tstamp/>
@@ -55,15 +55,44 @@
 		<delete file="${ctags.file}"/>
 	</target>
 
-	<target name="runtests" depends="build" if="junit.present">
-        <java fork="yes" classname="junit.textui.TestRunner" 
-            taskname="junit" failonerror="true">
-            <arg value="testsuit.AllJUnitTests"/>
+	<!-- =============== RUN TESTS ==================== -->
+
+	<target name="backend" depends="build">
+		<java fork="yes" classname="nv2d.ui.Backend">
+			<arg value="build/nv2d/plugins/standard" />
+			<arg value="Test1IO" />
             <classpath>
-                <pathelement location="build/lib/${app.name}.jar" />
-                <pathelement location="build/testcases" />
-                <pathelement path="" />
-                <pathelement path="${java.class.path}" />
+                <pathelement location="./build" />
+            </classpath>
+		</java>
+	</target>
+
+	<target name="graphical" depends="build">
+		<java fork="yes" classname="nv2d.ui.NV2DMain">
+            <classpath>
+                <pathelement location="./build" />
+                <pathelement location="../lib/piccolo.jar" />
+            </classpath>
+		</java>
+	</target>
+
+	<target name="unittest" depends="build">
+        <java fork="yes" classname="nv2d.testsuit.graph.DataStoreTest">
+            <classpath>
+                <pathelement location="./lib/junit.jar" />
+                <pathelement location="./build" />
+            </classpath>
+        </java>
+        <java fork="yes" classname="nv2d.testsuit.graph.DatumTest">
+            <classpath>
+                <pathelement location="./lib/junit.jar" />
+                <pathelement location="./build" />
+            </classpath>
+        </java>
+        <java fork="yes" classname="nv2d.testsuit.algorithms.DijkstraTest">
+            <classpath>
+                <pathelement location="./lib/junit.jar" />
+                <pathelement location="./build" />
             </classpath>
         </java>
     </target>
