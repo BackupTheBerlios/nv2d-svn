@@ -29,9 +29,6 @@ public class PluginManagerUI extends javax.swing.JDialog {
         _ctl = ctl;
         initComponents();
         initContent();
-        
-        _ctl.getPluginManager().addSecureLocation("www.netvis.org");
-        _ctl.getPluginManager().addSecureLocation("web.mit.edu/bshi");
     }
     
     /** This method is called from the constructor to fill in the components
@@ -63,7 +60,7 @@ public class PluginManagerUI extends javax.swing.JDialog {
                         text.append("   " + (i + 1) + ": " + io.requiredArgs()[i] + '\n');
                     }
                     
-                    text.append("Description:\n" + io.description());
+                    text.append("\nDescription:\n" + io.description());
                     _managerDescTxt.setText(text.toString());
                 }
                 public void mouseEntered(MouseEvent e) {}
@@ -78,7 +75,6 @@ public class PluginManagerUI extends javax.swing.JDialog {
         
         // fill in default security list
         _secList.setListData(_ctl.getPluginManager().secureLocations());
-        
     }
     
     /** This method is called from within the constructor to

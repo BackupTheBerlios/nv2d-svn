@@ -17,6 +17,7 @@ import java.util.Set;
 
 import nv2d.graph.Graph;
 import nv2d.exceptions.PluginNotCreatedException;
+import nv2d.exceptions.JARAccessException;
 import nv2d.ui.NController;
 import nv2d.utils.JarListing;
 
@@ -26,23 +27,36 @@ public class NPluginManager extends NPluginLoader
 	// public static final String PLUGIN_DIRECTORY = "./standard/";
 	private static String PLUGIN_DIRECTORY = "nv2d/plugins/standard";
         
-        private static Set _securityList;
-        
-        public NPluginManager() {
-            _securityList = new HashSet();
-        }
-        
-        public void addSecureLocation(String loc) {
-            _securityList.add(loc);
-        }
-        
-        public void remSecureLocation(String loc) {
-            _securityList.remove(loc);
-        }
-        
-        public Object [] secureLocations() {
+	private static Set _securityList;
+	
+	public NPluginManager() {
+		_securityList = new HashSet();
+		addSecureLocation("www.netvis.org");
+        addSecureLocation("web.mit.edu/bshi");
+	}
+	
+	public void addSecureLocation(String loc) {
+		_securityList.add(loc);
+	}
+
+	public void remSecureLocation(String loc) {
+		_securityList.remove(loc);
+	}
+
+	public boolean isValidLocation(String loc) {
+		Iterator i = _securityList.iterator();
+		while(i.hasNext()) {
+			String s = (String) i.next();
+			if(loc.matches("jar:\\w+://" + s.replace(".", "\\.") + ".*")) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	public Object [] secureLocations() {
             return _securityList.toArray();
-        }
+	}
 
 	public NV2DPlugin getp(String name) {
 		return ((NV2DPlugin) pluginRegistry.get(name));
@@ -97,33 +111,44 @@ public class NPluginManager extends NPluginLoader
 					NV2DPlugin s = createPlugin(filename, PLUGIN_DIRECTORY);
 					System.out.println(" * " + filename + " plug-in loaded");
 				} catch(PluginNotCreatedException e) {
-					System.err.println("  There was an error loading the plugin [" + filename + "]");
-					System.err.println("  -> " + e.toString());
+					// System.err.println("  There was an error loading the plugin [" + filename + "]");
+					// System.err.println("  -> " + e.toString());
 				} catch(ClassCastException e) {
-					System.err.println("  There was an error loading the plugin [" + filename + "]");
-					System.err.println("  -> The file is not an NV2D plugin.");
+					// System.err.println("  There was an error loading the plugin [" + filename + "]");
+					// System.err.println("  -> The file is not an NV2D plugin.");
 				}
 			}
 		}
 	}
 
-	public boolean loadFromJar(ClassLoader parent, String url) {
+	public void loadFromJar(ClassLoader parent, String url) throws JARAccessException {
 		URLClassLoader loader = null;
 		String pname = null;
 		String fullname = null;
-                
-                // TODO: check if the url is allowd by the _securityList
-                
+
+		if(!url.startsWith("jar:")) {
+			System.out.println("Foo!");
+			url = new String("jar:" + url);
+		}
+
+		// check if the url is allowed by the _securityList
+		if(!isValidLocation(url)) {
+			String errmsg = "The url for the JAR file is not allowed by the security manager.  Please add it's path in the security manager.";
+			System.err.println(errmsg);
+			throw new JARAccessException(errmsg);
+		}
+
 		try {
 			loader = new URLClassLoader(new URL[] { new URL(url) }, parent);
 		} catch (MalformedURLException ex) {
-			System.err.println("  The url for the JAR file [" + url + "] is malformed");
+			String errmsg = "The url for the JAR file [" + url + "] is malformed";
+			System.err.println(errmsg);
 			System.err.println(ex.toString());
-			return false;
+			throw new JARAccessException(errmsg);
 		}
 		Enumeration e = JarListing.getPluginListing(url, PLUGIN_DIRECTORY);
 		if(e == null) {
-			return false;
+			throw new JARAccessException("No plugins found");
 		}
 		for(e = e; e.hasMoreElements();) {
 			try {
@@ -145,13 +170,12 @@ public class NPluginManager extends NPluginLoader
 				System.err.println("  The plugin [" + pname + "] could not be found");
 				System.err.println(ex.toString());
 			} catch(PluginNotCreatedException ex) {
-				System.err.println("  There was an error loading the plugin [" + pname + "]");
-				System.err.println("  -> " + ex.toString());
+				// System.err.println("  There was an error loading the plugin [" + pname + "]");
+				// System.err.println("  -> " + ex.toString());
 			} catch(ClassCastException ex) {
-				System.err.println("  There was an error loading the plugin [" + pname + "]");
-				System.err.println("  -> The file is not an NV2D plugin.");
+				// System.err.println("  There was an error loading the plugin [" + pname + "]");
+				// System.err.println("  -> The file is not an NV2D plugin.");
 			}
 		}
-		return true;
 	}
 }

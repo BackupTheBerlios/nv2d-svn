@@ -9,6 +9,7 @@ import java.util.Iterator;
 import java.util.Set;
 import javax.swing.*;
 
+import nv2d.exceptions.JARAccessException;
 import nv2d.graph.FilterInterface;
 import nv2d.graph.Graph;
 import nv2d.graph.filter.DefaultFilter;
@@ -195,10 +196,12 @@ public class MainPanel implements NController {
 
 	public void loadModules() {
 		// pass in parent class loader (necessary for Applets)
-		if(!_pm.loadFromJar(getClass().getClassLoader(), "jar:http://web.mit.edu/bshi/www/N2.jar!/")) {
+		try {
+			_pm.loadFromJar(getClass().getClassLoader(), "jar:http://web.mit.edu/bshi/www/N2.jar!/");
+		} catch (JARAccessException exception) {
 			JOptionPane.showMessageDialog(null,
-				"NV2D could not find any plugins.  Please specify a location where plugins may be found.",
-				"No Plugins Found",
+				exception.toString(),
+				"Could not load plugins",
 				JOptionPane.WARNING_MESSAGE);
 		}
 
