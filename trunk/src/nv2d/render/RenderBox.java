@@ -54,11 +54,11 @@ import edu.berkeley.guir.prefuse.VisualItem;
 import edu.berkeley.guir.prefuse.action.RepaintAction;
 import edu.berkeley.guir.prefuse.action.animate.ColorAnimator;
 import edu.berkeley.guir.prefuse.action.animate.PolarLocationAnimator;
+import edu.berkeley.guir.prefuse.action.assignment.ColorFunction;
 import edu.berkeley.guir.prefuse.action.filter.GraphFilter;
 import edu.berkeley.guir.prefuse.action.filter.TreeFilter;
 import edu.berkeley.guir.prefuse.activity.ActionList;
 import edu.berkeley.guir.prefuse.activity.SlowInSlowOutPacer;
-//import edu.berkeley.guir.prefuse.demos.RadialGraphDemo.DemoColorFunction;
 import edu.berkeley.guir.prefuse.event.ControlAdapter;
 import edu.berkeley.guir.prefuse.graph.DefaultGraph;
 import edu.berkeley.guir.prefuse.graph.Entity;
@@ -112,6 +112,10 @@ public class RenderBox extends Display {
 	private ActionList _rg_animate;
 	private RandomLayout _randomLayout;
 	private SemiRandomLayout _semiRandomLayout;
+
+	// various colorizers
+	ColorFunction _colorizer;
+	ColorFunction _legendColorizer;
 	
 	private PopupMenu _vertexMenu;
 	
@@ -142,9 +146,24 @@ public class RenderBox extends Display {
 		addControlListener(new DragControl());
 		addControlListener(new PanControl());
 		addControlListener(new ZoomControl());
-		
+
+		_colorizer = new Colorizer();
+		_legendColorizer = new LegendColorizer();
+		_colorizer.setEnabled(true);
+		_legendColorizer.setEnabled(false);
+
 		_empty = true;
 		_layoutRunning = false;
+	}
+
+	public void useLegendColoring() {
+		_colorizer.setEnabled(false);
+		_legendColorizer.setEnabled(true);
+	}
+
+	public void useDefaultColoring() {
+		_colorizer.setEnabled(true);
+		_legendColorizer.setEnabled(false);
 	}
 	
 	public void clear() {
@@ -190,7 +209,8 @@ public class RenderBox extends Display {
 		// always have Repaint and Color Actions running
 	    ActionList a = new ActionList(_registry, -1, 20);
 	    a.add(new RepaintAction());
-	    a.add(new Colorizer());
+	    a.add(_colorizer);
+		a.add(_legendColorizer);
 	    a.runNow();
 		
 		// Begin by randomly setting all the items
@@ -204,7 +224,8 @@ public class RenderBox extends Display {
 		_semiRandomLayout = new SemiRandomLayout(_ctl);		
 		_sr_actions = new ActionList(_registry);
 		_sr_actions.add(new GraphFilter());
-		_sr_actions.add(new Colorizer()); 		// colors nodes & edges
+		_sr_actions.add(_colorizer); 		// colors nodes & edges
+		_sr_actions.add(_legendColorizer);
 		_sr_actions.add(new RepaintAction());
 		_sr_actions.add(_semiRandomLayout);
 		
@@ -212,7 +233,8 @@ public class RenderBox extends Display {
 		_randomLayout = new RandomLayout();
 		_ra_actions = new ActionList(_registry);
 		_ra_actions.add(new GraphFilter());
-		_ra_actions.add(new Colorizer()); 		// colors nodes & edges
+		_ra_actions.add(_colorizer); 		// colors nodes & edges
+		_ra_actions.add(_legendColorizer);
 		_ra_actions.add(new RepaintAction());
 		_ra_actions.add(_randomLayout);
 		
@@ -226,7 +248,8 @@ public class RenderBox extends Display {
 		
 		_fd_actions = new ActionList(_registry, -1, 20);
 		_fd_actions.add(new GraphFilter());
-		_fd_actions.add(new Colorizer()); 		// colors nodes & edges
+		_fd_actions.add(_colorizer); 		// colors nodes & edges
+		_fd_actions.add(_legendColorizer);
 		_fd_actions.add(new RepaintAction());
 		_fd_actions.add(_flayout);
 		
@@ -275,7 +298,7 @@ public class RenderBox extends Display {
 		}
 		System.out.println("  - cancelling layout");
 		try {
-		_actions.cancel();
+			_actions.cancel();
 		}
 		catch (Exception e) {}
 		_layoutRunning = false;
