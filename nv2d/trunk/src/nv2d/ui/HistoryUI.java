@@ -19,7 +19,8 @@
 
 package nv2d.ui;
 
-/**
+/** This is the panel which displays a listing of the most recent graphs
+ * viewed.
  *
  * @author  bshi
  */
