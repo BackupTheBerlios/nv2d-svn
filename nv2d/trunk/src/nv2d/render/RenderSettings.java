@@ -2,11 +2,9 @@ package nv2d.render;
 
 public class RenderSettings {
 	public static final int ANTIALIAS = 0;
-	public static final int SHOW_VERTICES = 1;
-	public static final int SHOW_EDGES = 2;
-	public static final int SHOW_LABELS = 3;
-	public static final int SHOW_STRESS = 4;
-	public static final int SHOW_LENGTH = 5;
+	public static final int SHOW_LABELS = 1;
+	public static final int SHOW_STRESS = 2;
+	public static final int SHOW_LENGTH = 3;
 
 	public static final String TYPE_BOOLEAN = "bool";
 

@@ -3,11 +3,13 @@ package nv2d.render;
 import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.AlphaComposite;
+import java.awt.Font;
 import java.awt.FontMetrics;
 //import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
+import java.lang.Math;
 //import java.awt.geom.AffineTransform;
 //import java.awt.image.BufferedImage;
 import java.util.Iterator;
@@ -145,25 +147,32 @@ public class RenderBox extends Display {
 
 		// show edge length
 		i =_registry.getEdgeItems();
+		double x1, y1, x2, y2;
+		double theta;
+		g.setPaint(Color.RED);
+		g.setFont(new Font(g.getFont().getName(), g.getFont().getStyle(), 8));
 		while(_settings.getBoolean(RenderSettings.SHOW_LENGTH) && i.hasNext()) {
 			EdgeItem item = (EdgeItem) i.next();
 			PEdge p = (PEdge) item.getEntity();
 			PNode v1 = PNode.v2p((Vertex) p.e().getEnds().car());
 			PNode v2 = PNode.v2p((Vertex) p.e().getEnds().cdr());
-			double x1 = _registry.getNodeItem(v1).getX();
-			double y1 = _registry.getNodeItem(v1).getY();
-			double x2 = _registry.getNodeItem(v2).getX();
-			double y2 = _registry.getNodeItem(v2).getY();
-			double theta = java.lang.Math.atan(((y2 - y1)/(x1 - x2)));
+			x1 = _registry.getNodeItem(v1).getX();
+			y1 = _registry.getNodeItem(v1).getY();
+			x2 = _registry.getNodeItem(v2).getX();
+			y2 = _registry.getNodeItem(v2).getY();
+			theta = getTheta((int) x1, (int) y1, (int) x2, (int) y2);
 			String label = "[" + p.e().length() + "]";
 
-			g.translate((x1+x2)/3, (y1+y2)/3);
-			//g.rotate(theta);
-			g.setPaint(new Color(255, 0, 0));
+			g.translate((x1+x2)/2, (y1+y2)/2);
+			g.rotate(theta);
 			g.drawString(label, 0, 0);
-			//g.rotate(-theta);
-			g.translate(-(x1+x2)/3, -(y1+y2)/3);
+			g.rotate(-theta);
+			g.translate(-(x1+x2)/2, -(y1+y2)/2);
 		}
+	}
+
+	private double getTheta(int x1, int y1, int x2, int y2) {
+		return Math.atan((double) (y1 - y2) / (double) (x1 - x2)) + (x1 > x2 ? 0 : Math.PI);
 	}
 
 	private void setAlpha(Graphics2D g, float alpha) {

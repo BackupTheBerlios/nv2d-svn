@@ -1,6 +1,7 @@
 package nv2d.ui;
 
 import java.io.IOException;
+import java.util.Iterator;
 import javax.swing.*;
 
 import nv2d.graph.Graph;
@@ -8,20 +9,23 @@ import nv2d.render.RenderBox;
 import nv2d.plugins.IOInterface;
 import nv2d.plugins.NPluginManager;
 import nv2d.plugins.NPluginLoader;
+import nv2d.plugins.NV2DPlugin;
 
 public class NV2DMain extends JFrame {
 	static NPluginManager pm;
 	static Graph g;
 	static RenderBox r;
 	static String usage = "Backend [path to plugins] [io_plugin] [io parameters ...]";
+	static NMenu menu;
 
 	public NV2DMain(String [] args) {
 		loadModules(args);
 		r = new RenderBox(g);
+		menu = new NMenu(r);
 
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 		getContentPane().add(r);
-		setJMenuBar(new NMenu(r));
+		setJMenuBar(menu);
 		setTitle("NV2D");
 		pack();
 		setVisible(true);
@@ -62,9 +66,11 @@ public class NV2DMain extends JFrame {
 		System.out.println("Getting data through the [" + io_mod + "] IO-Plugin");
 
 		String [] io_args = new String[args.length - 2];
+
+
 		// fill out IO arguments (= all but first two)
-		for(int i = 3; i < args.length; i++) {
-			io_args[i - 3] = args[i];
+		for(int i = 2; i < args.length; i++) {
+			io_args[i - 2] = args[i];
 		}
 		String [] reqArgs = io.requiredArgs();
 		if(reqArgs.length != io_args.length) {
@@ -86,6 +92,15 @@ public class NV2DMain extends JFrame {
 
 		/* initialize modules */
 		pm.all_initialize(g);
+
+		/* add module UI to top level UI */
+		Iterator j = pm.iterator();
+		while(j.hasNext()) {
+			NV2DPlugin plugin = (NV2DPlugin) j.next();
+			if(plugin.menu() != null) {
+				menu.addModuleMenu(plugin.menu());
+			}
+		}
 
 		/* load data file if specified, otherwise query user for datafile */
 	}

@@ -3,6 +3,7 @@ package nv2d.plugins;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.util.Enumeration;
+import java.util.Iterator;
 
 import nv2d.graph.Graph;
 import nv2d.exceptions.PluginNotCreatedException;
@@ -18,7 +19,7 @@ public class NPluginManager extends NPluginLoader
 	}
 
 	public void all_initialize(Graph g) {
-		/* check that requirements are met */
+		/* TODO: check that requirements are met */
 
 		/* init all the valid plugins */
 		System.out.println("Initializing all plugins:");
@@ -27,6 +28,11 @@ public class NPluginManager extends NPluginLoader
 			System.out.print("[" + pname + "] ");
 			getp(pname).initialize(g);
 		}
+	}
+
+	/* Iterator for all plugin modules */
+	public Iterator iterator() {
+		return pluginRegistry.values().iterator();
 	}
 
 	public void all_heartbeat() {
