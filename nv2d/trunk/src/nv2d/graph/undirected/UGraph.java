@@ -58,6 +58,10 @@ public class UGraph extends nv2d.graph.Graph {
 	public int numEdges() {
 		return _e.size();
 	}
+	
+	public boolean isDirected() {
+		return false;
+	}
 
 	public double edgeLen(Vertex source, Vertex dest) {
 		if (!source.neighbors().contains(dest)) {

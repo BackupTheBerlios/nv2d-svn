@@ -36,6 +36,8 @@ public abstract class Graph extends DataStore {
 
 	/** Returns the number of unique edges in the graph. */
 	public abstract int numEdges();
+	
+	public abstract boolean isDirected();
 
 	/** Returns a subset of the graph containing only the vertices and edges
 	 * in the parameter Set.  Edges whose vertices are not also in the

@@ -87,6 +87,10 @@ public class DGraph extends Graph implements Serializable {
 		return _e.size();
 	}
 
+	public boolean isDirected() {
+		return true;
+	}
+	
 	public Graph newInstance() {
 		return new DGraph();
 	}

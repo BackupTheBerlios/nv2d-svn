@@ -27,7 +27,6 @@ import edu.berkeley.guir.prefuse.graph.DefaultNode;
 import nv2d.graph.Graph;
 import nv2d.graph.Vertex;
 import nv2d.graph.Edge;
-import nv2d.graph.directed.DGraph;
 
 public class PGraph extends DefaultGraph {
 	public static final String DATUM_POBJ = "__prefuse:linkobj";
@@ -35,7 +34,7 @@ public class PGraph extends DefaultGraph {
 	private Graph _g;
 
 	public PGraph(Graph g) {
-		super(g == null || g instanceof DGraph);
+		super(g == null || g.isDirected());
 
 		_g = g;
 
