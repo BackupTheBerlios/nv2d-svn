@@ -31,10 +31,8 @@ import java.io.IOException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.MalformedURLException;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.Vector;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
@@ -46,7 +44,6 @@ import nv2d.graph.directed.DGraph;
 import nv2d.graph.directed.DEdge;
 import nv2d.graph.directed.DVertex;
 import nv2d.plugins.NPluginLoader;
-import nv2d.plugins.NV2DPlugin;
 import nv2d.plugins.IOInterface;
 import nv2d.ui.NController;
 

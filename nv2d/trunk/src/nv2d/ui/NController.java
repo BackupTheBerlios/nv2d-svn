@@ -21,8 +21,6 @@ package nv2d.ui;
 
 import java.awt.Container;
 import java.lang.String;
-import java.net.URL;
-import java.util.Set;
 import javax.swing.JMenuBar;
 import javax.swing.JTabbedPane;
 import javax.swing.JPanel;

@@ -29,7 +29,7 @@ import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 
 import nv2d.plugins.NPluginLoader;
-import nv2d.plugins.NV2DPlugin;
+// import nv2d.plugins.NV2DPlugin;
 import nv2d.plugins.IOInterface;
 
 import nv2d.graph.Graph;

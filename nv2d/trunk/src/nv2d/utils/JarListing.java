@@ -22,16 +22,12 @@ package nv2d.utils;
 import java.io.File;
 import java.io.IOException;
 import java.lang.String;
-import java.lang.NullPointerException;
 import java.net.JarURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Enumeration;
-import java.util.Map;
 import java.util.Vector;
-import java.util.jar.Attributes;
 import java.util.jar.JarFile;
-import java.util.jar.Manifest;
 
 public class JarListing {
 	/* Testing */
@@ -76,9 +72,10 @@ public class JarListing {
 		} catch (MalformedURLException e) {
 			System.err.println(e);
 			return null;
-		} catch (IOException e) {
+		/*}  catch (IOException e) {
 			System.err.println(e);
 			return null;
+			*/
 		} catch (java.lang.NullPointerException e) {
 			System.err.println("JarListing: Could not find a plugin listing.");
 			return null;

@@ -24,7 +24,7 @@ import edu.berkeley.guir.prefuse.graph.DefaultNode;
 
 import nv2d.graph.Datum;
 import nv2d.graph.Edge;
-import nv2d.graph.Vertex;
+// import nv2d.graph.Vertex;
 import nv2d.graph.GraphElement;
 import nv2d.graph.directed.DEdge;
 

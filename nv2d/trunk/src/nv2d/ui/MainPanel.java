@@ -21,7 +21,6 @@ package nv2d.ui;
 
 import java.awt.*;
 import java.io.IOException;
-import java.net.URL;
 import java.util.*;
 import javax.swing.*;
 

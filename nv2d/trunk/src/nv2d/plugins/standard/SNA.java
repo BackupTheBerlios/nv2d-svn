@@ -25,7 +25,6 @@ import java.awt.event.ActionEvent;
 import java.lang.Integer;
 import java.lang.Double;
 import java.lang.NullPointerException;
-import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.Vector;
@@ -38,9 +37,7 @@ import javax.swing.JSeparator;
 import nv2d.plugins.NPluginLoader;
 import nv2d.plugins.NV2DPlugin;
 
-import nv2d.algorithms.shortestpaths.Dijkstra;
 import nv2d.graph.Datum;
-import nv2d.graph.Edge;
 import nv2d.graph.Graph;
 import nv2d.graph.Path;
 import nv2d.graph.Vertex;
@@ -48,9 +45,6 @@ import nv2d.render.PGraph;
 import nv2d.render.PNode;
 import nv2d.render.RenderBox;
 import nv2d.ui.NController;
-
-import edu.berkeley.guir.prefuse.ItemRegistry;
-import edu.berkeley.guir.prefuse.NodeItem;
 
 /** Plugin for Social Network Analysis (SNA) calculations.
  *

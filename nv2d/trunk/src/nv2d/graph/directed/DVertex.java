@@ -19,10 +19,12 @@
 
 package nv2d.graph.directed;
 
+/*
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.io.ObjectInputStream;
-import java.io.Serializable;
+*/
+// import java.io.Serializable;
 import java.lang.IllegalArgumentException;
 import java.util.Iterator;
 import java.util.Set;
@@ -119,6 +121,7 @@ public class DVertex extends Vertex {
 	 * data organization.  For details, see URL
 	 * <http://swjscmail1.java.sun.com/cgi-bin/wa?A2=ind9909&L=rmi-users&F=&S=&P=34494>.
 	 * */
+	/*
 	private void writeObject(ObjectOutputStream out) throws IOException {
 		Iterator i = _inEdges.iterator();
 		while(i.hasNext()) {
@@ -144,5 +147,6 @@ public class DVertex extends Vertex {
 			e = (Edge) in.readObject();
 		}
 	}
+	*/
 
 }

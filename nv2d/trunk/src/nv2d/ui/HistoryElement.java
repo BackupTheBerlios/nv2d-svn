@@ -26,7 +26,6 @@ import java.awt.*;
 import java.awt.image.*;
 import javax.swing.*;
 import java.awt.geom.AffineTransform;
-import java.util.Set;
 
 public class HistoryElement {
 	public static final int ICON_WIDTH = 70;

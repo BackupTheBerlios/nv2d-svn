@@ -19,7 +19,7 @@
 
 package nv2d.graph;
 
-import nv2d.exceptions.QueryNotFound;
+// import nv2d.exceptions.QueryNotFound;
 
 import java.util.HashSet;
 import java.util.Hashtable;

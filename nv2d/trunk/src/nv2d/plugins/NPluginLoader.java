@@ -23,9 +23,11 @@ import java.util.Hashtable;
 import java.lang.Class;
 import java.lang.ClassCastException;
 import java.lang.InstantiationException;
+/*
 import java.lang.ClassLoader;
 import java.net.URL;
 import java.net.URLClassLoader;
+*/
 
 import nv2d.exceptions.PluginNotCreatedException;
 

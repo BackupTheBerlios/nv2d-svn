@@ -19,7 +19,6 @@
 
 package nv2d.plugins;
 
-import java.awt.Container;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.lang.Class;
@@ -34,10 +33,8 @@ import java.util.Iterator;
 import java.util.HashSet;
 import java.util.Set;
 
-import nv2d.graph.Graph;
 import nv2d.exceptions.PluginNotCreatedException;
 import nv2d.exceptions.JARAccessException;
-import nv2d.ui.NController;
 import nv2d.utils.JarListing;
 
 public class NPluginManager extends NPluginLoader {
@@ -182,7 +179,7 @@ public class NPluginManager extends NPluginLoader {
 		if(e == null) {
 			throw new JARAccessException("No plugins found");
 		}
-		for(e = e; e.hasMoreElements();) {
+		for(; e.hasMoreElements();) {
 			boolean success = true;
 			try {
 				// pname = ((String) e.nextElement()).replace('/', '.');

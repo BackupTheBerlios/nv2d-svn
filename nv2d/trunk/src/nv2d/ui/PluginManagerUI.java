@@ -24,13 +24,9 @@ import java.util.Iterator;
 import java.awt.Color;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseEvent;
-import java.net.URI;
-import java.net.URL;
 import javax.swing.JLabel;
-import javax.swing.JList;
 import javax.swing.JCheckBox;
 import javax.swing.JOptionPane;
-import javax.swing.JPanel;
 import javax.swing.JSeparator;
 
 import nv2d.plugins.IOInterface;

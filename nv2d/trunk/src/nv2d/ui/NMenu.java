@@ -23,7 +23,6 @@ import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.ItemEvent;
-import java.util.Iterator;
 import javax.swing.JMenuItem;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JDialog;
@@ -31,13 +30,10 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JSeparator;
 
-import edu.berkeley.guir.prefuse.VisualItem;
-
 import nv2d.graph.filter.DegreeFilter;
 import nv2d.render.RenderBox;
 import nv2d.render.RenderSettings;
 
-/* TODO: complete rewrite using the java forms manager */
 public class NMenu extends JMenuBar {
 	private RenderBox _renderbox;
 	private NController _ctl;
@@ -287,7 +283,7 @@ public class NMenu extends JMenuBar {
 		JDialog _degreeFilterDialog = DegreeFilterUI.getJDialog(_ctl);
 		if(_degreeFilterDialog != null) {
 			_degreeFilterDialog.pack();
-			_degreeFilterDialog.show();
+			_degreeFilterDialog.setVisible(true);
 		}
 	}
 
