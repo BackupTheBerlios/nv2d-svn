@@ -47,7 +47,6 @@ public class HistoryUI extends javax.swing.JPanel {
 
         setLayout(new java.awt.BorderLayout());
 
-        setBorder(new javax.swing.border.TitledBorder(null, "History", javax.swing.border.TitledBorder.RIGHT, javax.swing.border.TitledBorder.DEFAULT_POSITION));
         _scrollPane.setViewportView(_jlist);
 
         add(_scrollPane, java.awt.BorderLayout.CENTER);
