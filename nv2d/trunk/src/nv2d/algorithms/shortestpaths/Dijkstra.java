@@ -1,6 +1,6 @@
 package nv2d.algorithms.shortestpaths;
 
-import java.lang.Float;
+import java.lang.Double;
 import java.util.Iterator;
 import java.util.HashSet;
 import java.util.List;
@@ -66,7 +66,7 @@ public class Dijkstra {
 	private Path buildPath(Vertex end) throws NoPathExists {
 		Path p = new Path(_g);
 		List l = new Vector();
-		l.add(end);
+		l.add(0, end);
 
 		if(end.equals(_s)) {
 			// this is silly, but somebody might do it.
@@ -83,10 +83,11 @@ public class Dijkstra {
 				// between the source and dest
 				throw new NoPathExists(_s, end);
 			}
+
 			l.add(v);
 		}
 
-		// current list is in reverse order, so reverse it
+		// current list is in reverse order, so reverse when adding to path
 		for(int i = l.size() - 1; i >= 0; i--) {
 			p.addVertex((Vertex) l.get(i));
 		}
@@ -103,11 +104,11 @@ public class Dijkstra {
 		while(it.hasNext()) {
 			Vertex v = (Vertex) it.next();
 			v.setDatum(new Datum(AlgConst.DATUM_DIJKSTRA_SOURCE, _s));
-			v.setDatum(new Datum(AlgConst.DATUM_DIJKSTRA_D, new Float(Float.MAX_VALUE)));
+			v.setDatum(new Datum(AlgConst.DATUM_DIJKSTRA_D, new Double(Double.MAX_VALUE)));
 			v.setDatum(new Datum(AlgConst.DATUM_DIJKSTRA_P, null));
 		}
 
-		_s.getDatum(AlgConst.DATUM_DIJKSTRA_D).set(new Float(0.0f));
+		_s.getDatum(AlgConst.DATUM_DIJKSTRA_D).set(new Double(0.0));
 		_s.getDatum(AlgConst.DATUM_DIJKSTRA_P).set(_s);
 
 		_cached = true;
@@ -136,10 +137,10 @@ public class Dijkstra {
 			// for each vertex v adjacent to u and not in S
 			Vertex v = e.getOpposite(u);
 			if(!S.contains(v) && estimate(v) > (estimate(u) + e.length())) {
-				float vd = estimate(u) + e.length();
+				double vd = estimate(u) + e.length();
 
 				// v gets a new estimate (not really an estimate any more)
-				v.getDatum(AlgConst.DATUM_DIJKSTRA_D).set(new Float(vd));
+				v.getDatum(AlgConst.DATUM_DIJKSTRA_D).set(new Double(vd));
 				// u is the predecessor of v
 				v.getDatum(AlgConst.DATUM_DIJKSTRA_P).set(u);
 
@@ -170,7 +171,7 @@ public class Dijkstra {
 		return (Vertex) v.getDatum(AlgConst.DATUM_DIJKSTRA_P).get();
 	}
 
-	private float estimate(Vertex v) {
-		return ((Float) v.getDatum(AlgConst.DATUM_DIJKSTRA_D).get()).floatValue();
+	private double estimate(Vertex v) {
+		return ((Double) v.getDatum(AlgConst.DATUM_DIJKSTRA_D).get()).doubleValue();
 	}
 }

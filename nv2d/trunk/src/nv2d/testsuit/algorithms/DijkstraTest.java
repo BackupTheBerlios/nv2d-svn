@@ -55,7 +55,7 @@ public class DijkstraTest extends TestCase {
 		algorithm.init(g, source);
 		algorithm.run();
 
-		// check values
+		// check values (source is 'a')
 		// a->0
 		// b->4
 		// c->22
@@ -67,27 +67,27 @@ public class DijkstraTest extends TestCase {
 		// i->53
 		// j->34
 
-		Float va = (Float) findNode(g, "a").getDatum(AlgConst.DATUM_DIJKSTRA_D).get();
-		Float vb = (Float) findNode(g, "b").getDatum(AlgConst.DATUM_DIJKSTRA_D).get();
-		Float vc = (Float) findNode(g, "c").getDatum(AlgConst.DATUM_DIJKSTRA_D).get();
-		Float vd = (Float) findNode(g, "d").getDatum(AlgConst.DATUM_DIJKSTRA_D).get();
-		Float ve = (Float) findNode(g, "e").getDatum(AlgConst.DATUM_DIJKSTRA_D).get();
-		Float vf = (Float) findNode(g, "f").getDatum(AlgConst.DATUM_DIJKSTRA_D).get();
-		Float vg = (Float) findNode(g, "g").getDatum(AlgConst.DATUM_DIJKSTRA_D).get();
-		Float vh = (Float) findNode(g, "h").getDatum(AlgConst.DATUM_DIJKSTRA_D).get();
-		Float vi = (Float) findNode(g, "i").getDatum(AlgConst.DATUM_DIJKSTRA_D).get();
-		Float vj = (Float) findNode(g, "j").getDatum(AlgConst.DATUM_DIJKSTRA_D).get();
+		Double va = (Double) findNode(g, "a").getDatum(AlgConst.DATUM_DIJKSTRA_D).get();
+		Double vb = (Double) findNode(g, "b").getDatum(AlgConst.DATUM_DIJKSTRA_D).get();
+		Double vc = (Double) findNode(g, "c").getDatum(AlgConst.DATUM_DIJKSTRA_D).get();
+		Double vd = (Double) findNode(g, "d").getDatum(AlgConst.DATUM_DIJKSTRA_D).get();
+		Double ve = (Double) findNode(g, "e").getDatum(AlgConst.DATUM_DIJKSTRA_D).get();
+		Double vf = (Double) findNode(g, "f").getDatum(AlgConst.DATUM_DIJKSTRA_D).get();
+		Double vg = (Double) findNode(g, "g").getDatum(AlgConst.DATUM_DIJKSTRA_D).get();
+		Double vh = (Double) findNode(g, "h").getDatum(AlgConst.DATUM_DIJKSTRA_D).get();
+		Double vi = (Double) findNode(g, "i").getDatum(AlgConst.DATUM_DIJKSTRA_D).get();
+		Double vj = (Double) findNode(g, "j").getDatum(AlgConst.DATUM_DIJKSTRA_D).get();
 
-		assertTrue(withinBounds((double) va.floatValue(), 0.0));
-		assertTrue(withinBounds((double) vb.floatValue(), 4.0));
-		assertTrue(withinBounds((double) vc.floatValue(), 22.0));
-		assertTrue(withinBounds((double) vd.floatValue(), 63.0));
-		assertTrue(withinBounds((double) ve.floatValue(), 16.0));
-		assertTrue(withinBounds((double) vf.floatValue(), 42.0));
-		assertTrue(withinBounds((double) vg.floatValue(), 51.0));
-		assertTrue(withinBounds((double) vh.floatValue(), 49.0));
-		assertTrue(withinBounds((double) vi.floatValue(), 53.0));
-		assertTrue(withinBounds((double) vj.floatValue(), 34.0));
+		assertTrue(withinBounds((double) va.doubleValue(), 0.0));
+		assertTrue(withinBounds((double) vb.doubleValue(), 4.0));
+		assertTrue(withinBounds((double) vc.doubleValue(), 22.0));
+		assertTrue(withinBounds((double) vd.doubleValue(), 63.0));
+		assertTrue(withinBounds((double) ve.doubleValue(), 16.0));
+		assertTrue(withinBounds((double) vf.doubleValue(), 42.0));
+		assertTrue(withinBounds((double) vg.doubleValue(), 51.0));
+		assertTrue(withinBounds((double) vh.doubleValue(), 49.0));
+		assertTrue(withinBounds((double) vi.doubleValue(), 53.0));
+		assertTrue(withinBounds((double) vj.doubleValue(), 34.0));
 
 
 		/* // tests the path stuff -- should be in another test method

@@ -8,6 +8,16 @@ public class Datum implements Comparable {
 	protected String _name;
 	protected Object _value;
 
+	/** Constructor.  The value will be initialized to null. */
+	public Datum(String name) {
+		if(name == null) {
+			throw (new IllegalArgumentException("Illegal argument in Datum constructor: null name"));
+		}
+		_name = name;
+		_value = null;
+	}
+
+	/** Initialize with a specific value.  */
 	public Datum(String name, Object value) {
 		if(name == null) {
 			throw (new IllegalArgumentException("Illegal argument in Datum constructor: null name"));
@@ -44,6 +54,6 @@ public class Datum implements Comparable {
 			throw (new ClassCastException("Tried to compare Datum with " + o.getClass()));
 		}
 
-		return _name.compareTo(((Datum) o)._name);
+		return name().compareTo(((Datum) o).name());
 	}
 }

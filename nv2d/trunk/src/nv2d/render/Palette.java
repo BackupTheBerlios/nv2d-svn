@@ -21,6 +21,9 @@ public class Palette extends PCanvas {
 		double X = d.getWidth();
 		double Y = d.getHeight();
 
+		double dtheta = 2.0 * Math.PI / g.numVertices();
+		double theta = 0.0;
+
 		Iterator itv = g.getVertices().iterator();
 
 		while(itv.hasNext()) {
@@ -32,10 +35,16 @@ public class Palette extends PCanvas {
 			double offset = 2.0 * RenderConstants.DEFAULT_VERTEX_RADIUS;
 			cn.addChild(label);
 
-			cn.centerBoundsOnPoint(X * Math.random(), Y * Math.random());
-			label.offset(offset, offset);
-			cn.signalBoundsChanged();
-			getLayer().addChild(cn);
+			{	// circle layout for now
+				double x = X * (0.4 * Math.cos(theta) + 0.5);
+				double y = Y * (0.4 * Math.sin(theta) + 0.5);
+				cn.centerBoundsOnPoint(x, y);
+				label.offset(offset, offset);
+				cn.signalBoundsChanged();
+				getLayer().addChild(cn);
+			}
+
+			theta += dtheta;
 		}
 
 		Iterator ite = g.getEdges().iterator();

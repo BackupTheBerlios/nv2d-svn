@@ -13,9 +13,9 @@ import nv2d.utils.Pair;
 
 public class DEdge extends Edge implements Serializable {
 	transient private Pair _v;
-	private float _len;
+	private double _len;
 
-	public DEdge(DVertex source, DVertex dest, float length) {
+	public DEdge(DVertex source, DVertex dest, double length) {
 		super("DirectedEdge ["
 			+ source.id() + "]-->["
 			+ dest.id() + "]");
@@ -36,11 +36,11 @@ public class DEdge extends Edge implements Serializable {
 		return (Vertex) _v.cdr();
 	}
 
-	public float length() {
+	public double length() {
 		return _len;
 	}
 
-	public void setLength(float l) {
+	public void setLength(double l) {
 		_len = l;
 	}
 

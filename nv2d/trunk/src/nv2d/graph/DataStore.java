@@ -4,6 +4,10 @@ import cern.colt.list.ObjectArrayList;
 
 import nv2d.exceptions.QueryNotFound;
 
+/** This is the fundamental data structure contained in the <code>graph</code>
+ * package. This class behaves like the Set class in the JFC -- which is to say
+ * that all the elements are unique according to their <code>equals()</code>
+ * method. */
 public class DataStore {
 	protected ObjectArrayList _store;
 
@@ -25,7 +29,9 @@ public class DataStore {
 	}
 
 	/** Use to set a new Datum or to replace an existing Datum with a new
-	 * value.*/
+	 * value.  If the name of the datum is identical to the name of a datum
+	 * already set in this store, the new one will replace the old one. See the
+	 * equals() method for details. */
 	public void setDatum(Datum d) {
 		int i = _store.binarySearch(new Datum(d.name(), null));
 
@@ -40,8 +46,9 @@ public class DataStore {
 		}
 	}
 
-	/** Equality test; Two Datum are considered 'equal' if their names are the
-	 * same. */
+	/** Equality test; two Datum are considered 'equal' if their names are the
+	 * same. This has important implications for <code>setDatum()</code> and
+	 * <code>getDatum()</code> */
 	public boolean equals(Object o) {
 		if(o.getClass() != DataStore.class) {
 			return false;

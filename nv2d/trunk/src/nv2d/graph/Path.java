@@ -23,12 +23,8 @@ public class Path {
 		_p.add(v);
 	}
 
-	public ListIterator listIterator() {
-		return _p.listIterator();
-	}
-
 	public String toString() {
-		ListIterator i = listIterator();
+		ListIterator i = _p.listIterator();
 		StringBuffer buf = new StringBuffer();
 
 		while(i.hasNext()) {
