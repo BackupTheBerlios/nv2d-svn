@@ -32,6 +32,22 @@ public class SNA implements NV2DPlugin  {
 
 	Graph _graph;
 
+	/* Some datums */
+
+	/** Datum name for current index */
+	public static final String DATUM_INDEX = "__sna_index";
+
+	public static final String DATUM_GRP_DENSITY = "Group Density";
+	public static final String DATUM_GRP_TRANSITIVITY = "Group Transitivity";
+	public static final String DATUM_GRP_BETWEENNESS = "Group Betweenness";
+	public static final String DATUM_GRP_CLOSENESS = "Group Closeness";
+	public static final String DATUM_GRP_DEGREE = "Group Degree";
+	public static final String DATUM_BETWEENNESS = "Betweenness";
+	public static final String DATUM_CLOSENESS = "Closeness";
+	public static final String DATUM_DEGREE = "Degree";
+	public static final String DATUM_INDEGREE = "In-Degree";
+	public static final String DATUM_OUTDEGREE = "Out-Degree";
+
 	public SNA() {
 		_desc = new String("This plugin calculates basic social network analysis measures for a graph and it's elements.");
 		_name = new String("SNA");
@@ -48,6 +64,8 @@ public class SNA implements NV2DPlugin  {
 	public void heartbeat() {
 		System.out.print("--> heartbeat()\n");
 	}
+
+	/* TODO */
 	public void cleanup() {
 		System.out.print("--> cleanup()\n");
 	}
@@ -83,10 +101,6 @@ public class SNA implements NV2DPlugin  {
 	      SNA Functions
 	 * ===================================== */
 
-
-	/** Datum name for current index */
-	public static final String DATUM_SNA_INDEX = "__sna_index";
-
 	/** Lookup-table to map vertices to indeces of the generated adjacency
 	 * matrices */
 	Vertex [] _vtx_index_tbl = null;
@@ -107,7 +121,7 @@ public class SNA implements NV2DPlugin  {
 			_vtx_index_tbl[index] = vtx;
 
 			// vertex -> index map
-			vtx.setDatum(new Datum(DATUM_SNA_INDEX, new Integer(index)));
+			vtx.setDatum(new Datum(DATUM_INDEX, new Integer(index)));
 
 			index++;
 		}
@@ -143,48 +157,48 @@ public class SNA implements NV2DPlugin  {
 		int [] m_outdegree = compute_outdegree();
 		double m_grpDegree = grp_degree(m_degree);
 
-		_graph.setDatum(new Datum("Group Density", new Double(m_grpDensity)));
+		_graph.setDatum(new Datum(DATUM_GRP_DENSITY, new Double(m_grpDensity)));
 		System.out.println("   Group Density = " + m_grpDensity);
 
-		_graph.setDatum(new Datum("Group Transitivity", new Double(m_grpTransitivity)));
+		_graph.setDatum(new Datum(DATUM_GRP_TRANSITIVITY, new Double(m_grpTransitivity)));
 		System.out.println("   Group Transitivity = " + m_grpTransitivity);
 
-		_graph.setDatum(new Datum("Group Betweenness", new Double(m_grpBetweenness)));
+		_graph.setDatum(new Datum(DATUM_GRP_BETWEENNESS, new Double(m_grpBetweenness)));
 		System.out.println("   Group Betweenness= " + m_grpBetweenness);
 
-		_graph.setDatum(new Datum("Group Closeness", new Double(m_grpCloseness)));
+		_graph.setDatum(new Datum(DATUM_GRP_CLOSENESS, new Double(m_grpCloseness)));
 		System.out.println("   Group Closeness= " + m_grpCloseness);
 
-		_graph.setDatum(new Datum("Group Degree", new Double(m_grpDegree)));
+		_graph.setDatum(new Datum(DATUM_GRP_DEGREE, new Double(m_grpDegree)));
 		System.out.println("   Group Degree = " + m_grpDegree);
 
 		System.out.println("   Betweenness:");
 		for(v = 0; v < _graph.numVertices(); v++) {
-			_vtx_index_tbl[v].setDatum(new Datum("Betweenness", new Double(m_betweenness[v])));
+			_vtx_index_tbl[v].setDatum(new Datum(DATUM_BETWEENNESS, new Double(m_betweenness[v])));
 			System.out.println("      [" + v + "] " + m_betweenness[v]);
 		}
 
 		System.out.println("   Closeness:");
 		for(v = 0; v < _graph.numVertices(); v++) {
-			_vtx_index_tbl[v].setDatum(new Datum("Closeness", new Double(m_closeness[v])));
+			_vtx_index_tbl[v].setDatum(new Datum(DATUM_CLOSENESS, new Double(m_closeness[v])));
 			System.out.println("      [" + v + "] " + m_closeness[v]);
 		}
 
 		System.out.println("   Degree:");
 		for(v = 0; v < _graph.numVertices(); v++) {
-			_vtx_index_tbl[v].setDatum(new Datum("Total Degree", new Double(m_degree[v])));
+			_vtx_index_tbl[v].setDatum(new Datum(DATUM_DEGREE, new Double(m_degree[v])));
 			System.out.println("      [" + v + "] " + m_degree[v]);
 		}
 
 		System.out.println("   In-Degree:");
 		for(v = 0; v < _graph.numVertices(); v++) {
-			_vtx_index_tbl[v].setDatum(new Datum("In-Degree", new Double(m_indegree[v])));
+			_vtx_index_tbl[v].setDatum(new Datum(DATUM_INDEGREE, new Double(m_indegree[v])));
 			System.out.println("      [" + v + "] " + m_indegree[v]);
 		}
 
 		System.out.println("   Out-Degree:");
 		for(v = 0; v < _graph.numVertices(); v++) {
-			_vtx_index_tbl[v].setDatum(new Datum("Out-Degree", new Double(m_outdegree[v])));
+			_vtx_index_tbl[v].setDatum(new Datum(DATUM_OUTDEGREE, new Double(m_outdegree[v])));
 			System.out.println("      [" + v + "] " + m_outdegree[v]);
 		}
 	}
@@ -493,7 +507,7 @@ public class SNA implements NV2DPlugin  {
 	 *
      * @return group closeness
      */    
-    public double grp_closeness(double [] clo) {
+    private double grp_closeness(double [] clo) {
         int i;
         double numv = _graph.numVertices();
 		double denom = ((numv - 2.0) * (numv - 1.0)) / (2.0 * numv - 3.0);
@@ -520,7 +534,7 @@ public class SNA implements NV2DPlugin  {
 	/** A measure of the variability of degree measures among the vertices of a
 	 * group.
      */    
-    public double grp_degree(int [] degs) {
+    private double grp_degree(int [] degs) {
         int i;
         int numv = _graph.numVertices();
         int denom = (numv - 1) * 2 * (numv - 2);
@@ -553,7 +567,7 @@ public class SNA implements NV2DPlugin  {
 	 * nominate as a friend, and an actor with a small indegree is chosen by
 	 * few others. (126) </i>
      */
-	public int [] compute_indegree() {
+	private int [] compute_indegree() {
 		int [] indeg = new int[_graph.numVertices()];
 		for(int i = 0; i < _graph.numVertices(); i++) {
 			indeg[i] = _vtx_index_tbl[i].inEdges().size();
@@ -567,7 +581,7 @@ public class SNA implements NV2DPlugin  {
 	 * the sociometric relation of friendship, and actor with a large outdegree
 	 * is one who nominates many others as friends. (126)</i>
      */    
-	public int [] compute_outdegree() {
+	private int [] compute_outdegree() {
 		int [] outdeg = new int[_graph.numVertices()];
 		for(int i = 0; i < _graph.numVertices(); i++) {
 			outdeg[i] = _vtx_index_tbl[i].outEdges().size();
@@ -582,7 +596,7 @@ public class SNA implements NV2DPlugin  {
 	 * incident with it... Degrees are very easy to compute, and yet can be
 	 * quite informative in many applications. (100)</i>
      */
-    public int [] compute_totaldegree() {
+    private int [] compute_totaldegree() {
 		int [] deg = new int[_graph.numVertices()];
 		for(int i = 0; i < _graph.numVertices(); i++) {
 			Vertex v = _vtx_index_tbl[i];
