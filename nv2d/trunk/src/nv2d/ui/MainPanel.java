@@ -110,15 +110,6 @@ public class MainPanel implements NController {
 		return _bottomPane;
 	}
 	
-	public void start() {
-		try {
-			initialize(null);
-		} catch (java.security.AccessControlException e) {
-			_tabs.add("Fatal Error", new JLabel("Due to security restrictions, this applet cannot load the appropriate plugins."));
-			return;
-		}
-	}
-	
 	public void initialize(String [] args) {
 		if(args == null || args.length < 1) {
 			_g = null;

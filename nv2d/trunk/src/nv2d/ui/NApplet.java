@@ -19,8 +19,14 @@ import nv2d.plugins.NPluginLoader;
 import nv2d.plugins.NV2DPlugin;
 
 public class NApplet extends JApplet {
+	public static final String PARAM_DATAFILE = "NFileIO";
 	MainPanel panel;
+
+	String _dataFile;
+
 	public void init() {
+		_dataFile = getParameter(PARAM_DATAFILE);
+
 		panel = new MainPanel(this, getContentPane());
 		getContentPane().add(panel.getCenterPane(), "Center");
 		getContentPane().add(panel.getBottomPane(), "South");
@@ -29,6 +35,10 @@ public class NApplet extends JApplet {
 	}
 	
 	public void start() {
-		panel.start();
+		if(_dataFile == null) {
+			panel.initialize(null);
+		} else {
+			panel.initialize(new String[] {"NFileIO", _dataFile});
+		}
 	}
 }
