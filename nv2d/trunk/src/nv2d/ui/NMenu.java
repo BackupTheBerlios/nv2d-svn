@@ -72,7 +72,7 @@ public class NMenu extends JMenuBar {
 	private JCheckBoxMenuItem _viewStress;
 	private JCheckBoxMenuItem _viewLength;
 	private JMenu _viewVis;
-	private JMenuItem _viewFilter;
+	private JMenu _viewFilter;
 	private JMenuItem _viewFilterDegree;
 	private JCheckBoxMenuItem _viewSouthPanel;
 	private JCheckBoxMenuItem _viewErrTxt;
@@ -144,7 +144,7 @@ public class NMenu extends JMenuBar {
 		_viewStress = new JCheckBoxMenuItem("Stress", _renderbox.getRenderSettings().getBoolean(RenderSettings.SHOW_STRESS));
 		_viewLength = new JCheckBoxMenuItem("Length", _renderbox.getRenderSettings().getBoolean(RenderSettings.SHOW_LENGTH));
 		_viewVis = new JMenu("Visualization");
-		_viewFilter = new JMenuItem("Graph Filters");
+		_viewFilter = new JMenu("Graph Filters");
 		_viewFilterDegree = new JMenuItem("Degree Filter");
 		_viewSouthPanel = new JCheckBoxMenuItem("Bottom Control Panel", true);
 		_viewErrTxt = new JCheckBoxMenuItem("Error Messages", true);
