@@ -22,10 +22,7 @@ package nv2d.ui;
 import java.awt.*;
 import java.io.IOException;
 import java.net.URL;
-import java.util.Enumeration;
-import java.util.Hashtable;
-import java.util.Iterator;
-import java.util.Set;
+import java.util.*;
 import javax.swing.*;
 
 import nv2d.exceptions.JARAccessException;
@@ -78,12 +75,8 @@ public class MainPanel implements NController {
 		}
 		
 		/* initialize the history mechanism */
-		_historyPane = new JPanel();
-		_historyPane.setBorder(new javax.swing.border.TitledBorder("History"));
 		_history = new DefaultListModel();
-		JList _historyList = new JList(_history);
-		_historyList.setCellRenderer(new HistoryListRenderer());
-		_historyPane.add(_historyList);
+		_historyPane = new HistoryUI(_history);
 		_historyPane.setVisible(false);
 		
 		_parentContainer = parent;
@@ -145,6 +138,18 @@ public class MainPanel implements NController {
 		return _historyPane;
 	}
 	
+	public void initialize(HistoryElement h) {
+		if(h == null) {
+			return;
+		}
+		
+		_r.clear();
+		_originalGraph = h.getModel();
+		_g = h.getSubgraph();
+		this.reinitModules(false);	// do not save in history
+		getBottomPane().validate();
+	}
+	
 	public void initialize(String [] args) {
 		// This MUST be run here so that old locations can be saved before
 		// _originalGraph changes.
@@ -190,7 +195,7 @@ public class MainPanel implements NController {
 					null);
 			// runFilter() runs reinitModules()
 		} else {
-			reinitModules();
+			reinitModules(true);
 		}
 		
 		// TODO: needs a better mechanism here to update GUI elements
@@ -273,7 +278,7 @@ public class MainPanel implements NController {
 			// runFilter() runs reinitModules()
 		}
 		
-		reinitModules();
+		reinitModules(true);
 	}
 	
 	public void loadModules() {
@@ -330,7 +335,11 @@ public class MainPanel implements NController {
 		return _pm;
 	}
 	
-	private void reinitModules() {
+	/** Reinitialize all the modules upon loading of a new graph.
+	 * @param b determines whether a snapshot of the current graph
+	 * should be saved as a {@link nv2d.ui.HistoryElement}.
+	 */
+	private void reinitModules(boolean saveHistory) {
 		// we now supposedly have a graph, reinit all modules
 		Iterator j = _pm.pluginIterator();
 		while(j.hasNext()) {
@@ -340,7 +349,7 @@ public class MainPanel implements NController {
 		_r.initialize(_g);
 		
 		// save this graph in the history list
-		if(_g != null && _originalGraph != null) {
+		if(saveHistory && _g != null && _originalGraph != null) {
 			_history.addElement(new HistoryElement(this));
 		}
 	}

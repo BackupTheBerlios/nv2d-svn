@@ -48,6 +48,12 @@ public interface NController {
 	 */
 	public void initialize(String [] args);
 	
+	/**
+	 * This method takes a {@link nv2d.ui.HistoryElement} object and loads the
+	 * snapshot.
+	 */
+	public void initialize(HistoryElement h);
+	
 	// get model/view
 	/**
 	 * Returns the current instance of the model (as per the Model-View-Controller
@@ -102,11 +108,13 @@ public interface NController {
 	 * @param filter an implementation of the {@link nv2d.graph.FilterInterface} object.
 	 */
 	public void setFilter(FilterInterface filter);
+	
 	/**
 	 * Get the active filter for the program.
 	 * @return a {@link nv2d.graph.FilterInterface} object.
 	 */
 	public FilterInterface getFilter();
+	
 	/**
 	 * Execute the active filter.
 	 * @param args Implementations of {@link nv2d.graph.FilterInterface} make require different arguments.
@@ -149,6 +157,9 @@ public interface NController {
 	 * @return a {@link javax.swing.JPanel} instance */
 	public JPanel getBottomPane();
 	
+	/**
+	 * Get the {@link javax.swing.JPanel} component containing the graph history list.
+	 * @return a {@link javax.swing.JPanel} instance */
 	public JPanel getHistoryPane();
 	
 	// plugin controls

@@ -35,8 +35,10 @@ public class HistoryElement {
 	Graph _subGraph;
 	Icon _icon;
 	String _desc;
+	NController _ctl;
 
 	public HistoryElement(NController ctl) {
+		_ctl = ctl;
 		RenderBox display = (RenderBox) ctl.getView();
 		BufferedImage bi = new BufferedImage(
 				(int) display.getWidth(),
@@ -67,7 +69,12 @@ public class HistoryElement {
 	public String getDesc() {
 		return _desc;
 	}
-
-	public static void load(NController ctl) {
+	
+	public Graph getModel() {
+		return _model;
+	}
+	
+	public Graph getSubgraph() {
+		return _subGraph;
 	}
 }
