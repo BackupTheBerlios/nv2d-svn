@@ -34,32 +34,54 @@
         </Constraint>
       </Constraints>
 
-      <Layout class="org.netbeans.modules.form.compat2.layouts.DesignBoxLayout">
-        <Property name="axis" type="int" value="1"/>
-      </Layout>
+      <Layout class="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout"/>
       <SubComponents>
-        <Container class="javax.swing.JScrollPane" name="_managerListSP">
+        <Container class="javax.swing.JSplitPane" name="display">
+          <Properties>
+            <Property name="orientation" type="int" value="0"/>
+          </Properties>
+          <Constraints>
+            <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout" value="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout$BorderConstraintsDescription">
+              <BorderConstraints direction="Center"/>
+            </Constraint>
+          </Constraints>
 
-          <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
+          <Layout class="org.netbeans.modules.form.compat2.layouts.support.JSplitPaneSupportLayout"/>
           <SubComponents>
-            <Container class="javax.swing.JPanel" name="_managerListPanel">
+            <Container class="javax.swing.JScrollPane" name="_managerListSP">
+              <Constraints>
+                <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.support.JSplitPaneSupportLayout" value="org.netbeans.modules.form.compat2.layouts.support.JSplitPaneSupportLayout$JSplitPaneConstraintsDescription">
+                  <JSplitPaneConstraints position="left"/>
+                </Constraint>
+              </Constraints>
 
-              <Layout class="org.netbeans.modules.form.compat2.layouts.DesignBoxLayout">
-                <Property name="axis" type="int" value="1"/>
-              </Layout>
+              <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
+              <SubComponents>
+                <Container class="javax.swing.JPanel" name="_managerListPanel">
+
+                  <Layout class="org.netbeans.modules.form.compat2.layouts.DesignBoxLayout">
+                    <Property name="axis" type="int" value="1"/>
+                  </Layout>
+                </Container>
+              </SubComponents>
             </Container>
-          </SubComponents>
-        </Container>
-        <Container class="javax.swing.JScrollPane" name="_managerDescSP">
+            <Container class="javax.swing.JScrollPane" name="_managerDescSP">
+              <Constraints>
+                <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.support.JSplitPaneSupportLayout" value="org.netbeans.modules.form.compat2.layouts.support.JSplitPaneSupportLayout$JSplitPaneConstraintsDescription">
+                  <JSplitPaneConstraints position="right"/>
+                </Constraint>
+              </Constraints>
 
-          <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
-          <SubComponents>
-            <Component class="javax.swing.JTextArea" name="_managerDescTxt">
-              <Properties>
-                <Property name="editable" type="boolean" value="false"/>
-                <Property name="tabSize" type="int" value="4"/>
-              </Properties>
-            </Component>
+              <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
+              <SubComponents>
+                <Component class="javax.swing.JTextArea" name="_managerDescTxt">
+                  <Properties>
+                    <Property name="editable" type="boolean" value="false"/>
+                    <Property name="tabSize" type="int" value="4"/>
+                  </Properties>
+                </Component>
+              </SubComponents>
+            </Container>
           </SubComponents>
         </Container>
       </SubComponents>

@@ -138,6 +138,7 @@ public class PluginManagerUI extends javax.swing.JDialog {
 	 */
     private void initComponents() {//GEN-BEGIN:initComponents
         _manager = new javax.swing.JPanel();
+        display = new javax.swing.JSplitPane();
         _managerListSP = new javax.swing.JScrollPane();
         _managerListPanel = new javax.swing.JPanel();
         _managerDescSP = new javax.swing.JScrollPane();
@@ -152,21 +153,24 @@ public class PluginManagerUI extends javax.swing.JDialog {
         _secRem = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
-        _manager.setLayout(new javax.swing.BoxLayout(_manager, javax.swing.BoxLayout.Y_AXIS));
+        _manager.setLayout(new java.awt.BorderLayout());
 
         _manager.setBorder(new javax.swing.border.TitledBorder("Plugin Manager"));
         _manager.setPreferredSize(new java.awt.Dimension(300, 300));
+        display.setOrientation(javax.swing.JSplitPane.VERTICAL_SPLIT);
         _managerListPanel.setLayout(new javax.swing.BoxLayout(_managerListPanel, javax.swing.BoxLayout.Y_AXIS));
 
         _managerListSP.setViewportView(_managerListPanel);
 
-        _manager.add(_managerListSP);
+        display.setLeftComponent(_managerListSP);
 
         _managerDescTxt.setEditable(false);
         _managerDescTxt.setTabSize(4);
         _managerDescSP.setViewportView(_managerDescTxt);
 
-        _manager.add(_managerDescSP);
+        display.setRightComponent(_managerDescSP);
+
+        _manager.add(display, java.awt.BorderLayout.CENTER);
 
         getContentPane().add(_manager, java.awt.BorderLayout.CENTER);
 
@@ -264,6 +268,7 @@ public class PluginManagerUI extends javax.swing.JDialog {
     private javax.swing.JButton _secAdd;
     private javax.swing.JList _secList;
     private javax.swing.JButton _secRem;
+    private javax.swing.JSplitPane display;
     // End of variables declaration//GEN-END:variables
 	
 }
