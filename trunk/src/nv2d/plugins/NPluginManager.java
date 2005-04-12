@@ -31,18 +31,28 @@ import java.net.URLClassLoader;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.HashSet;
+import java.util.Hashtable;
 import java.util.Set;
 
 import nv2d.exceptions.PluginNotCreatedException;
 import nv2d.exceptions.JARAccessException;
 import nv2d.utils.JarListing;
 
-public class NPluginManager extends NPluginLoader {
+public class NPluginManager {
 	// public static final String PLUGIN_DIRECTORY = "nv2d/plugins/standard";
 	// public static final String PLUGIN_DIRECTORY = "./standard/";
 	private static String PLUGIN_DIRECTORY = "nv2d/plugins/standard";
 	
 	private static Set _securityList;
+	
+	private int verbose = 0;
+	
+	public static final int PLUGIN_TYPE_PLAIN = 1;
+	public static final int PLUGIN_TYPE_IO = 2;
+	
+	// This is the list of loaded plug-ins
+	private static Hashtable pluginRegistry = new Hashtable();
+	private static Hashtable ioRegistry = new Hashtable();
 	
 	public NPluginManager() {
 		_securityList = new HashSet();
@@ -86,15 +96,33 @@ public class NPluginManager extends NPluginLoader {
 	public Iterator ioIterator() {
 		return ioRegistry.values().iterator();
 	}
-	
-	public void all_heartbeat() {
-		
+
+	public IOInterface getIOInterface(String name) {
+		return (IOInterface) ioRegistry.get(name);
 	}
 	
-	public void all_cleanup() {
-		
+	public NV2DPlugin getNV2DPlugin(String name) {
+		return (NV2DPlugin) pluginRegistry.get(name);
+	}
+
+	public int type(String name) {
+		if(pluginRegistry.containsKey(name)) {
+			return PLUGIN_TYPE_PLAIN;
+		} else if (ioRegistry.containsKey(name)) {
+			return PLUGIN_TYPE_IO;
+		}
+		return 0;
 	}
 	
+	public void register(String name, NV2DPlugin plug) {
+		if(plug instanceof IOInterface) {
+			ioRegistry.put(name, plug);
+		} else {
+			pluginRegistry.put(name, plug);
+		}
+	}
+
+	/*
 	public void load(String directory) {
 		if(directory != null) {
 			PLUGIN_DIRECTORY = directory;
@@ -140,11 +168,8 @@ public class NPluginManager extends NPluginLoader {
 			}
 		}
 	}
-	
-	/* TODO: Reduce redundancy -> create a generic loader method which takes in a ClassLoader as an argument,
-	 * then create other methods to generate instances of a ClassLoader such as URLClassLoader
-	 * which can be passed to loadFromJar.
-	 */
+	*/
+
 	public void loadFromJar(ClassLoader parent, String url) throws JARAccessException {
 		URLClassLoader loader = null;
 		String pname = null;
@@ -180,45 +205,94 @@ public class NPluginManager extends NPluginLoader {
 			throw new JARAccessException("No plugins found");
 		}
 		for(; e.hasMoreElements();) {
-			boolean success = true;
-			try {
-				// pname = ((String) e.nextElement()).replace('/', '.');
-				String enum_str = (String) e.nextElement();
-				pname = extractName(enum_str);
-				fullname = extractPath(enum_str);
-				
-				if(pname == null || pname.length() < 1 || pname.indexOf("$") >= 0) {
-					// internal classes have the file name format
-					// PublicClass$InternalClass.class, and should not be
-					// considered.
-					continue;
-				}
-
-				if(pluginRegistry.containsKey(pname) || ioRegistry.containsKey(pname)) {
-					// don't reload plugins
-					System.err.println("Warning: plugin with name [" + pname + "] already loaded.  Ignoring.");
-				} else {
-					// Load class from class loader. argv[0] is the name of the class to be loaded
-					Class c = loader.loadClass(fullname);
-					// Create an instance of the class just loaded
-					NV2DPlugin s = createPlugin(c, pname);
-				}
-			} catch (ClassNotFoundException ex) {
-				System.err.println("  The plugin [" + pname + "] could not be found");
-				System.err.println(ex.toString());
-				success = false;
-			} catch(PluginNotCreatedException ex) {
-				// System.err.println("  There was an error loading the plugin [" + pname + "]");
-				// System.err.println("  -> " + ex.toString());
-				success = false;
-			} catch(ClassCastException ex) {
-				// System.err.println("  There was an error loading the plugin [" + pname + "]");
-				// System.err.println("  -> The file is not an NV2D plugin.");
-				success = false;
-			}
-			if(success) {
-				System.out.println("Loaded plugin [" + pname + "]");
-			}
+			load(loader, (String) e.nextElement());
 		}
+	}
+	
+	private boolean load(ClassLoader loader, String fullpath) {
+		boolean success = true;
+		String pname = extractName(fullpath);
+		String fullname = extractPath(fullpath);
+		try {
+			if(pname == null || pname.length() < 1 || pname.indexOf("$") >= 0) {
+				// internal classes have the file name format
+				// PublicClass$InternalClass.class, and should not be
+				// considered.
+				return false;
+			}
+			
+			if(pluginRegistry.containsKey(pname) || ioRegistry.containsKey(pname)) {
+				// don't reload plugins
+				System.err.println("Warning: plugin with name [" + pname + "] already loaded.  Ignoring.");
+			} else {
+				// Load class from class loader. argv[0] is the name of the class to be loaded
+				Class c = loader.loadClass(fullname);
+				// Create an instance of the class just loaded
+				NV2DPlugin s = (NV2DPlugin) c.newInstance();
+				register(s.name(), s);
+			}
+		} catch (ClassNotFoundException ex) {
+			System.err.println("  The plugin [" + pname + "] could not be found");
+			System.err.println(ex.toString());
+			success = false;
+		} catch (InstantiationException ex) {
+			if(verbose > 2) {
+				System.err.println("  The plugin [" + pname + "] could not be instantiated");
+				System.err.println(ex.toString());
+			}
+			success = false;
+		} catch (IllegalAccessException ex) {
+			if(verbose > 2) {
+				System.err.println("  There was an IllegalAccessException while loading plugin [" + pname + "]");
+				System.err.println(ex.toString());
+			}
+			success = false;
+		} catch (ExceptionInInitializerError ex) {
+			System.err.println("  The plugin [" + pname + "] could not be initialized");
+			System.err.println(ex.toString());
+			success = false;
+		} catch (SecurityException  ex) {
+			System.err.println("  The plugin [" + pname + "] has insufficient permission to be loaded");
+			System.err.println(ex.toString());
+			success = false;
+		} catch(ClassCastException ex) {
+			System.err.println("  The class [" + pname + "] does not seem to be a valid NV2D plugin");
+			System.err.println(ex.toString());
+			success = false;
+		}
+		
+
+			
+		if(success) {
+			System.out.println("Loaded plugin [" + pname + "]");
+		}
+		
+		return success;
+	}
+	
+	private String extractName(String fullpath) {
+		int start = fullpath.lastIndexOf("/") + 1;
+		int end = fullpath.length() - 6;
+		if(start < 0) {
+			start = 0;
+		}
+		if(end < 0 || start >= end) {
+			// invalid (no .class extension)
+			return null;
+		}
+		return fullpath.substring(start, end);
+	}
+	
+	private String extractPath(String fullpath) {
+		int start = 0;
+		int end = fullpath.length() - 6;
+		if(start < 0) {
+			start = 0;
+		}
+		if(end < 0 || start >= end) {
+			// invalid (no .class extension)
+			return null;
+		}
+		return fullpath.substring(start, end).replace('/','.');
 	}
 }

@@ -36,7 +36,6 @@ import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
 
-import nv2d.plugins.NPluginLoader;
 import nv2d.plugins.NV2DPlugin;
 
 import nv2d.graph.Datum;
@@ -181,10 +180,10 @@ public class SNA implements NV2DPlugin  {
    
 	// Note that the following routine is static and has no name, which
 	// means it will only be run when the class is loaded
-	static {
+	//static {
 		// put factory in the hashtable for detector factories.
-		NPluginLoader.reg("SNA", new SNA());
-	}
+		//NPluginLoader.reg("SNA", new SNA());
+	//}
 	
 	/* ===================================== *
 	      Visualization Functions

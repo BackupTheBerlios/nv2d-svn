@@ -32,7 +32,6 @@ import nv2d.graph.filter.DegreeFilter;
 import nv2d.render.RenderBox;
 import nv2d.plugins.IOInterface;
 import nv2d.plugins.NPluginManager;
-import nv2d.plugins.NPluginLoader;
 import nv2d.plugins.NV2DPlugin;
 
 public class MainPanel implements NController {
@@ -112,7 +111,7 @@ public class MainPanel implements NController {
 				ioArgs[j - 1] = args[j];
 			}
 			
-			if(_pm.type(ioName) != NPluginLoader.PLUGIN_TYPE_IO) {
+			if(_pm.type(ioName) != NPluginManager.PLUGIN_TYPE_IO) {
 				System.err.println("Could not find IO-Plugin '" + ioName + "'");
 				_g = null;
 			} else {

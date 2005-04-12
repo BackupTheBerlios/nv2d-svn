@@ -43,7 +43,6 @@ import nv2d.graph.Graph;
 import nv2d.graph.directed.DGraph;
 import nv2d.graph.directed.DEdge;
 import nv2d.graph.directed.DVertex;
-import nv2d.plugins.NPluginLoader;
 import nv2d.plugins.IOInterface;
 import nv2d.ui.NController;
 
@@ -146,10 +145,10 @@ public class NFileIO implements IOInterface {
    
 	// Note that the following routine is static and has no name, which
 	// means it will only be run when the class is loaded
-	static {
+	//static {
 		// put factory in the hashtable for detector factories.
-		NPluginLoader.reg("NFileIO", new NFileIO());
-	}
+		//NPluginLoader.reg("NFileIO", new NFileIO());
+	//}
 
 	private class MenuListener implements ActionListener {
 		public void actionPerformed(ActionEvent e) {

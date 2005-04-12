@@ -184,11 +184,15 @@ public class RenderBox extends Display {
 	public void useLegendColoring() {
 		_colorizer.setEnabled(false);
 		_legendColorizer.setEnabled(true);
+		
+		_legendColorizer.run(_registry, 0.0);
 	}
 
 	public void useDefaultColoring() {
 		_colorizer.setEnabled(true);
 		_legendColorizer.setEnabled(false);
+		
+		_colorizer.run(_registry, 0.0);
 	}
 
 	public void clear() {
@@ -265,6 +269,8 @@ public class RenderBox extends Display {
 		_first_initialization = false;
 	}
 
+	// TODO: RepaintAction() is probably run much more than necessary
+	// -bs
 	private void initStandardLayouts() {
 		// Semi-Random Layout
 		_semiRandomLayout = new SemiRandomLayout(_ctl);		

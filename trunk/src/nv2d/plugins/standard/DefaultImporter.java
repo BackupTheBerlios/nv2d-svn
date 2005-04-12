@@ -28,7 +28,6 @@ import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 
-import nv2d.plugins.NPluginLoader;
 // import nv2d.plugins.NV2DPlugin;
 import nv2d.plugins.IOInterface;
 
@@ -106,10 +105,10 @@ public class DefaultImporter implements IOInterface {
    
 	// Note that the following routine is static and has no name, which
 	// means it will only be run when the class is loaded
-	static {
+	//static {
 		// put factory in the hashtable for detector factories.
-		NPluginLoader.reg("DefaultImporter", new DefaultImporter());
-	}
+		//NPluginLoader.reg("DefaultImporter", new DefaultImporter());
+	//}
 
 	public static DGraph mkgraph() {
 		DGraph graph = new DGraph();
@@ -126,6 +125,11 @@ public class DefaultImporter implements IOInterface {
 		
 		try {
 			b.setDatum(new Datum("URL", new URL("http://web.mit.edu/bshi/www")));
+			a.setDatum(new Datum("URL", new URL("http://web.mit.edu/a/www")));
+			c.setDatum(new Datum("URL", new URL("http://web.mit.edu/c/www")));
+			d.setDatum(new Datum("URL", new URL("http://web.mit.edu/d/www")));
+			e.setDatum(new Datum("URL", new URL("http://web.mit.edu/e/www")));
+			f.setDatum(new Datum("URL", new URL("http://web.mit.edu/a/www")));
 		} catch (java.net.MalformedURLException exception) {
 			// do nothing
 			System.err.println("Could not set URL datum");

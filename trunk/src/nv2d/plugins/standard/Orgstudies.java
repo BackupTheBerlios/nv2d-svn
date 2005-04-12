@@ -36,7 +36,6 @@ import nv2d.graph.Edge;
 import nv2d.graph.Datum;
 import nv2d.graph.FilterInterface;
 import nv2d.plugins.NV2DPlugin;
-import nv2d.plugins.NPluginLoader;
 import nv2d.ui.NController;
 
 /**
@@ -110,10 +109,10 @@ public class Orgstudies implements NV2DPlugin, FilterInterface {
 		return "Bo Shi";
 	}
 	
-	static {
+	//static {
 		// put factory in the hashtable for detector factories.
-		NPluginLoader.reg("Orgstudies", new Orgstudies());
-	}
+		//NPluginLoader.reg("Orgstudies", new Orgstudies());
+	//}
 	
 	private void run(Graph g) {
 		// check whether orgstudies data is available
