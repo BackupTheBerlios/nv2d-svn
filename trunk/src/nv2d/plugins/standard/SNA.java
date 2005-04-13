@@ -178,13 +178,6 @@ public class SNA implements NV2DPlugin  {
 		return _author;
 	}
    
-	// Note that the following routine is static and has no name, which
-	// means it will only be run when the class is loaded
-	//static {
-		// put factory in the hashtable for detector factories.
-		//NPluginLoader.reg("SNA", new SNA());
-	//}
-	
 	/* ===================================== *
 	      Visualization Functions
 	 * ===================================== */
@@ -225,7 +218,14 @@ public class SNA implements NV2DPlugin  {
 				return;
 			}
 			double value = ((Double) v.getDatum(measure).get()).doubleValue();
-			double size = MIN_VERTEX_RADIUS + (MAX_VERTEX_RADIUS - MIN_VERTEX_RADIUS) * (value - min) / (max - min);
+			double size;
+
+			if(max == min) {
+				size = MIN_VERTEX_RADIUS;
+			} else {
+				size = MIN_VERTEX_RADIUS + (MAX_VERTEX_RADIUS - MIN_VERTEX_RADIUS) * (value - min) / (max - min);
+			}
+
 			r.getRegistry().getNodeItem(pn).setSize(size);
 		}
 	}
