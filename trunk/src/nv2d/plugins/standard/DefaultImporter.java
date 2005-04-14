@@ -26,9 +26,7 @@ import java.io.IOException;
 import java.net.URL;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
-import javax.swing.JPanel;
 
-// import nv2d.plugins.NV2DPlugin;
 import nv2d.plugins.IOInterface;
 
 import nv2d.graph.Graph;
@@ -69,16 +67,8 @@ public class DefaultImporter implements IOInterface {
 		_control = control;
 	}
 
-	public void heartbeat() {
-		// io-plugins can ignore this
-	}
-
 	public void cleanup() {
 		System.out.print("--> cleanup()\n");
-	}
-
-	public JPanel ui() {
-		return null;
 	}
 
 	public JMenu menu() {
@@ -103,13 +93,6 @@ public class DefaultImporter implements IOInterface {
 		return _author;
 	}
    
-	// Note that the following routine is static and has no name, which
-	// means it will only be run when the class is loaded
-	//static {
-		// put factory in the hashtable for detector factories.
-		//NPluginLoader.reg("DefaultImporter", new DefaultImporter());
-	//}
-
 	public static DGraph mkgraph() {
 		DGraph graph = new DGraph();
 		DVertex a = new DVertex("a");

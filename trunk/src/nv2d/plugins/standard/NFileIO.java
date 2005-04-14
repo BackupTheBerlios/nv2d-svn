@@ -36,7 +36,6 @@ import java.util.Iterator;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
-import javax.swing.JPanel;
 
 import nv2d.graph.Datum;
 import nv2d.graph.Graph;
@@ -110,14 +109,7 @@ public class NFileIO implements IOInterface {
 		_control = control;
 	}
 
-	public void heartbeat() {
-	}
-
 	public void cleanup() {
-	}
-
-	public JPanel ui() {
-		return null;
 	}
 
 	public JMenu menu() {

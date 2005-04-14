@@ -210,7 +210,7 @@ public class NPluginManager {
 	}
 	
 	private boolean load(ClassLoader loader, String fullpath) {
-		boolean success = true;
+		boolean success = false;
 		String pname = extractName(fullpath);
 		String fullname = extractPath(fullpath);
 		try {
@@ -230,35 +230,30 @@ public class NPluginManager {
 				// Create an instance of the class just loaded
 				NV2DPlugin s = (NV2DPlugin) c.newInstance();
 				register(s.name(), s);
+				success = true;
 			}
 		} catch (ClassNotFoundException ex) {
 			System.err.println("  The plugin [" + pname + "] could not be found");
 			System.err.println(ex.toString());
-			success = false;
 		} catch (InstantiationException ex) {
 			if(verbose > 2) {
 				System.err.println("  The plugin [" + pname + "] could not be instantiated");
 				System.err.println(ex.toString());
 			}
-			success = false;
 		} catch (IllegalAccessException ex) {
 			if(verbose > 2) {
 				System.err.println("  There was an IllegalAccessException while loading plugin [" + pname + "]");
 				System.err.println(ex.toString());
 			}
-			success = false;
 		} catch (ExceptionInInitializerError ex) {
 			System.err.println("  The plugin [" + pname + "] could not be initialized");
 			System.err.println(ex.toString());
-			success = false;
 		} catch (SecurityException  ex) {
 			System.err.println("  The plugin [" + pname + "] has insufficient permission to be loaded");
 			System.err.println(ex.toString());
-			success = false;
 		} catch(ClassCastException ex) {
 			System.err.println("  The class [" + pname + "] does not seem to be a valid NV2D plugin");
 			System.err.println(ex.toString());
-			success = false;
 		}
 		
 

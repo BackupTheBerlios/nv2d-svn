@@ -26,7 +26,6 @@ import java.util.Set;
 import java.util.HashSet;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
-import javax.swing.JPanel;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 
@@ -62,16 +61,8 @@ public class Orgstudies implements NV2DPlugin, FilterInterface {
 		run(_graph);
 	}
 	
-	public void heartbeat() {
-		return;
-	}
-	
 	public void cleanup() {
 		return;
-	}
-	
-	public JPanel ui() {
-		return null;
 	}
 	
 	public JMenu menu() {
@@ -108,11 +99,6 @@ public class Orgstudies implements NV2DPlugin, FilterInterface {
 	public String author() {
 		return "Bo Shi";
 	}
-	
-	//static {
-		// put factory in the hashtable for detector factories.
-		//NPluginLoader.reg("Orgstudies", new Orgstudies());
-	//}
 	
 	private void run(Graph g) {
 		// check whether orgstudies data is available
@@ -242,7 +228,4 @@ public class Orgstudies implements NV2DPlugin, FilterInterface {
 					null);
 		}
 	}
-	
-	/* swing components */
-	
 }

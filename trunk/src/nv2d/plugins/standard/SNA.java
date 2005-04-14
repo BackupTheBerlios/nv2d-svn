@@ -316,6 +316,7 @@ public class SNA implements NV2DPlugin  {
 			name = (name.length() > 7 ? new String(name.substring(0, 7)) : name);
 			vtx_names[v] = name;
 		}
+		java.util.Arrays.sort(vtx_names);
 
 		System.out.print("\n\n");
 

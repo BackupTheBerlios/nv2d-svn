@@ -20,7 +20,6 @@
 package nv2d.plugins;
 
 import java.awt.Container;
-import javax.swing.JPanel;
 import javax.swing.JMenu;
 
 import nv2d.graph.Graph;
