@@ -238,8 +238,8 @@ public class SNA implements NV2DPlugin  {
 	 * matrices */
 	Vertex [] _vtx_index_tbl = null;
 
-	/** Assign an integer index to every Vertex in the graph.  This does not
-	 * sort the vertices in any fashion. */
+	/** Assign an integer index to every Vertex in the graph.  For display
+	 * convenience, the vertices are indexed alphabetically. */
 	private void indecize() {
 		Set v = _graph.getVertices();
 		Iterator i = v.iterator();
@@ -249,14 +249,17 @@ public class SNA implements NV2DPlugin  {
 
 		while(i.hasNext()) {
 			Vertex vtx = (Vertex) i.next();
-
+			
 			// index -> vertex map
 			_vtx_index_tbl[index] = vtx;
-
-			// vertex -> index map
-			vtx.setDatum(new Datum(DATUM_INDEX, new Integer(index)));
-
 			index++;
+		}
+
+		java.util.Arrays.sort(_vtx_index_tbl);
+
+		for(int j = 0; j < _vtx_index_tbl.length; j++) {
+			// vertex -> index map
+			_vtx_index_tbl[j].setDatum(new Datum(DATUM_INDEX, new Integer(j)));
 		}
 	}
 
@@ -316,7 +319,6 @@ public class SNA implements NV2DPlugin  {
 			name = (name.length() > 7 ? new String(name.substring(0, 7)) : name);
 			vtx_names[v] = name;
 		}
-		java.util.Arrays.sort(vtx_names);
 
 		System.out.print("\n\n");
 
