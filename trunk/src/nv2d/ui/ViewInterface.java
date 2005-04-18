@@ -45,7 +45,14 @@ public interface ViewInterface {
 	
 	public void toggleSidePane(boolean b);
 	
+	public boolean sidePaneState();
+	
 	public void toggleBottomPane(boolean b);
+	
+	public boolean bottomPaneState();
+	
+	public boolean contains(Container c);
+	
 	/**
 	 * Add a visual component into the GUI.  This class uses a {@link Set} to keep
 	 * track of all added components.
@@ -56,6 +63,8 @@ public interface ViewInterface {
 	 * @see {@link #removeComponent(int)}
 	 */
 	public boolean addComponent(Container c, String name, int location);
+	
+	public boolean addComponentNoUpdate(Container c, String name, int location);
 
 	public boolean removeComponent(Container c);
 	

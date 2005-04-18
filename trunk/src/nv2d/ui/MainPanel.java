@@ -45,6 +45,8 @@ public class MainPanel implements NController {
 	private Set _allowedURLs;
 	
 	private DefaultListModel _history;
+	
+	private ViewFactory _viewFactory;
 
 	/* color legend variables */
 	private LegendMap _legendMap;
@@ -61,6 +63,10 @@ public class MainPanel implements NController {
 		_r = new RenderBox(this);
 
 		_view = new NGUI(this, rootPaneContainer);
+		_viewFactory = new ViewFactory(this);
+		
+		_view.addComponent(_viewFactory.getHistoryPane(), "History", ViewInterface.SIDE_PANEL);
+		_view.addComponent(_viewFactory.getLayoutPane(), "Layout", ViewInterface.BOTTOM_PANEL);
 		
 		_view.gui().setPreferredSize(new Dimension(700, 500));
 		
@@ -153,6 +159,10 @@ public class MainPanel implements NController {
 		_view.validate();
 	}
 	
+	public LegendMap getLegendMap() {
+		return _legendMap;
+	}
+	
 	public void errorPopup(String title, String msg, String extra) {
 		_view.errorPopup(title, msg, extra);
 	}
@@ -226,31 +236,6 @@ public class MainPanel implements NController {
 		modulesPostLoad();
 	}
 	
-	private void modulesPostLoad() {
-		_view.getMenu().resetPluginMenu();
-		_view.getMenu().resetImporterMenu();
-		
-		/* add module UI to top level UI */
-		Iterator j = _pm.pluginIterator();
-		while(j.hasNext()) {
-			NV2DPlugin plugin = (NV2DPlugin) j.next();
-			plugin.initialize(_g, _r, this);
-			if(plugin.menu() != null) {
-				_view.getMenu().addPluginMenu(plugin.menu());
-			}
-		}
-		
-		/* initialize IO plugins */
-		j = _pm.ioIterator();
-		while(j.hasNext()) {
-			IOInterface io = (IOInterface) j.next();
-			io.initialize(null, _r, this);
-			if(io.menu() != null) {
-				_view.getMenu().addImporterMenu(io.menu());
-			}
-		}
-	}
-	
 	public Graph getModel() {
 		return _originalGraph;
 	}
@@ -265,6 +250,10 @@ public class MainPanel implements NController {
 
 	public ViewInterface getView() {
 		return _view;
+	}
+	
+	public ViewFactory getViewFactory() {
+		return _viewFactory;
 	}
 	
 	public DegreeFilter getDegreeFilter() {
@@ -291,6 +280,31 @@ public class MainPanel implements NController {
 		// save this graph in the history list
 		if(saveHistory && _g != null && _originalGraph != null) {
 			_history.addElement(new HistoryElement(this));
+		}
+	}
+		
+	private void modulesPostLoad() {
+		_view.getMenu().resetPluginMenu();
+		_view.getMenu().resetImporterMenu();
+		
+		/* add module UI to top level UI */
+		Iterator j = _pm.pluginIterator();
+		while(j.hasNext()) {
+			NV2DPlugin plugin = (NV2DPlugin) j.next();
+			plugin.initialize(_g, _r, this);
+			if(plugin.menu() != null) {
+				_view.getMenu().addPluginMenu(plugin.menu());
+			}
+		}
+		
+		/* initialize IO plugins */
+		j = _pm.ioIterator();
+		while(j.hasNext()) {
+			IOInterface io = (IOInterface) j.next();
+			io.initialize(null, _r, this);
+			if(io.menu() != null) {
+				_view.getMenu().addImporterMenu(io.menu());
+			}
 		}
 	}
 }

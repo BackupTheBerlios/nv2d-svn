@@ -78,6 +78,8 @@ public interface NController {
 	 */
 	public ViewInterface getView();
 	
+	public ViewFactory getViewFactory();
+	
 	/**
 	 * Get the main DegreeFilter object.  The Degree Filter is used as the
 	 * browsing mechanism for large graphs so it it ubiquitous and no new
@@ -150,6 +152,8 @@ public interface NController {
 	 * Get the Graph history
 	 */
 	public ListModel getHistory();
+
+	public LegendMap getLegendMap();
 	
 	// plugin controls
 	/**

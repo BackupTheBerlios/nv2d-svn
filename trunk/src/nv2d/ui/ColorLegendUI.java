@@ -123,8 +123,11 @@ class ColorLegendListRenderer extends DefaultListCellRenderer {
 		// pair.car() -> key
 		// pair.cdr() -> color
 		final Pair pair = (Pair) value;
+		String iconLabel;
 		label.setIcon(new ColorIcon((Color) pair.cdr()));
-		label.setText((String) pair.cdr());
+		iconLabel = pair.car().toString();
+		label.setText((iconLabel.length() > 10 ? iconLabel.substring(0, 10) + "..." : iconLabel));
+		label.setToolTipText(iconLabel);
 		
 		label.setVerticalTextPosition(SwingConstants.TOP);
 		label.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(0, 0, 0), 1, true));

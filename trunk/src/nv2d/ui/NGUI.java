@@ -31,9 +31,6 @@ public class NGUI implements ViewInterface {
 	private Vector _bottomSet, _centerSet, _sideSet;
 	private Hashtable _containerNames;
 
-	private Container _historyCtlPanel;
-	private Container _layoutCtlPanel;
-
 	private Container _side;
 	private Container _center;
 	private Container _bottom;
@@ -80,20 +77,34 @@ public class NGUI implements ViewInterface {
 		_window = window;
 		
 		_menu = new NMenu(_ctl, _ctl.getRenderBox());
-		_layoutCtlPanel = new BottomPanel(_ctl);
-		_historyCtlPanel = new HistoryUI(_ctl.getHistory());
 
 		initComponents();
 	}
 	
 	public void toggleSidePane(boolean b) {
-		_sideVis = b;
-		update();
+		if(b != _sideVis) {
+			_sideVis = b;
+			update();
+		}
+	}
+	
+	public boolean sidePaneState() {
+		return _sideVis;
 	}
 	
 	public void toggleBottomPane(boolean b) {
-		_bottomVis = b;
-		update();
+		if(b != _bottomVis) {
+			_bottomVis = b;
+			update();
+		}
+	}
+	
+	public boolean bottomPaneState() {
+		return _bottomVis;
+	}
+
+	public boolean contains(Container c) {
+		return (_bottomSet.contains(c) || _centerSet.contains(c) || _sideSet.contains(c));
 	}
 	
 	public void validate() {
@@ -120,9 +131,14 @@ public class NGUI implements ViewInterface {
 	}
 	
 	public boolean addComponent(Container component, String name, int location) {
+		boolean b = addComponentNoUpdate(component, name, location);
+		update();
+		return b;
+	}
+	
+	public boolean addComponentNoUpdate(Container component, String name, int location) {
 		boolean b;
 		b = registerComponent(component, name, location);
-		update();
 		return b;
 	}
 
@@ -211,7 +227,7 @@ public class NGUI implements ViewInterface {
 		// |--------| |
 		// |________|_|
 
-		if(_bottomVis) {
+		if(_bottomVis && _bottom != null) {
 			minor = new JSplitPane(JSplitPane.VERTICAL_SPLIT,
 					_center, _bottom);
 			((JSplitPane) minor).setDividerSize(2);
@@ -220,7 +236,7 @@ public class NGUI implements ViewInterface {
 			minor = _center;
 		}
 		
-		if(_sideVis) {
+		if(_sideVis && _side != null) {
 			major = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, 
 					minor, _side);
 			((JSplitPane) major).setDividerSize(2);
@@ -229,7 +245,11 @@ public class NGUI implements ViewInterface {
 			major = minor;
 		}
 		
-		_gui = major;
+		if(_gui != null) {
+			_gui = major;
+		} else {
+			_gui = new JPanel();
+		}
 		_window.setContentPane(_gui);
 		validate();
 		_window.getRootPane().validate();
@@ -278,25 +298,6 @@ public class NGUI implements ViewInterface {
 
 	private void initComponents() {
 		registerComponent(_ctl.getRenderBox(), "Main", ViewInterface.MAIN_PANEL);
-		registerComponent(_layoutCtlPanel, "Layout", ViewInterface.BOTTOM_PANEL);
-		registerComponent(_historyCtlPanel, "History", ViewInterface.SIDE_PANEL);
-
-		// trap output to standard streams and display them in a text box
-		JTextArea errTxt = new JTextArea();
-		JTextArea outTxt = new JTextArea();
-		JScrollPane sp1 = new JScrollPane(errTxt);
-		JScrollPane sp2 = new JScrollPane(outTxt);
-		_err = new NPrintStream(System.err);
-		_out = new NPrintStream(System.out);
-		_outTextBox = sp2;
-		_errTextBox = sp1;
-		System.setOut(_out);
-		System.setErr(_err);
-		_err.addNotifyClient(errTxt);
-		_out.addNotifyClient(outTxt);
-		
-		registerComponent(sp2, "Output", ViewInterface.MAIN_PANEL);
-		registerComponent(sp1, "Errors", ViewInterface.MAIN_PANEL);
 
 		update();
 	}
@@ -311,9 +312,6 @@ public class NGUI implements ViewInterface {
 		}
 		
 		public boolean closeTab(int tabIndexToClose, Component componentToClose) {
-			// System.out.println("---");
-			// System.out.println("   " + componentToClose);
-			// System.out.println("   " + _c);
 			if(componentToClose.equals(_c)) {
 				removeComponentNoUpdate((Container) _c);
 			}

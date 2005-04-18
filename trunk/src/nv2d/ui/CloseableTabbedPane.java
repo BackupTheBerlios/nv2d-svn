@@ -274,9 +274,7 @@ public class CloseableTabbedPane extends JTabbedPane
 								dispatchEvent(event);
 							}
 							//the tab is being closed
-							if(this.getComponentCount() > 1) {
-								remove(selIndex);
-							}
+							remove(selIndex);
 						} else {
 							icon.mouseover = false;
 							icon.mousepressed = false;

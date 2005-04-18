@@ -100,6 +100,7 @@ public class NMenu extends JMenuBar {
 			item.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
 					map.getLegend(name).assignColors();
+					_ctl.getView().addComponent(new ColorLegendUI(map.getLegend(name)), "Legend", ViewInterface.SIDE_PANEL);
 					_viewLegendMenuActionPerformed(e);
 				}
 			});
@@ -131,8 +132,9 @@ public class NMenu extends JMenuBar {
 	private JMenuItem _viewFilterDegree;
 	private JCheckBoxMenuItem _viewSouthPanel;
 	private JCheckBoxMenuItem _viewSidePanel;
-	private JCheckBoxMenuItem _viewErrTxt;
-	private JCheckBoxMenuItem _viewOutTxt;
+	private JMenuItem _viewRenderBox;
+	private JMenuItem _viewErrTxt;
+	private JMenuItem _viewOutTxt;
 	
 	private JMenu _legend;
 	private JMenuItem _legendDefaultColoring;
@@ -219,13 +221,15 @@ public class NMenu extends JMenuBar {
 		_viewFilterDegree = new JMenuItem("Degree Filter");
 		_viewSidePanel = new JCheckBoxMenuItem("Side Panel", false);
 		_viewSouthPanel = new JCheckBoxMenuItem("Bottom Panel", true);
-		_viewErrTxt = new JCheckBoxMenuItem("Error Messages", true);
-		_viewOutTxt = new JCheckBoxMenuItem("Program Output", true);
+		_viewErrTxt = new JMenuItem("Error Messages");
+		_viewOutTxt = new JMenuItem("Program Output");
+		_viewRenderBox = new JMenuItem("Graph Visualization");
 
 		_view.add(_viewSouthPanel);
 		_view.add(_viewSidePanel);
-		_view.add(_viewErrTxt);
+		_view.add(_viewRenderBox);
 		_view.add(_viewOutTxt);
+		_view.add(_viewErrTxt);
 		_view.add(new JSeparator());
 		_view.add(_viewVis);
 		_view.add(_viewFilter);
@@ -242,7 +246,7 @@ public class NMenu extends JMenuBar {
 		});
 		_viewSouthPanel.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				_viewSouthPanelActionPerformed(e);
+				_viewBottomPanelActionPerformed(e);
 			}
 		});
 		_viewSidePanel.addActionListener(new ActionListener() {
@@ -265,14 +269,19 @@ public class NMenu extends JMenuBar {
 				_viewLengthItemStateChanged(e);
 			}
 		});
-		_viewErrTxt.addItemListener(new ItemListener() {
-			public void itemStateChanged(ItemEvent e) {
-				_viewErrTxtItemStateChanged(e);
+		_viewErrTxt.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				_viewErrTxtActionPerformed(e);
 			}
 		});
-		_viewOutTxt.addItemListener(new ItemListener() {
-			public void itemStateChanged(ItemEvent e) {
-				_viewOutTxtItemStateChanged(e);
+		_viewOutTxt.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				_viewOutTxtActionPerformed(e);
+			}
+		});
+		_viewRenderBox.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				_viewRenderBoxActionPerformed(e);
 			}
 		});
 		
@@ -326,7 +335,11 @@ public class NMenu extends JMenuBar {
 		}
 	}
 
-	private void _viewSouthPanelActionPerformed(ActionEvent e) {
+	private void _viewSidePanelActionPerformed(ActionEvent e) {
+		_ctl.getView().toggleSidePane(_viewSidePanel.getState());
+	}
+
+	private void _viewBottomPanelActionPerformed(ActionEvent e) {
 		_ctl.getView().toggleBottomPane(_viewSouthPanel.getState());
 	}
 
@@ -334,12 +347,23 @@ public class NMenu extends JMenuBar {
 		_renderbox.getRenderSettings().setBoolean(RenderSettings.SHOW_LABELS, _viewVLabel.getState());
 	}
 
-	private void _viewOutTxtItemStateChanged(ItemEvent e) {
-		_ctl.displayOutTextBox(_viewOutTxt.getState());
+	private void _viewOutTxtActionPerformed(ActionEvent e) {
+		// TODO: this button should not be a checkbozx
+		if(!_ctl.getView().contains(_ctl.getViewFactory().getConsolePane())) {
+			_ctl.getView().addComponent(_ctl.getViewFactory().getConsolePane(), "Console", ViewInterface.MAIN_PANEL);
+		}
 	}
 
-	private void _viewErrTxtItemStateChanged(ItemEvent e) {
-		_ctl.displayErrTextBox(_viewErrTxt.getState());
+	private void _viewErrTxtActionPerformed(ActionEvent e) {
+		if(!_ctl.getView().contains(_ctl.getViewFactory().getErrorPane())) {
+			_ctl.getView().addComponent(_ctl.getViewFactory().getErrorPane(), "Errors", ViewInterface.MAIN_PANEL);
+		}
+	}
+	
+	private void _viewRenderBoxActionPerformed(ActionEvent e) {
+		if(!_ctl.getView().contains(_ctl.getRenderBox())) {
+			_ctl.getView().addComponent(_ctl.getRenderBox(), "Main", ViewInterface.MAIN_PANEL);
+		}
 	}
 
 	private void _viewLengthItemStateChanged(ItemEvent e) {
@@ -347,10 +371,6 @@ public class NMenu extends JMenuBar {
 	}
 
 	private void _viewStressItemStateChanged(ItemEvent e) {
-	}
-
-	private void _viewSidePanelActionPerformed(ActionEvent e) {
-		_ctl.getView().toggleSidePane(_viewSidePanel.getState());
 	}
 		
 	private void _settingsAntialiasItemStateChanged(ItemEvent e) {
@@ -361,6 +381,7 @@ public class NMenu extends JMenuBar {
 	private void _viewLegendMenuActionPerformed(ActionEvent e) {
 		_renderbox.useLegendColoring();
 	}
+	
 	private void _legendDefaultColoringActionPerformed(ActionEvent e) {
 		_renderbox.useDefaultColoring();
 	}
