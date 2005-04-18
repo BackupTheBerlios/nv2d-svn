@@ -208,8 +208,11 @@ public class MainPanel implements NController {
 	}
 	
 	public void loadModules() {
-		// loadModules("jar:http://web.mit.edu/bshi/www/N2.jar!/");
-		loadModules("jar:http://web.mit.edu/bshi/www/N2.jar!/");
+		//loadModules("jar:http://web.mit.edu/bshi/www/N2.jar!/");
+		for(int j = 0; j < _pm.DEFAULT_PLUGINS.length; j++) {
+			_pm.load(_pm.DEFAULT_PLUGINS[j]);
+		}
+		modulesPostLoad();
 	}
 	
 	public void loadModules(String url) {
@@ -220,6 +223,10 @@ public class MainPanel implements NController {
 			errorPopup("Could not load plugins", exception.toString(), null);
 		}
 
+		modulesPostLoad();
+	}
+	
+	private void modulesPostLoad() {
 		_view.getMenu().resetPluginMenu();
 		_view.getMenu().resetImporterMenu();
 		

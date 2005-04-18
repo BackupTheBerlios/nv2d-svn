@@ -471,7 +471,7 @@ public class RenderBox extends Display {
 			Vertex v = n.v();
 			int x = 10 + (int) _registry.getNodeItem(n).getX();
 			int y = 10 + (int) _registry.getNodeItem(n).getY();
-			Rectangle rect = new Rectangle(x - 2, y - fheight, fm.stringWidth(v.id()) + 4, fheight + 2);
+			Rectangle rect = new Rectangle(x - 2, y - fheight, fm.stringWidth(v.displayId()) + 4, fheight + 2);
 			setAlpha(g, TRANSPARENCY);
 			g.setPaint(Color.WHITE);
 			g.fill(rect);
@@ -479,7 +479,7 @@ public class RenderBox extends Display {
 			
 			g.setPaint(Color.BLACK);
 			g.draw(rect);
-			g.drawString(v.id(), x, y);
+			g.drawString(v.displayId(), x, y);
 		}
 		
 		// show edge length

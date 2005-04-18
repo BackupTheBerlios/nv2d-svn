@@ -62,6 +62,7 @@ public class UVertex extends Vertex implements Serializable {
 	public GraphElement clone(Graph destGraph) {
 		UVertex v = new UVertex(id());
 		Set attr = getDatumSet();
+		v.setDisplayId(displayId());
 		Iterator i = attr.iterator();
 		while(i.hasNext()) {
 			Datum d = (Datum) i.next();

@@ -262,24 +262,27 @@ class FileIO {
 	/** Create a directed graph. */
 	public DGraph buildGraph() {
 		// create all edges first, then filter out invalid edges then vertices
-		// invalid vertices are those which are not connected to any other one
+		// TODO: filter invalid vertices (those which are not connected to any other one)
 
 		HashMap vertmap = new HashMap();
 		HashMap edgemap = new HashMap();
-		Iterator i = _data.values().iterator();
+		Iterator i;
 		DGraph graph;
 		int j;
 
 		// collect all the edge and graph objects
+		i = _data.values().iterator();
 		while(i.hasNext()) {
 			String [] data = (String []) i.next();
 			String source = data[VERTEX_ID];
+			String fullName = data[VERTEX_FULLID];
 			String [] edges = data[VERTEX_OUTEDGE].split(",");
 			String [] edgelen = data[VERTEX_EDGELEN].split(",");
 			int [] lengths = new int[edges.length];
 
 			if(!vertmap.containsKey(source)) {
-				vertmap.put(source, new DVertex(source));
+				DVertex vtx = new DVertex(source);
+				vertmap.put(source, vtx);
 			}
 
 			// parse edge lengths
@@ -331,6 +334,14 @@ class FileIO {
 			}
 		}
 
+		// assign fullName to each vertex
+		i = _data.values().iterator();
+		while(i.hasNext()) {
+			String [] data = (String []) i.next();
+			DVertex vtx = (DVertex) vertmap.get(data[VERTEX_ID]);
+			vtx.setDisplayId(data[VERTEX_FULLID]);
+		}
+
 		// reuse i - construct the graph
 		graph = new DGraph();
 		i = vertmap.values().iterator();
@@ -369,6 +380,9 @@ class FileIO {
 				}
 			}
 		}
+		
+		// this is a good time to run garbage collector
+		System.gc();
 
 		return graph;
 	}

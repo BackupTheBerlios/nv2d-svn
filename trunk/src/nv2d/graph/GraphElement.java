@@ -21,6 +21,7 @@ package nv2d.graph;
 
 public abstract class GraphElement extends DataStore implements Comparable {
 	private String _id = null;
+	private String _displayId = null;
 	private DataStore _parent = null;
 
 	public GraphElement(String id) {
@@ -34,6 +35,17 @@ public abstract class GraphElement extends DataStore implements Comparable {
 
 	final public String id() {
 		return _id;
+	}
+	
+	public void setDisplayId(String displayId) {
+		_displayId = displayId;
+	}
+	
+	public String displayId() {
+		if(_displayId == null) {
+			return id();
+		}
+		return _displayId;
 	}
 
 	/** Creates a duplicate GraphElement with the same <code>id</code> and

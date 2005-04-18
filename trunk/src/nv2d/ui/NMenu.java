@@ -130,7 +130,7 @@ public class NMenu extends JMenuBar {
 	private JMenu _viewFilter;
 	private JMenuItem _viewFilterDegree;
 	private JCheckBoxMenuItem _viewSouthPanel;
-	private JCheckBoxMenuItem _viewHistoryPanel;
+	private JCheckBoxMenuItem _viewSidePanel;
 	private JCheckBoxMenuItem _viewErrTxt;
 	private JCheckBoxMenuItem _viewOutTxt;
 	
@@ -217,13 +217,13 @@ public class NMenu extends JMenuBar {
 		_viewVis = new JMenu("Visualization");
 		_viewFilter = new JMenu("Graph Filters");
 		_viewFilterDegree = new JMenuItem("Degree Filter");
-		_viewHistoryPanel = new JCheckBoxMenuItem("History", false);
-		_viewSouthPanel = new JCheckBoxMenuItem("Layout Control", true);
+		_viewSidePanel = new JCheckBoxMenuItem("Side Panel", false);
+		_viewSouthPanel = new JCheckBoxMenuItem("Bottom Panel", true);
 		_viewErrTxt = new JCheckBoxMenuItem("Error Messages", true);
 		_viewOutTxt = new JCheckBoxMenuItem("Program Output", true);
 
 		_view.add(_viewSouthPanel);
-		_view.add(_viewHistoryPanel);
+		_view.add(_viewSidePanel);
 		_view.add(_viewErrTxt);
 		_view.add(_viewOutTxt);
 		_view.add(new JSeparator());
@@ -245,9 +245,9 @@ public class NMenu extends JMenuBar {
 				_viewSouthPanelActionPerformed(e);
 			}
 		});
-		_viewHistoryPanel.addActionListener(new ActionListener() {
+		_viewSidePanel.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				_viewHistoryPanelActionPerformed(e);
+				_viewSidePanelActionPerformed(e);
 			}
 		});
 		_viewVLabel.addItemListener(new ItemListener() {
@@ -349,8 +349,8 @@ public class NMenu extends JMenuBar {
 	private void _viewStressItemStateChanged(ItemEvent e) {
 	}
 
-	private void _viewHistoryPanelActionPerformed(ActionEvent e) {
-		_ctl.getView().toggleSidePane(_viewHistoryPanel.getState());
+	private void _viewSidePanelActionPerformed(ActionEvent e) {
+		_ctl.getView().toggleSidePane(_viewSidePanel.getState());
 	}
 		
 	private void _settingsAntialiasItemStateChanged(ItemEvent e) {

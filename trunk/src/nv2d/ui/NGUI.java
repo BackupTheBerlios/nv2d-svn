@@ -28,7 +28,7 @@ public class NGUI implements ViewInterface {
 	private NMenu _menu;
 	private RootPaneContainer _window;
 	
-	private Set _bottomSet, _centerSet, _sideSet;
+	private Vector _bottomSet, _centerSet, _sideSet;
 	private Hashtable _containerNames;
 
 	private Container _historyCtlPanel;
@@ -41,6 +41,9 @@ public class NGUI implements ViewInterface {
 	private Container _gui;
 	
 	boolean _sideVis, _bottomVis;
+	
+	/** These ratios keep track of the sizing in the split-panes. */
+	double _verticalResizeWeight, _horizontalResizeWeight;
 
 	private JComponent _outTextBox, _errTextBox;
 	private NPrintStream _err, _out;
@@ -61,11 +64,14 @@ public class NGUI implements ViewInterface {
 			}
 		}
 		
+		_verticalResizeWeight = 1.0;
+		_horizontalResizeWeight = 0.75;
+		
 		_containerNames = new Hashtable(9);
 		
-		_bottomSet = new HashSet(3);
-		_centerSet = new HashSet(3);
-		_sideSet = new HashSet(3);
+		_bottomSet = new Vector(5);
+		_centerSet = new Vector(5);
+		_sideSet = new Vector(5);
 		
 		_sideVis = false;
 		_bottomVis = true;
@@ -121,9 +127,13 @@ public class NGUI implements ViewInterface {
 	}
 
 	public boolean removeComponent(Container c) {
-		boolean b = (_bottomSet.remove(c) || _centerSet.remove(c) || _sideSet.remove(c));
+		boolean b = removeComponentNoUpdate(c);
 		update();
 		return b;
+	}
+	
+	public boolean removeComponentNoUpdate(Container c) {
+		return (_bottomSet.remove(c) || _centerSet.remove(c) || _sideSet.remove(c));
 	}
 	
 	public void errorPopup(String title, String msg, String extra) {
@@ -138,13 +148,60 @@ public class NGUI implements ViewInterface {
 	private void update() {
 		Iterator j;
 		Container major, minor;
+
+		Component bottomOld = null;
+		Component sideOld = null;
+		Component centerOld = null;
+
+		/* find out which views are displayed and note them */
+		if(_bottom instanceof CloseableTabbedPane) {
+			bottomOld = ((CloseableTabbedPane) _bottom).getSelectedComponent();
+		}
+		if(_side instanceof CloseableTabbedPane) {
+			sideOld = ((CloseableTabbedPane) _side).getSelectedComponent();
+		}
+		if(_center instanceof CloseableTabbedPane) {
+			centerOld = ((CloseableTabbedPane) _center).getSelectedComponent();
+		}
 		
+		// TODO: these two if blocks are still buggy & don't save sizing parameters correctly
+		// save the split-pane resize weights (if there are any) for restoration
+		/*
+		if(_center != null && _center.getParent() instanceof JSplitPane) {
+			JSplitPane jsp = (JSplitPane) _center.getParent();
+			//getDividerSize() getLastDividerLocation() 
+			//_horizontalResizeWeight = (double) jsp.getLastDividerLocation() / (double) jsp.getHeight();
+			System.out.println("set horizontal ratio to " + jsp.getLastDividerLocation());
+		}
+		if(_side != null && _side.getParent() instanceof JSplitPane) {
+			JSplitPane jsp = (JSplitPane) _side.getParent();
+			//_verticalResizeWeight = (double) jsp.getLastDividerLocation() / (double) jsp.getWidth();
+			System.out.println("set vertical ratio to " + jsp.getLastDividerLocation());
+		}
+		*/
+
+		/* build the panes */
 		_bottom = makePane(_bottomSet);
 		_side = makePane(_sideSet);
 		_center = makePane(_centerSet);
-		
-		if(_bottom instanceof JTabbedPane) {
-			((JTabbedPane) _bottom).setTabPlacement(JTabbedPane.BOTTOM);
+
+		/* restore whichever views were open before the update */
+		if(_bottom instanceof CloseableTabbedPane) {
+			CloseableTabbedPane tmpPane = (CloseableTabbedPane) _bottom;
+			tmpPane.setTabPlacement(CloseableTabbedPane.BOTTOM);
+			if(tmpPane.indexOfComponent(bottomOld) >= 0) {
+				tmpPane.setSelectedIndex(tmpPane.indexOfComponent(bottomOld));
+			}
+		}
+
+		if(_side instanceof CloseableTabbedPane && ((CloseableTabbedPane) _side).indexOfComponent(sideOld) >= 0) { 
+			CloseableTabbedPane tmpPane = (CloseableTabbedPane) _side;
+			tmpPane.setSelectedIndex(tmpPane.indexOfComponent(bottomOld));
+		}
+
+		if(_center instanceof CloseableTabbedPane && ((CloseableTabbedPane) _center).indexOfComponent(centerOld) >= 0) { 
+			CloseableTabbedPane tmpPane = (CloseableTabbedPane) _center;
+			tmpPane.setSelectedIndex(tmpPane.indexOfComponent(centerOld));
 		}
 		
 		// Looks like
@@ -158,7 +215,7 @@ public class NGUI implements ViewInterface {
 			minor = new JSplitPane(JSplitPane.VERTICAL_SPLIT,
 					_center, _bottom);
 			((JSplitPane) minor).setDividerSize(2);
-			((JSplitPane) minor).setResizeWeight(1.0);
+			((JSplitPane) minor).setResizeWeight(_verticalResizeWeight);
 		} else {
 			minor = _center;
 		}
@@ -167,7 +224,7 @@ public class NGUI implements ViewInterface {
 			major = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, 
 					minor, _side);
 			((JSplitPane) major).setDividerSize(2);
-			((JSplitPane) major).setResizeWeight(1.0);
+			((JSplitPane) major).setResizeWeight(_horizontalResizeWeight);
 		} else {
 			major = minor;
 		}
@@ -181,18 +238,16 @@ public class NGUI implements ViewInterface {
 	/** If the window list contains only one window, there is no need for
 	 * tabs.  Otherwise, a tabbed pane is built.
 	 */
-	private Container makePane(Set windowList) {
-		Iterator j;
+	private Container makePane(Vector windowList) {
 		if(windowList.size() == 1) {
-			j = windowList.iterator();
-			return (Container) j.next();
+			return (Container) windowList.get(0);
 		} else if (windowList.size() > 1) {
-			Container tabs = new JTabbedPane();
-			j = windowList.iterator();
-			while(j.hasNext()) {
-				Container c = (Container) j.next();
+			CloseableTabbedPane tabs = new CloseableTabbedPane();
+			for (Enumeration e = windowList.elements() ; e.hasMoreElements() ;) {
+				Container c = (Container) e.nextElement();
 				String title = (String) _containerNames.get(c);
 				tabs.add(title, c);
+				tabs.addCloseableTabbedPaneListener(new ViewCloseListener(this, (Component) c));
 			}
 			return tabs;
 		}
@@ -200,18 +255,25 @@ public class NGUI implements ViewInterface {
 	}
 	
 	private boolean registerComponent(Container component, String name, int location) {
-		boolean success = false;
+		Set s = new HashSet(15);
+		s.addAll(_bottomSet);
+		s.addAll(_centerSet);
+		s.addAll(_sideSet);
+		if(s.contains(component)) {
+			return false;
+		}
+
 		if(location == ViewInterface.SIDE_PANEL) {
-			success = _sideSet.add(component);
+			_sideSet.add(component);
 			_containerNames.put(component, name);
 		} else if (location == ViewInterface.BOTTOM_PANEL) {
-			success = _bottomSet.add(component);
+			_bottomSet.add(component);
 			_containerNames.put(component, name);
 		} else if (location == ViewInterface.MAIN_PANEL) {
-			success = _centerSet.add(component);
+			_centerSet.add(component);
 			_containerNames.put(component, name);
 		}
-		return success;
+		return true;
 	}
 
 	private void initComponents() {
@@ -237,5 +299,25 @@ public class NGUI implements ViewInterface {
 		registerComponent(sp1, "Errors", ViewInterface.MAIN_PANEL);
 
 		update();
+	}
+	
+	public class ViewCloseListener implements CloseableTabbedPaneListener {
+		Component _c;
+		ViewInterface _vInterface;
+		
+		public ViewCloseListener(ViewInterface vInterface, Component c) {
+			_c = c;
+			_vInterface = vInterface;
+		}
+		
+		public boolean closeTab(int tabIndexToClose, Component componentToClose) {
+			// System.out.println("---");
+			// System.out.println("   " + componentToClose);
+			// System.out.println("   " + _c);
+			if(componentToClose.equals(_c)) {
+				removeComponentNoUpdate((Container) _c);
+			}
+			return true;
+		}
 	}
 }

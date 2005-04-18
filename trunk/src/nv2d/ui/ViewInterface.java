@@ -49,15 +49,17 @@ public interface ViewInterface {
 	/**
 	 * Add a visual component into the GUI.  This class uses a {@link Set} to keep
 	 * track of all added components.
-	 * @param component a GUI component
+	 * @param c a GUI component
 	 * @param location this interface defines a few fields which can be used for this
 	 *   parameter (i.e. MAIN_PANEL, etc)
 	 * @return a boolean representing whether the component was successfully added
 	 * @see {@link #removeComponent(int)}
 	 */
-	public boolean addComponent(Container component, String name, int location);
+	public boolean addComponent(Container c, String name, int location);
 
-	public boolean removeComponent(Container component);
+	public boolean removeComponent(Container c);
+	
+	public boolean removeComponentNoUpdate(Container c);
 	
 	/**
 	 * Show a warning dialog and log the error message.

@@ -84,3 +84,28 @@ public class HistoryUI extends javax.swing.JPanel {
     // End of variables declaration//GEN-END:variables
 	
 }
+
+class HistoryListRenderer extends javax.swing.DefaultListCellRenderer {
+	public java.awt.Component getListCellRendererComponent(javax.swing.JList list,
+			Object value,
+			int index,
+			boolean isSelected,
+			boolean hasFocus) {
+		final javax.swing.JLabel label =
+				(javax.swing.JLabel)super.getListCellRendererComponent(list,
+				value,
+				index,
+				isSelected,
+				hasFocus);
+		
+		assert(value instanceof HistoryElement);
+		
+		final HistoryElement h = (HistoryElement) value;
+		label.setIcon(h.getIcon());
+		label.setText(h.getDesc());
+		
+		label.setVerticalTextPosition(javax.swing.SwingConstants.TOP);
+		label.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(0, 0, 0), 1, true));
+		return(label);
+	}
+}

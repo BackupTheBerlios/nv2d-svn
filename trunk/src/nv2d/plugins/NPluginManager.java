@@ -43,6 +43,14 @@ public class NPluginManager {
 	// public static final String PLUGIN_DIRECTORY = "./standard/";
 	private static String PLUGIN_DIRECTORY = "nv2d/plugins/standard";
 	
+	public final static String [] DEFAULT_PLUGINS = {
+		"nv2d.plugins.standard.DefaultImporter",
+		"nv2d.plugins.standard.GraphmlImporter",
+		"nv2d.plugins.standard.SNA",
+		"nv2d.plugins.standard.NFileIO",
+		"nv2d.plugins.standard.Orgstudies"
+	};
+	
 	private static Set _securityList;
 	
 	private int verbose = 0;
@@ -209,7 +217,44 @@ public class NPluginManager {
 		}
 	}
 	
-	private boolean load(ClassLoader loader, String fullpath) {
+	/** Load and register a local plugin. */
+	public boolean load(String className) {
+		String pname = className.substring(className.lastIndexOf(".") + 1, className.length());
+		boolean success = false;
+		
+		if(pluginRegistry.containsKey(pname) || ioRegistry.containsKey(pname)) {
+			// don't reload plugins
+			System.err.println("Warning: plugin with name [" + pname + "] already loaded.  Ignoring.");
+			return false;
+		}
+		
+		try {
+			Class c = Class.forName(className);
+			NV2DPlugin s = (NV2DPlugin) c.newInstance();
+			register(s.name(), s);
+			success = true;
+			System.out.println("Loaded plugin [" + pname + "]");
+		} catch (InstantiationException ex) {
+			if(verbose > 2) {
+				System.err.println("  The plugin [" + pname + "] could not be instantiated");
+				System.err.println(ex.toString());
+			}
+		} catch (IllegalAccessException ex) {
+			if(verbose > 2) {
+				System.err.println("  There was an IllegalAccessException while loading plugin [" + pname + "]");
+				System.err.println(ex.toString());
+			}
+		} catch(LinkageError error) {
+			System.err.println("  The plugin [" + className + "] could not be linked");
+			System.err.println(error.toString());
+		} catch(ClassNotFoundException error) {
+			System.err.println("  The plugin [" + className + "] could not be found");
+			System.err.println(error.toString());
+		}
+		return success;
+	}
+	
+	public boolean load(ClassLoader loader, String fullpath) {
 		boolean success = false;
 		String pname = extractName(fullpath);
 		String fullname = extractPath(fullpath);
