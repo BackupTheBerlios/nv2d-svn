@@ -26,10 +26,12 @@ import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
+import java.awt.Component;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.lang.Math;
 import java.awt.image.BufferedImage;
@@ -130,14 +132,13 @@ public class RenderBox extends Display {
 		//  the item registry stores all the visual
 		//  representations of different graph elements
 		super(new ItemRegistry(new DefaultGraph(true)));
-
-	    //System.out.println("RenderBox Constructor");
 	    
 		// establish settings controller
 		_settings = new RenderSettings();
 		_pFactory = PopupFactory.getSharedInstance();
 		
 		_ctl = ctl;
+
 		// setup the popup menu for vertices
 		_vertexMenu = new PopupMenu();
 		_lastItemClicked = null;
@@ -163,22 +164,17 @@ public class RenderBox extends Display {
 	}
 
 	// TODO
-	// this is a bad quick fix.  It requires that the caller of this (LayoutPlugin)
-	// have synchronized action lists and be responsible for cancelling an action
-	// when a new graph is opened while the current graph has a running action list
+	// this will be removed in the next version
 	public void setExternalLayoutHandler(ActionList init_actions, boolean resetLayout) {
 	    if(resetLayout) {
 	        _layoutRunning = false;
 	    }
 	    
-	    //System.out.println("Setting External Layout Handler");
 	    _isExternalLayoutHandler = true;
 
 	    if(!_layoutRunning) {
-	        //System.out.println(" - layout not running, set layout to LP");
 	        setLayout(init_actions);
 	    }
-	    //else System.out.println(" - dont set, layout running");
 	}
 
 	public void useLegendColoring() {
@@ -222,21 +218,6 @@ public class RenderBox extends Display {
 	}
 	
 	public void initialize(Graph g) {
-	    //System.out.println("-- RENDERBOX Initialize() --");
-	    
-	    // TODO
-	    // if layout is running, stop it and reset
-/*		if(_layoutRunning) {
-		    System.out.println(" - layout is running");
-		    try {
-		        System.out.println("    - cancelling layout");
-		        _actions.cancel();
-		    }
-		    catch (Exception e) {System.out.println("    - EXCEPTION: " + e);}
-			_layoutRunning = false;
-		}
-		else { System.out.println(" - no layout running");}*/
-	    
 		_g = g;
 		_registry = getRegistry();
 		_registry.setGraph(new PGraph(g));
@@ -247,21 +228,10 @@ public class RenderBox extends Display {
 		// Initialize built-in Layouts
 		initStandardLayouts();
 		if (!_layoutRunning && !_isExternalLayoutHandler) {
-		    //System.out.println("  - setting actions to RB.forcedir");
 		    _actions = _fd_actions;		// set Force Directed as default
 		}
 
 	    _empty = false;
-	    
-	    if(_first_initialization) {
-	        //System.out.println("- Run actionlist on first init");
-	        // always have Repaint and Color Actions running
-	        ActionList a = new ActionList(_registry, -1, 20);
-	        a.add(new RepaintAction());
-	        a.add(_colorizer);
-	        a.add(_legendColorizer);
-	        a.runNow();
-	    }
 	    
 		// Begin by randomly setting all the items
 		doSemiRandomLayout();
@@ -269,8 +239,6 @@ public class RenderBox extends Display {
 		_first_initialization = false;
 	}
 
-	// TODO: RepaintAction() is probably run much more than necessary
-	// -bs
 	private void initStandardLayouts() {
 		// Semi-Random Layout
 		_semiRandomLayout = new SemiRandomLayout(_ctl);		
@@ -318,13 +286,11 @@ public class RenderBox extends Display {
 	}
 	
 	public void setLayout(ActionList a) {
-	    //System.out.println("SET LAYOUT");
 	    stopLayout();
 	    _actions = a;
 	}
 	
 	public void startLayout() {
-	    //System.out.println("START LAYOUT");
 		if(_empty || _layoutRunning) {
 			return;
 		}
@@ -338,24 +304,22 @@ public class RenderBox extends Display {
 	// time things get clicked though so i bet it's another
 	// thread issue -bs
 	public void stopLayout() {
-	    //System.out.println("STOP LAYOUT;"); // empty= " + _empty + " running= " + _layoutRunning);
 		if(_empty) {
-		    //System.out.println(" - Graph Empty");
 			return;
 		}
-		//
+
 		if(_layoutRunning) {
-		    //System.out.println(" - layout is running");
 		    try {
-		        //System.out.println("  - cancelling layout");
 		        _actions.cancel();
+				_layoutRunning = false;
 		    }
-		    catch (Exception e) {System.out.println("  - EXCEPTION:" + e);}
-			_layoutRunning = false;
+		    catch (Exception e) {
+		        e.printStackTrace();
+		    }
 		}
-		//else { System.out.println(" - layout is not running");}
 	}
 
+	
 	/** Randomly place the vertices of a graph on the drawing surface. */
 	public void doRandomLayout() {
 		if(_empty) {
@@ -375,12 +339,7 @@ public class RenderBox extends Display {
 		if(_empty) {
 			return;
 		}
-//	    ActionList a = new ActionList(_registry);
-//		if(!_layoutRunning) {
-//		    // start a run-once action list
-//		    a.add(new RepaintAction());
-//		    a.runNow();
-//		}
+
 		int ct = 0;
 		double x = 0, y = 0;
 		Iterator nodeIter = _registry.getNodeItems();
@@ -395,6 +354,29 @@ public class RenderBox extends Display {
 		panToAbs(new java.awt.geom.Point2D.Double(x, y));
 	}
 	
+	/**
+	 * Saves an image by opening a file chooser and saving to specified 
+	 * disk location
+	 */
+	public void handleSaveImage() {
+	    // Ensure layout is not running
+	    stopLayout();
+
+	    // create file chooser and show dialog
+	    javax.swing.JFileChooser fc = new javax.swing.JFileChooser();
+	    int returnVal = fc.showSaveDialog(this);
+	    if (returnVal == javax.swing.JFileChooser.APPROVE_OPTION) {
+	        File file = fc.getSelectedFile();
+		    try {
+		        this.saveImage(new FileOutputStream(file), "JPG", 1.0);
+		    }
+		    catch (Exception e) {
+		        e.printStackTrace();
+		    }
+	    }
+	}
+
+    
 	/** TODO: Saves the current visualization to a PNG or JPEG file.
 	 *
 	 * @param filename	the name of the file to save to.
