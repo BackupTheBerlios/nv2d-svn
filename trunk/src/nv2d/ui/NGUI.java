@@ -160,6 +160,30 @@ public class NGUI implements ViewInterface {
 			JOptionPane.WARNING_MESSAGE);
 	}
 	
+	public boolean setComponentVisible(Container c) {
+		update();
+		
+		if(_bottomSet.contains(c)) {
+			toggleBottomPane(true);
+			if(_side instanceof JTabbedPane) {
+				((JTabbedPane) _bottom).setSelectedIndex(((JTabbedPane) _bottom).indexOfComponent(c));
+			}
+			return true;
+		} else if (_centerSet.contains(c)) {
+			if(_center instanceof JTabbedPane) {
+				((JTabbedPane) _center).setSelectedIndex(((JTabbedPane) _center).indexOfComponent(c));
+			}
+			return true;
+		} else if (_sideSet.contains(c)) {
+			toggleSidePane(true);
+			if(_side instanceof JTabbedPane) {
+				((JTabbedPane) _side).setSelectedIndex(((JTabbedPane) _side).indexOfComponent(c));
+			}
+			return true;
+		}
+		return false;
+	}
+	
 	/** Rebuild the layout */
 	private void update() {
 		Iterator j;

@@ -152,11 +152,6 @@ public class RenderBox extends Display {
 		addControlListener(new PanControl());
 		addControlListener(new ZoomControl());
 
-		_colorizer = new Colorizer();
-		_legendColorizer = new LegendColorizer();
-		_colorizer.setEnabled(true);
-		_legendColorizer.setEnabled(false);
-
 		_empty = true;
 		_layoutRunning = false;
 		_isExternalLayoutHandler = false;
@@ -221,6 +216,12 @@ public class RenderBox extends Display {
 		_g = g;
 		_registry = getRegistry();
 		_registry.setGraph(new PGraph(g));
+		
+		_colorizer = new Colorizer();
+		_legendColorizer = new LegendColorizer(_ctl);
+
+		_colorizer.setEnabled(true);
+		_legendColorizer.setEnabled(false);
 		
 		// antialias?
 		setHighQuality(_settings.getBoolean(RenderSettings.ANTIALIAS));

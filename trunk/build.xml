@@ -23,11 +23,14 @@
 	</target>
 
 	<target name="help">
-		<echo message="Build NV2D"/>
-		<echo message="   build - build the project JAR archives"/>
+		<echo message="ANT Targets"/>
+		<echo message="   build - build the project (class files are in ${build.dir})"/>
+		<echo message="   buildtests - build the JUnit tests (class files are in ${build.dir})"/>
 		<echo message="   clean - clean up class files"/>
-		<echo message="   help - display target descriptions"/>
+		<echo message="   help - display this message"/>
+		<echo message="   nv2d - build and run the standalone application"/>
 		<echo message="   prepare - prepare the necesasry directories and files necessary for build"/>
+		<echo message="   test - run unit tests"/>
 	</target>
 
 	<target name="prepare">

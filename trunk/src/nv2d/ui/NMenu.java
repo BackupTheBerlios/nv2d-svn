@@ -99,9 +99,10 @@ public class NMenu extends JMenuBar {
 			_legend.add(item);
 			item.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
+					ColorLegendUI colorLegendUI = new ColorLegendUI(map.getLegend(name));
 					map.getLegend(name).assignColors();
-					_ctl.getView().addComponent(new ColorLegendUI(map.getLegend(name)), "Legend", ViewInterface.SIDE_PANEL);
-					_viewLegendMenuActionPerformed(e);
+					// _ctl.getView().addComponent(new ColorLegendUI(map.getLegend(name)), "Legend", ViewInterface.SIDE_PANEL);
+					_viewLegendMenuActionPerformed(e, colorLegendUI);
 				}
 			});
 		}
@@ -377,12 +378,24 @@ public class NMenu extends JMenuBar {
 		_renderbox.getRenderSettings().setBoolean(RenderSettings.ANTIALIAS, _settingsAntialias.getState());
 		_renderbox.setHighQuality(_settingsAntialias.getState());	
 	}
-	
-	private void _viewLegendMenuActionPerformed(ActionEvent e) {
+
+	private ColorLegendUI _oldColorLegendUI;
+	/**
+	 * Use the <code>_oldColorLegendUI</code> to make sure that only one legend
+	 * panel is open at any given time.
+	 */
+	private void _viewLegendMenuActionPerformed(ActionEvent e, ColorLegendUI clu) {
+		if(_oldColorLegendUI != null) {
+			_ctl.getView().removeComponentNoUpdate(_oldColorLegendUI);
+		}
+		_ctl.getView().addComponentNoUpdate(clu, "Legend", ViewInterface.SIDE_PANEL);
+		_ctl.getView().setComponentVisible(clu);
+		_oldColorLegendUI = clu;
 		_renderbox.useLegendColoring();
 	}
 	
 	private void _legendDefaultColoringActionPerformed(ActionEvent e) {
+		_oldColorLegendUI = null;
 		_renderbox.useDefaultColoring();
 	}
 }

@@ -38,9 +38,9 @@ public class DataStoreTest extends TestCase {
 		super(name);
 	}
 
-	public static void main(String args[]) {
-		junit.textui.TestRunner.run(DataStoreTest.class);
-	}
+	//public static void main(String args[]) {
+	//	junit.textui.TestRunner.run(DataStoreTest.class);
+	//}
 
 	protected void setUp() {
 		A = new DataStore();
