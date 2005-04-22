@@ -87,13 +87,6 @@ public interface NController {
 	 */
 	public DegreeFilter getDegreeFilter();
 	
-	/**
-	 * Returns a Frame or Applet depending on the top level container.
-	 * @param returns a {@link java.awt.Frame} or {@link java.awt.Applet} object
-	 * @deprecated Please use <code>getView().getWindow()</code>
-	 */
-	public RootPaneContainer getWindow();
-	
 	// other accessors
 	/**
 	 * Returns the instance of the plugin manager.
@@ -122,32 +115,6 @@ public interface NController {
 	 */
 	public void runFilter(Object [] args, boolean wholeSet);
 	
-	// UI controls
-	/**
-	 * Toggle the Output tab.
-	 * @param b On/Off
-	 * @deprecated This method is scheduled for removal
-	 */
-	public void displayOutTextBox(boolean b);
-	/**
-	 * Toggle the Error Messages tab.
-	 * @param b On/Off
-	 * @deprecated This method is scheduled for removal
-	 */
-	public void displayErrTextBox(boolean b);
-	
-	/**
-	 * Get the instance of the main menu.
-	 * @return a {@link NMenu} object.
-	 * @deprecated Please use <code>getView().getMenu()</code>
-	 */
-	public JMenuBar getMenu();
-	/**
-	 * Get the instance of the JComponent containing the top level center GUI component.
-	 * @return the center container in the GUI
-	 * @deprecated Please use <code>getView().getCenterPane()</code>
-	 */
-	
 	/**
 	 * Get the Graph history
 	 */
@@ -165,13 +132,4 @@ public interface NController {
 	 * @param url path to a JAR archvie.
 	 */
 	public void loadModules(String url);
-	
-	/**
-	 * Show a warning dialog and log the error message.
-	 * @param title the title of the dialog window
-	 * @param msg error message to be logged and shown
-	 * @param extra details about the error
-	 * @deprecated Please use <code>getView().errorPopup(...)</code>
-	 */
-	public void errorPopup(String title, String msg, String extra);
 }

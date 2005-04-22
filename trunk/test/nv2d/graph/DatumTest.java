@@ -17,14 +17,13 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-package nv2d.testsuit.graph;
+package nv2d.graph;
 
 import java.lang.IllegalArgumentException;
 import java.awt.Color;
 
 import junit.framework.TestCase;
 
-import nv2d.graph.Datum;
 
 public class DatumTest extends TestCase {
 	private Datum a;

@@ -698,7 +698,7 @@ public class RenderBox extends Display {
 				public void actionPerformed(ActionEvent e) {
 					Vertex v = ((PNode) _lastItemClicked.getEntity()).v();
 					if(v.equals(_apspSource)) {
-						_ctl.errorPopup("Path Error",
+						_ctl.getView().errorPopup("Path Error",
 								"You picked the same node " + _apspSource.id() + " to be the source and destination.",
 								null);
 						return;
@@ -707,7 +707,7 @@ public class RenderBox extends Display {
 					Path p = _g.shortestPath(_apspSource, v);
 					
 					if(p == null) {
-						_ctl.errorPopup("Path Error",
+						_ctl.getView().errorPopup("Path Error",
 								"There is no path from " + _apspSource.id() + " to " + v.id() + ".",
 								null);
 						return;

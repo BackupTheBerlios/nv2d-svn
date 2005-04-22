@@ -331,7 +331,7 @@ public class NMenu extends JMenuBar {
 		JDialog _degreeFilterDialog = DegreeFilterUI.getJDialog(_ctl);
 		if(_degreeFilterDialog != null) {
 			_degreeFilterDialog.pack();
-			_degreeFilterDialog.show();
+			_degreeFilterDialog.setVisible(true);
 		}
 	}
 

@@ -44,7 +44,7 @@ public class DegreeFilterUI {
 		final NController ctl = nctl;
 		
 		if(g == null) {
-			nctl.errorPopup("No Graph Loaded", "You must load a graph before using a filter.", null);
+			nctl.getView().errorPopup("No Graph Loaded", "You must load a graph before using a filter.", null);
 			return null;
 		}
 		

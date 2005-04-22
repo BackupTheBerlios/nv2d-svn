@@ -1,9 +1,21 @@
-For testing, use the following
+Testing:
 
-In Windows, in a batch file, place the following:
----
-@echo off
-"c:\Program Files\Java\jre1.5.0_01\bin\java.exe" nv2d.ui.NV2DMain nv2d/plugins/standard Test1IO
----
+The ANT build file supports Clover (http://www.cenqua.com/clover/) coverage
+utility.  To take advantage of the Clover coverage facilities, do the
+following:
 
-In Linux, use ANT
+1. Add lib/clover.jar to your ANT_HOME directory (under unix systems, this
+   can be '~/.ant/lib').  You must have a license.  Open Source developers
+   can apply for a free license.
+2. Run 'ant with.clover build'
+3. Run 'ant with.clover nv2d' and perform coverage tests.
+4. Run 'ant with.clover clover.html' to generate the coverage report.
+
+
+
+Credits
+Bo Shi
+Sam Prentice
+
+Thanks to:
+Jeffrey Heer (author of the excellent Prefuse library)

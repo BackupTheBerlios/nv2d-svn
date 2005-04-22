@@ -7,10 +7,10 @@
 	<!-- directories and files -->
 	<property name="build.dir" value="./build"/>
 	<property name="src.dir" value="./src"/>
+	<property name="test.dir" value="./test"/>
 	<property name="dist.dir" value="./dist"/>
-	<property name="ctags.file" value="./src/.tags"/>
 
-        <target name="javadoc">
+	<target name="javadoc">
             <javadoc packagenames="nv2d.*"
                 sourcepath="${src.dir}"
                 destdir="${dist.dir}/api"
@@ -26,39 +26,38 @@
 		<echo message="Build NV2D"/>
 		<echo message="   build - build the project JAR archives"/>
 		<echo message="   clean - clean up class files"/>
-		<echo message="   ctags - build tags database"/>
 		<echo message="   help - display target descriptions"/>
 		<echo message="   prepare - prepare the necesasry directories and files necessary for build"/>
-	</target>
-
-	<target name="ctags">
-		<exec executable="ctags">
-			<arg line="--recurse=yes"/>
-			<arg line="--links=yes"/>
-			<arg line="--java-types=cimp"/>
-			<arg line="-f ${ctags.file}"/>
-		</exec>
 	</target>
 
 	<target name="prepare">
 		<mkdir dir="${build.dir}"/>
 		<mkdir dir="${dist.dir}"/>
 		<tstamp/>
-			<echo message="${TSTAMP}"/>
+		<echo message="${TSTAMP}"/>
 	</target>
 
 	<target name="build" depends="prepare">
-		<!-- classpath="./lib/colt.jar:./lib/commons-collections-3.0.jar:./lib/junit.jar:./lib/piccolo.jar:./lib/piccolox.jar" -->
-		<!-- classpath="./lib/commons-collections-3.0.jar:./lib/junit.jar:./lib/prefuse.jar:./lib/prefusex.jar" -->
 		<javac srcdir="${src.dir}"
-			classpath="./lib/junit.jar:./lib/prefuse.jar"
+			classpath="./lib/prefuse.jar"
+			destdir="${build.dir}"
+			target="1.4"
+			source="1.4"
+			debug="on"
+			deprecation="on">
+		</javac>
+	</target>
+	
+	<target name="buildtests" depends="build">
+		<javac srcdir="${test.dir}"
+			classpath="./lib/junit.jar:./lib/prefuse.jar:${build.dir}"
 			destdir="${build.dir}"
 			target="1.4"
 			source="1.4"
 			debug="on">
 		</javac>
 	</target>
-        
+
 	<target name="jar"
 		depends="build"
 		description="Jar Classes">
@@ -77,7 +76,6 @@
 		</delete>
 		<delete dir="${build.dir}"/>
 		<delete dir="${dist.dir}"/>
-		<delete file="${ctags.file}"/>
 	</target>
 
 	<target name="nv2d" depends="build">
@@ -89,36 +87,41 @@
 		</java>
 	</target>
 
-	<target name="applet" depends="build">
-		<java fork="yes" classname="nv2d.ui.NApplet">
-            <classpath>
-                <pathelement location="./build" />
-				<pathelement location="./lib/prefuse.jar" />
-            </classpath>
-		</java>
+	<taskdef resource="clovertasks"/>
+
+	<target name="with.clover">
+		<clover-setup initString="mycoverage.db"/>
 	</target>
 
-	<!-- currently disabled because the test code got moved to
-	     another directory
-	<target name="unittest" depends="build">
-        <java fork="yes" classname="nv2d.testsuit.graph.DataStoreTest">
-            <classpath>
-                <pathelement location="./lib/junit.jar" />
-                <pathelement location="./build" />
-            </classpath>
-        </java>
-        <java fork="yes" classname="nv2d.testsuit.graph.DatumTest">
-            <classpath>
-                <pathelement location="./lib/junit.jar" />
-                <pathelement location="./build" />
-            </classpath>
-        </java>
-        <java fork="yes" classname="nv2d.testsuit.algorithms.DijkstraTest">
-            <classpath>
-                <pathelement location="./lib/junit.jar" />
-                <pathelement location="./build" />
-            </classpath>
-        </java>
-    </target> -->
+	<target name="clover.html" depends="with.clover">
+		<clover-report>
+			<current outfile="clover_html">
+				<format type="html"/>
+			</current>
+		</clover-report>
+	</target>
 
+	<target name="coverage" depends="build">
+		<java fork="yes" classname="nv2d.ui.NV2DMain">
+			<classpath>
+				<pathelement path="./build"/>
+				<pathelement path="./lib/clover.jar"/>
+				<pathelement path="./lib/prefuse.jar"/>
+			</classpath>
+		</java>
+	</target>
+	
+	<target name='test' depends='buildtests'
+		description='Run unit tests in non-graphical mode'>
+	    <junit printsummary='true' haltonfailure='true'>
+		<formatter type='brief' usefile='false'/>
+		<classpath>
+		    <pathelement path='${build.dir}'/>
+		    <fileset dir='./lib'/>
+		</classpath>
+		<batchtest>
+		    <fileset dir='${build.dir}' includes='**/*Test.class'/>
+		</batchtest>
+	    </junit>
+	</target>
 </project>

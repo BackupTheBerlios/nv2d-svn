@@ -78,7 +78,7 @@ public class PopupProp extends JPanel {
 		JLabel l = new JLabel(str.length() > 32 ? str.substring(0, 31) + "..." : str);
 		l.setToolTipText("Open location [" + str + "]");
 		l.setForeground(Color.BLUE);
-		if(_ctl.getWindow() instanceof Applet) {
+		if(_ctl.getView().getRootPaneContainer() instanceof Applet) {
 			l.addMouseListener(new MouseListener() {
 				public void mousePressed(MouseEvent e) {}
 				public void mouseReleased(MouseEvent e) {}
@@ -93,7 +93,7 @@ public class PopupProp extends JPanel {
 	}
 	
 	private void _openURLActionHandler(URL url) {
-		AppletContext act = ((Applet) _ctl.getWindow()).getAppletContext();
+		AppletContext act = ((Applet) _ctl.getView().getRootPaneContainer()).getAppletContext();
 		act.showDocument(url, "nv2dnetshow");
 	}
 	

@@ -222,7 +222,7 @@ public class Orgstudies implements NV2DPlugin, FilterInterface {
 		if(_inited) {
 			new OrgstudiesUI(new java.awt.Frame(), _ctl, this).setVisible(true);
 		} else {
-			_ctl.errorPopup(
+			_ctl.getView().errorPopup(
 					"Orgstudies",
 					"You need an Orgstudies dataset in order to use the Orgstudies time filter",
 					null);
