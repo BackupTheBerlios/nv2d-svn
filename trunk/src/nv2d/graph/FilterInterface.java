@@ -19,8 +19,6 @@
 
 package nv2d.graph;
 
-/* TODO: This thing is majorly fucked up
- * This interface is used by NController to filter graphs. */
 public interface FilterInterface {
 	/**
 	 * Provide the filter with a graph object and any arguments required.

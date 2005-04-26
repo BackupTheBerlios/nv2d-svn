@@ -61,6 +61,11 @@ public class UVertex extends Vertex implements Serializable {
 
 	public GraphElement clone(Graph destGraph) {
 		UVertex v = new UVertex(id());
+		if(destGraph != getParent()) {
+			v.setParent(destGraph);
+		} else {
+			return null;
+		}
 		Set attr = getDatumSet();
 		v.setDisplayId(displayId());
 		Iterator i = attr.iterator();
@@ -74,6 +79,10 @@ public class UVertex extends Vertex implements Serializable {
 		return v;
 	}
 
+	/**
+	 * This method adds an edge to the edge registry.  It should not be used
+	 * by client programs.
+	 */
 	public void addEdge(Edge e) {
 		// make sure arguments are okay
 		if(e instanceof UEdge && e.getEnds().contains(this)) {
@@ -83,7 +92,11 @@ public class UVertex extends Vertex implements Serializable {
 
 		throw new IllegalArgumentException("Could not add edge to this vertex");
 	}
-	
+
+	/**
+	 * This method removes an edge from the edge registry.  It should not be used
+	 * by client programs.
+	 */
 	public boolean removeEdge(Edge e) {
 		return _edges.remove(e);
 	}

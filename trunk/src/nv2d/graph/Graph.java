@@ -100,7 +100,8 @@ public abstract class Graph extends DataStore {
 
 	/** Find the edge length between two vertices.  If they are not
 	 * adjacent, return 0. */
-	public abstract double edgeLen(Vertex source, Vertex dest);
+	public abstract double edgeLen(Vertex source, Vertex dest)
+			throws IllegalArgumentException;
 
 	/** Create a new graph of this type (mainly for filters). */
 	public abstract Graph newInstance();

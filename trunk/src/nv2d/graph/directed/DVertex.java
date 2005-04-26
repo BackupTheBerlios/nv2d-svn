@@ -68,6 +68,7 @@ public class DVertex extends Vertex implements Serializable {
 	public GraphElement clone(Graph destGraph) {
 		DVertex v = new DVertex(id());
 		v.setDisplayId(displayId());
+		v.setParent(destGraph);
 		Set attr = getDatumSet();
 		Iterator i = attr.iterator();
 		while(i.hasNext()) {

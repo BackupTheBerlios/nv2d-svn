@@ -349,7 +349,6 @@ public class NMenu extends JMenuBar {
 	}
 
 	private void _viewOutTxtActionPerformed(ActionEvent e) {
-		// TODO: this button should not be a checkbozx
 		if(!_ctl.getView().contains(_ctl.getViewFactory().getConsolePane())) {
 			_ctl.getView().addComponent(_ctl.getViewFactory().getConsolePane(), "Console", ViewInterface.MAIN_PANEL);
 		}

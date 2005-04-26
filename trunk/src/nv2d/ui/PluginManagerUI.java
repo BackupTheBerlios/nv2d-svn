@@ -223,7 +223,6 @@ public class PluginManagerUI extends javax.swing.JDialog {
     }//GEN-END:initComponents
 	
     private void _loadExecActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event__loadExecActionPerformed
-		// TODO add your handling code here:
 		String url = _loadURI.getText();
 		_ctl.loadModules(url);
 		

@@ -32,6 +32,9 @@ public class LegendColorizer extends ColorFunction {
 	public Paint getFillColor(VisualItem i) {
 		if(i.getEntity() instanceof PNode) {
 			PNode p = (PNode) i.getEntity();
+			
+			// TODO: this is a performance bottleneck (runs binary search)
+			// A possible fix is to use a normal datum.
 			Vertex v = _model.findVertex(p.v().id());
 			Datum d = null;
 			

@@ -41,6 +41,7 @@ public class UGraph extends nv2d.graph.Graph {
 	public UGraph() {
 		_e = new HashSet();
 		_v = new HashSet();
+		_indecized = false;
 	}
 	
 	public Set getEdges() {
@@ -64,8 +65,11 @@ public class UGraph extends nv2d.graph.Graph {
 	}
 
 	public double edgeLen(Vertex source, Vertex dest) {
+		if(!_v.contains(source) || !_v.contains(dest)) {
+			throw new IllegalArgumentException("UGraph.edgeLen(): source or target does not exist in this graph");
+		}
 		if (!source.neighbors().contains(dest)) {
-			return 0.0;
+			throw new IllegalArgumentException("UGraph.edgeLen(): invalid source or target vertex");
 		}
 		Set edges = source.outEdges();
 		Iterator i = edges.iterator();
@@ -75,9 +79,7 @@ public class UGraph extends nv2d.graph.Graph {
 				return e.length();
 			}
 		}
-		// we should never reach here.
-		assert(false);
-		return 0.0;
+		throw new IllegalArgumentException("UGraph.edgeLen(): edge(" + source + ", " + dest + ") does not exist");
 	}
 
 	public Graph newInstance() {
@@ -101,13 +103,15 @@ public class UGraph extends nv2d.graph.Graph {
 	}
 
 	public boolean add(GraphElement ge) {
+		if(_e.contains(ge) || _v.contains(ge)) {
+			return false;
+		}
+
 		_indecized = false;
-		// if(ge.getClass() == DVertex.class) {
 		if(ge instanceof UVertex) {
 			ge.setParent(this);
 			return _v.add(ge);
 		}
-		// if(ge.getClass() == DEdge.class) {
 		if(ge instanceof UEdge) {
 			Pair ends = ((UEdge) ge).getEnds();
 			((UVertex) ends.car()).addEdge((UEdge) ge);
@@ -120,17 +124,21 @@ public class UGraph extends nv2d.graph.Graph {
 		return false;
 	}
 
-	/* TODO: unfinished */
 	public boolean remove(GraphElement ge) {
-		if(!_v.contains(ge) || !_e.contains(ge)) {
+		_indecized = false;
+		if(!_v.contains(ge) && !_e.contains(ge)) {
 			return false;
 		}
 		
+		ge.setParent(null);
+		
 		if(ge instanceof UVertex) {
 			// outEdges() is identical to inEdges()
-			Iterator i = ((UVertex) ge).outEdges().iterator();
-			while(i.hasNext()) {
-				removeEdge((UEdge) i.next());
+			// can't use Iterator because removeEdge modifies the outEdges() set
+			// which causes a ConcurrentModificationException
+			Object [] outEdges = ((UVertex) ge).outEdges().toArray();
+			for(int j = 0; j < outEdges.length; j++) {
+				removeEdge((UEdge) outEdges[j]);
 			}
 			_v.remove(ge);
 		} else if (ge instanceof UEdge) {
@@ -139,8 +147,8 @@ public class UGraph extends nv2d.graph.Graph {
 		return false;
 	}
 	
-	/** Remove an edge from this graph.  This method assumes that the edge exists.
-	 * 
+	/**
+	 * Remove an edge from this graph.  This method assumes that the edge exists.
 	 * @param e the <code>UEdge</code> to remove
 	 */
 	private void removeEdge(UEdge e) {
@@ -155,6 +163,8 @@ public class UGraph extends nv2d.graph.Graph {
 
 		_indecized = false;
 		_vertexIndex = null;
+		
+		System.gc();
 	}
 	
 	private void indecize() {

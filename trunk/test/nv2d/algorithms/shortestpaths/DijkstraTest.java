@@ -22,110 +22,110 @@ import nv2d.graph.directed.DEdge;
  * @author bshi
  */
 public class DijkstraTest extends TestCase {
-    static public final double TOLERANCE = 5e-5;
-    DGraph _g1;
-    
-    public DijkstraTest(String testName) {
-	super(testName);
-    }
-    
-    protected void setUp() throws java.lang.Exception {
-        _g1 = makeDGraphOne();
-    }
-    
-    protected void tearDown() throws java.lang.Exception {
-    }
-    
-    public static junit.framework.Test suite() {
-	junit.framework.TestSuite suite = new junit.framework.TestSuite(DijkstraTest.class);
+	static public final double TOLERANCE = 5e-5;
+	DGraph _g1;
 	
-	return suite;
-    }
-    
-    /**
-     * Test of getPath method, of class nv2d.algorithms.shortestpaths.Dijkstra.
-     */
-    public void testGetPath() {
-	System.out.println("testGetPath");
-	
-	// TODO add your test code below by replacing the default call to fail.
-	System.out.println("   The test case is empty.");
-    }
-    
-    /**
-     * Test of init method, of class nv2d.algorithms.shortestpaths.Dijkstra.
-     */
-    public void testInit() {
-	System.out.println("testInit");
-	
-	// TODO add your test code below by replacing the default call to fail.
-	System.out.println("   The test case is empty.");
-    }
-    
-    /**
-     * Test of run method, of class nv2d.algorithms.shortestpaths.Dijkstra.
-     */
-    public void testRun() {
-	System.out.println("testRun");
-	
-	// TODO add your test code below by replacing the default call to fail.
-	System.out.println("   The test case is empty.");
-    }
-    
-    // TODO add test methods here. The name must begin with 'test'. For example:
-    public void testDistances() {
-	DGraph g = _g1;
-	Dijkstra algorithm = new Dijkstra(g);
-	
-	DVertex source = null;
-	try {
-	    source = (DVertex) findNode(g, "a");
-	} catch (Exception e) {
-	    // System.out.println("Could not find node [a]");
-	    // inform JUnit there was an error
-	    assertTrue(false);
+	public DijkstraTest(String testName) {
+		super(testName);
 	}
 	
-	// System.out.println("Using Vertex [" + source.id() + "] as the source");
+	protected void setUp() throws java.lang.Exception {
+		_g1 = makeDGraphOne();
+	}
 	
-	algorithm.init(g, source);
-	algorithm.run();
+	protected void tearDown() throws java.lang.Exception {
+	}
 	
-	// check values (source is 'a')
-	// a->0
-	// b->4
-	// c->22
-	// d->63
-	// e->16
-	// f->42
-	// g->51
-	// h->49
-	// i->53
-	// j->34
+	public static junit.framework.Test suite() {
+		junit.framework.TestSuite suite = new junit.framework.TestSuite(DijkstraTest.class);
+		
+		return suite;
+	}
 	
-	Double va = (Double) findNode(g, "a").getDatum(AlgConst.DATUM_DIJKSTRA_D).get();
-	Double vb = (Double) findNode(g, "b").getDatum(AlgConst.DATUM_DIJKSTRA_D).get();
-	Double vc = (Double) findNode(g, "c").getDatum(AlgConst.DATUM_DIJKSTRA_D).get();
-	Double vd = (Double) findNode(g, "d").getDatum(AlgConst.DATUM_DIJKSTRA_D).get();
-	Double ve = (Double) findNode(g, "e").getDatum(AlgConst.DATUM_DIJKSTRA_D).get();
-	Double vf = (Double) findNode(g, "f").getDatum(AlgConst.DATUM_DIJKSTRA_D).get();
-	Double vg = (Double) findNode(g, "g").getDatum(AlgConst.DATUM_DIJKSTRA_D).get();
-	Double vh = (Double) findNode(g, "h").getDatum(AlgConst.DATUM_DIJKSTRA_D).get();
-	Double vi = (Double) findNode(g, "i").getDatum(AlgConst.DATUM_DIJKSTRA_D).get();
-	Double vj = (Double) findNode(g, "j").getDatum(AlgConst.DATUM_DIJKSTRA_D).get();
+	/**
+	 * Test of getPath method, of class nv2d.algorithms.shortestpaths.Dijkstra.
+	 */
+	public void testGetPath() {
+		System.out.println("testGetPath");
+		
+		// TODO add your test code below by replacing the default call to fail.
+		System.out.println("   The test case is empty.");
+	}
 	
-	assertTrue(withinBounds((double) va.doubleValue(), 0.0));
-	assertTrue(withinBounds((double) vb.doubleValue(), 4.0));
-	assertTrue(withinBounds((double) vc.doubleValue(), 22.0));
-	assertTrue(withinBounds((double) vd.doubleValue(), 63.0));
-	assertTrue(withinBounds((double) ve.doubleValue(), 16.0));
-	assertTrue(withinBounds((double) vf.doubleValue(), 42.0));
-	assertTrue(withinBounds((double) vg.doubleValue(), 51.0));
-	assertTrue(withinBounds((double) vh.doubleValue(), 49.0));
-	assertTrue(withinBounds((double) vi.doubleValue(), 53.0));
-	assertTrue(withinBounds((double) vj.doubleValue(), 34.0));
+	/**
+	 * Test of init method, of class nv2d.algorithms.shortestpaths.Dijkstra.
+	 */
+	public void testInit() {
+		System.out.println("testInit");
+		
+		// TODO add your test code below by replacing the default call to fail.
+		System.out.println("   The test case is empty.");
+	}
 	
+	/**
+	 * Test of run method, of class nv2d.algorithms.shortestpaths.Dijkstra.
+	 */
+	public void testRun() {
+		System.out.println("testRun");
+		
+		// TODO add your test code below by replacing the default call to fail.
+		System.out.println("   The test case is empty.");
+	}
 	
+	// TODO add test methods here. The name must begin with 'test'. For example:
+	public void testDistances() {
+		DGraph g = _g1;
+		Dijkstra algorithm = new Dijkstra(g);
+		
+		DVertex source = null;
+		try {
+			source = (DVertex) findNode(g, "a");
+		} catch (Exception e) {
+			// System.out.println("Could not find node [a]");
+			// inform JUnit there was an error
+			assertTrue(false);
+		}
+		
+		// System.out.println("Using Vertex [" + source.id() + "] as the source");
+		
+		algorithm.init(g, source);
+		algorithm.run();
+		
+		// check values (source is 'a')
+		// a->0
+		// b->4
+		// c->22
+		// d->63
+		// e->16
+		// f->42
+		// g->51
+		// h->49
+		// i->53
+		// j->34
+		
+		Double va = (Double) findNode(g, "a").getDatum(AlgConst.DATUM_DIJKSTRA_D).get();
+		Double vb = (Double) findNode(g, "b").getDatum(AlgConst.DATUM_DIJKSTRA_D).get();
+		Double vc = (Double) findNode(g, "c").getDatum(AlgConst.DATUM_DIJKSTRA_D).get();
+		Double vd = (Double) findNode(g, "d").getDatum(AlgConst.DATUM_DIJKSTRA_D).get();
+		Double ve = (Double) findNode(g, "e").getDatum(AlgConst.DATUM_DIJKSTRA_D).get();
+		Double vf = (Double) findNode(g, "f").getDatum(AlgConst.DATUM_DIJKSTRA_D).get();
+		Double vg = (Double) findNode(g, "g").getDatum(AlgConst.DATUM_DIJKSTRA_D).get();
+		Double vh = (Double) findNode(g, "h").getDatum(AlgConst.DATUM_DIJKSTRA_D).get();
+		Double vi = (Double) findNode(g, "i").getDatum(AlgConst.DATUM_DIJKSTRA_D).get();
+		Double vj = (Double) findNode(g, "j").getDatum(AlgConst.DATUM_DIJKSTRA_D).get();
+		
+		assertTrue(withinBounds((double) va.doubleValue(), 0.0));
+		assertTrue(withinBounds((double) vb.doubleValue(), 4.0));
+		assertTrue(withinBounds((double) vc.doubleValue(), 22.0));
+		assertTrue(withinBounds((double) vd.doubleValue(), 63.0));
+		assertTrue(withinBounds((double) ve.doubleValue(), 16.0));
+		assertTrue(withinBounds((double) vf.doubleValue(), 42.0));
+		assertTrue(withinBounds((double) vg.doubleValue(), 51.0));
+		assertTrue(withinBounds((double) vh.doubleValue(), 49.0));
+		assertTrue(withinBounds((double) vi.doubleValue(), 53.0));
+		assertTrue(withinBounds((double) vj.doubleValue(), 34.0));
+		
+		
 		/* // tests the path stuff -- should be in another test method
 		try {
 			System.out.println(algorithm.getPath(findNode(g, "a"), findNode(g, "i")));
@@ -133,31 +133,31 @@ public class DijkstraTest extends TestCase {
 			System.out.println(e.toString());
 		}
 		 */
-    }
-    
-    /** Private. */
-    private Vertex findNode(Graph g, String id) {
-	Iterator it = g.getVertices().iterator();
-	while(it.hasNext()) {
-	    Vertex v = (Vertex) it.next();
-	    
-	    if(v.id().equals(id)) {
-		return v;
-	    }
 	}
-	return null;
-    }
-    
-    /** Tests if val is equal to metric (the 'correct' number) within the
-     * tolerance levels */
-    private boolean withinBounds(double val, double metric) {
-	if(val < (metric + TOLERANCE) && val > (metric - TOLERANCE)) {
-	    return true;
+	
+	/** Private. */
+	private Vertex findNode(Graph g, String id) {
+		Iterator it = g.getVertices().iterator();
+		while(it.hasNext()) {
+			Vertex v = (Vertex) it.next();
+			
+			if(v.id().equals(id)) {
+				return v;
+			}
+		}
+		return null;
 	}
-	return false;
-    }
+	
+	/** Tests if val is equal to metric (the 'correct' number) within the
+	 * tolerance levels */
+	private boolean withinBounds(double val, double metric) {
+		if(val < (metric + TOLERANCE) && val > (metric - TOLERANCE)) {
+			return true;
+		}
+		return false;
+	}
 
-    private DGraph makeDGraphOne() {
+    public static DGraph makeDGraphOne() {
 		DGraph graph = new DGraph();
 		DVertex a = new DVertex("a");
 		DVertex b = new DVertex("b");

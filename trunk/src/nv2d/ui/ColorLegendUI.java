@@ -53,10 +53,8 @@ public class ColorLegendUI extends javax.swing.JPanel {
         _scrollPane = new javax.swing.JScrollPane();
         _jlist = new javax.swing.JList(_legend.getListModel());
         _jlist.setCellRenderer(new ColorLegendListRenderer());
-        _optionsComboBox = new javax.swing.JComboBox();
         _topPanel = new javax.swing.JPanel();
-        _legendAttribute = new javax.swing.JLabel();
-        jButton1 = new javax.swing.JButton();
+        _legendAttribute = new JLabel("Color Legend - " + _legend.getAttribute());
 
         setLayout(new java.awt.BorderLayout());
 
@@ -64,49 +62,20 @@ public class ColorLegendUI extends javax.swing.JPanel {
 
         add(_scrollPane, java.awt.BorderLayout.CENTER);
 
-        _optionsComboBox.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                _optionsComboBoxActionPerformed(evt);
-            }
-        });
-
-        add(_optionsComboBox, java.awt.BorderLayout.SOUTH);
-
         _topPanel.setLayout(new java.awt.BorderLayout());
 
-        _legendAttribute.setText("Color Legend");
         _topPanel.add(_legendAttribute, java.awt.BorderLayout.WEST);
-
-        jButton1.setFont(new java.awt.Font("Tahoma", 0, 10));
-        jButton1.setText("Refresh");
-        jButton1.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton1ActionPerformed(evt);
-            }
-        });
-
-        _topPanel.add(jButton1, java.awt.BorderLayout.EAST);
 
         add(_topPanel, java.awt.BorderLayout.NORTH);
 
     }//GEN-END:initComponents
-
-	private void _optionsComboBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event__optionsComboBoxActionPerformed
-		// TODO add your handling code here:
-	}//GEN-LAST:event__optionsComboBoxActionPerformed
-
-	private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-		// TODO add your handling code here:
-	}//GEN-LAST:event_jButton1ActionPerformed
 	
 	
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JList _jlist;
     private javax.swing.JLabel _legendAttribute;
-    private javax.swing.JComboBox _optionsComboBox;
     private javax.swing.JScrollPane _scrollPane;
     private javax.swing.JPanel _topPanel;
-    private javax.swing.JButton jButton1;
     // End of variables declaration//GEN-END:variables
 	
 }

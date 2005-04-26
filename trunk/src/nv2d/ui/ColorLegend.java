@@ -34,7 +34,6 @@ import nv2d.graph.Vertex;
 import nv2d.utils.Pair;
 
 /** Assigns a color to each attribute in a particular Datum category.
- * TODO: finish writing this
  * @author bshi
  */
 public class ColorLegend {

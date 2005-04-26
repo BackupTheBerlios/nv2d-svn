@@ -53,7 +53,7 @@ public class Path {
 		return (Vertex) _p.get(0);
 	}
 
-	/* TODO: FIX ME! (see note in SVN revision 82) */
+	/* TODO: FIX ME! (see note in SVN revision 83) */
 	public boolean contains(Edge e) {
 		int a = _p.indexOf(e.getEnds().car());
 		int b = _p.indexOf(e.getEnds().cdr());

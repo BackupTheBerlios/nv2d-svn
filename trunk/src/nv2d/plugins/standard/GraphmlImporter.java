@@ -313,9 +313,9 @@ public class GraphmlImporter implements IOInterface {
 		NamedNodeMap attributes = n.getAttributes();
 		String id = attributes.getNamedItem("key").getNodeValue();
 		String aName = ((KeyItem) _keyTable.get(id)).getAttributeName();
-		System.out.println("   Datum("+aName+","+getText(n)+")");
+		Object val = getKeyItemValue(getText(n), ((KeyItem) _keyTable.get(id)).getType());
 		
-		Object val = getKeyItemValue(getText(n), KeyItem.getType(aName));
+		System.out.println("   Datum("+aName+","+val+") ["+val.getClass()+"]");
 		
 		Datum datum = new Datum(aName, val);
 		return datum;
@@ -366,8 +366,6 @@ public class GraphmlImporter implements IOInterface {
 	 * In order to specify a length attribute, <code>attr.name</code> must be
 	 * one of <code>(length, weight, distance)</code> and <code>attr.type</code>
 	 * must be one of <code>(int, long, float, double)</code>
-	 *
-	 * TODO
 	 */
 	private void processEdge(Node n) {
 		// attributes:
@@ -408,7 +406,21 @@ public class GraphmlImporter implements IOInterface {
 			Node childNode = children.item(j);
 			// TODO get datum from this
 			if(childNode.getNodeName().equals("data")) {
-				e.setDatum(processData(childNode));
+				Datum d = processData(childNode);
+
+				// is this an edge length parameter? (weight, length, distance)
+				if((d.get() instanceof Integer || d.get() instanceof Double
+						|| d.get() instanceof Float)
+						&& (d.name().equals("weight") || d.name().equals("length")
+						|| d.name().equals("distance"))) {
+					try {
+						e.setLength(Double.parseDouble(d.get().toString()));
+					} catch (NumberFormatException exception) {
+						e.setDatum(d);
+					}
+				} else {
+					e.setDatum(d);
+				}
 			}
 		}
 		

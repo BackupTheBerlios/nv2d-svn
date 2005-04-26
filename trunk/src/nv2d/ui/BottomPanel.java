@@ -43,7 +43,6 @@ public class BottomPanel extends javax.swing.JPanel {
 		setPreferredSize(new java.awt.Dimension(700, 25));
 	}
 	
-	// TODO: does not update properly
 	public void validate() {
 		int maxStrLength = -1;
 		int width;
@@ -174,7 +173,6 @@ public class BottomPanel extends javax.swing.JPanel {
     }//GEN-END:initComponents
 
 	private void _doFilterActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event__doFilterActionPerformed
-		// TODO add your handling code here:
 		if(_g == null) {
 			return;
 		}

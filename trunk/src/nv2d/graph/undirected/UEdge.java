@@ -51,7 +51,10 @@ public class UEdge extends Edge {
 		_v = new Pair(source, dest);
 		_len = length;
 	}
-	
+
+	/**
+	 * Equality is based upon the names of the source and destination vertex.
+	 */
 	public boolean equals(Object o) {
 		if(o instanceof UEdge) {
 			UEdge e = (UEdge) o;
@@ -105,16 +108,25 @@ public class UEdge extends Edge {
 	public GraphElement clone(Graph destGraph) {
 		// TODO: assert that the destGraph contains source and dest
 		if(destGraph == null) {
+			System.err.println("UEdge.clone(): NULL destination graph given.");
 			return null;
 		}
 		
-		if(destGraph.equals(getParent())) {
-			System.err.println("You cannot clone an edge into the same graph.");
+		if(destGraph == getParent()) {
+			System.err.println("UEdge.clone(): cannot clone an edge into the same graph.");
+			return null;
+		}
+
+		if(destGraph.findVertex(getCar().id()) == null ||
+				destGraph.findVertex(getCdr().id()) == null) {
+			System.err.println("UEdge.clone(): cannot clone an edge into a graph without cloning the vertices first.");
 			return null;
 		}
 
 		UEdge e = new UEdge((UVertex) destGraph.findVertex(getCar().id()),
 				(UVertex) destGraph.findVertex(getCdr().id()), _len);
+		
+		e.setParent(destGraph);
 
 		Set attr = getDatumSet();
 		Iterator i = attr.iterator();

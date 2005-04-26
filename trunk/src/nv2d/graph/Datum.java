@@ -81,7 +81,7 @@ public class Datum implements Comparable {
 		}
 		return false;
 	}
-	
+
 	public int hashCode() {
 		return _name.hashCode();
 	}

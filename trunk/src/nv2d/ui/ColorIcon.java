@@ -51,7 +51,6 @@ public class ColorIcon implements Icon {
 	 * @see javax.swing.Icon#paintIcon(java.awt.Component, java.awt.Graphics, int, int)
 	 */
 	public void paintIcon(Component c, Graphics g, int x, int y) {
-		// TODO Auto-generated method stub
 		g.setColor(_c);
 		g.fillRect(x, y, getIconWidth(), getIconHeight());
 		g.setColor(Color.BLACK);
@@ -62,7 +61,6 @@ public class ColorIcon implements Icon {
 	 * @see javax.swing.Icon#getIconWidth()
 	 */
 	public int getIconWidth() {
-		// TODO Auto-generated method stub
 		return 30;
 	}
 
@@ -70,7 +68,6 @@ public class ColorIcon implements Icon {
 	 * @see javax.swing.Icon#getIconHeight()
 	 */
 	public int getIconHeight() {
-		// TODO Auto-generated method stub
 		return 17;
 	}
 
