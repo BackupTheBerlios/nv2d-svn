@@ -19,48 +19,66 @@
 
 package nv2d.plugins.standard;
 
-import java.io.File;
-import java.io.IOException;
+
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.FactoryConfigurationError;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 
 import org.w3c.dom.Document;
-import org.w3c.dom.DOMException;
-import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
+import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.NodeList;
 
 import java.awt.Container;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
+import java.io.File;
 import java.io.IOException;
-import java.net.URL;
+import java.util.Hashtable;
+import java.util.Iterator;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 
 import nv2d.plugins.IOInterface;
 
-import nv2d.graph.Graph;
 import nv2d.graph.Datum;
+import nv2d.graph.Edge;
+import nv2d.graph.Graph;
+import nv2d.graph.GraphElement;
+import nv2d.graph.Vertex;
 import nv2d.graph.directed.DEdge;
 import nv2d.graph.directed.DGraph;
 import nv2d.graph.directed.DVertex;
+import nv2d.graph.undirected.UEdge;
+import nv2d.graph.undirected.UGraph;
+import nv2d.graph.undirected.UVertex;
 import nv2d.ui.NController;
 
 public class GraphmlImporter implements IOInterface {
-	String _desc;
-	String _name;
-	String _author;
+	public static final int TYPE_BOOLEAN = 0;
+	public static final int TYPE_INT = 1;
+	public static final int TYPE_LONG = 2;
+	public static final int TYPE_FLOAT = 3;
+	public static final int TYPE_DOUBLE = 4;
+	public static final int TYPE_STRING = 5;
+	
+	private String _desc;
+	private String _name;
+	private String _author;
 
-	NController _control;
+	private NController _control;
 
-	Document _document;
+	private Document _document;
+
+	/* GraphElement storage variables used to build the graph. */
+	private boolean _directed;
+	private int _vCount, _eCount;	// used to keep track of elements with no id's given
+	private Hashtable _keyTable;
+	private Hashtable _vertexSet, _edgeSet;
 
 	public GraphmlImporter() {
 		_desc = new String("Import a graph from a GraphML file.");
@@ -75,7 +93,7 @@ public class GraphmlImporter implements IOInterface {
 			return null;
 		};
 		if(buildDomDocument(args[0])) {
-			return process();
+			return process(_document);
 		} else {
 			return null;
 		}
@@ -163,31 +181,259 @@ public class GraphmlImporter implements IOInterface {
 		return success;
 	}
 
-	private Graph process() {
-		DGraph graph = new DGraph();
-		NodeList vertices = _document.getElementsByTagName("node");
-		NodeList edges = _document.getElementsByTagName("edge");
-		int i;
+	private Graph process(Document doc) {
+		_keyTable = new Hashtable();
+		_vertexSet = new Hashtable();
+		_edgeSet = new Hashtable();
 
-		for(i = 0; i < vertices.getLength(); i++) {
-			Node v = vertices.item(i);
-			String vname = v.getAttributes().getNamedItem("id").getNodeValue();
-			DVertex vtx = new DVertex(vname);
-			graph.add(vtx);
-			System.out.println("node - "+vname);
+		NodeList nodeList = doc.getChildNodes();
+		for(int j = 0; j < nodeList.getLength(); j++) {
+			Node n = nodeList.item(j);
+			System.out.println(n.getNodeName() + ", " + n.getLocalName());
+			if(n.getNodeName().equals("graphml")) {
+				return processGraphml(n);
+			}
 		}
 
-		for(i = 0; i < edges.getLength(); i++) {
-			Node v = edges.item(i);
-			String source = v.getAttributes().getNamedItem("source").getNodeValue();
-			String dest = v.getAttributes().getNamedItem("target").getNodeValue();
-			DVertex vtxSrc = (DVertex) graph.findVertex(source);
-			DVertex vtxDest = (DVertex) graph.findVertex(dest);
-			DEdge dedge = new DEdge(vtxSrc, vtxDest, 1.0f);
-			System.out.println(dedge);
-			graph.add(dedge);
+		System.err.println("No Graph node found.");
+		return null;
+	}
+
+	/**
+	 * The GraphML specification allows for multiple <code>graph</code> nodes
+	 * within each file.
+	 *
+	 * This method will grab all instances of graphs that it encounters and
+	 * create a popup dialog which allows the user to select which one (s)he
+	 * would like to load.
+	 *
+	 * TODO
+	 */
+	private Graph processGraphml(Node n) {
+		// desc, key, data, graph
+		int graphCounter = 0;
+		_vCount = 0;
+		_eCount = 0;
+
+		// graphml keys are nfileio attribute names
+		processKeys();
+
+		NodeList graphList = n.getChildNodes();
+		for(int k = 0; k < graphList.getLength(); k++) {
+			Node graphNode = graphList.item(k);
+			if(graphNode.getNodeName().equals("graph")) {
+				processGraph(graphNode);
+				break;
+			}
 		}
-		return graph;
+		
+		Graph g;
+		if(_directed) {
+			g = new DGraph();
+		} else {
+			g = new UGraph();
+		}
+
+		Iterator i = _vertexSet.values().iterator();
+		while(i.hasNext()) {
+			g.add((GraphElement) i.next());
+		}
+
+		i = _edgeSet.values().iterator();
+		while(i.hasNext()) {
+			g.add((GraphElement) i.next());
+		}
+		
+		return g;
+	}
+
+	private void processKeys() {
+		NodeList keys = _document.getElementsByTagName("key");
+		for(int j = 0; j < keys.getLength(); j++) {
+			Node key = keys.item(j);
+			// attributes
+			// id
+			// for
+			// attr.name
+			// attr.type
+			// -> default
+			NamedNodeMap attributes = key.getAttributes();
+			String id = attributes.getNamedItem("id").getNodeValue();
+			String name = attributes.getNamedItem("attr.name").getNodeValue();
+			String type = attributes.getNamedItem("attr.type").getNodeValue();
+			KeyItem keyItem = new KeyItem(type, name);
+			System.out.println(key + " (putting '"+id+"' KeyItem("+type+","+name+") id="+id+") into hash");
+			_keyTable.put(id,keyItem);
+		}
+	}
+	
+	private void processGraph(Node n) {
+		String parentType = n.getParentNode().getNodeName();
+		if(parentType.equals("edge") || parentType.equals("node")) {
+			System.err.println("GraphmlImporter: nested graphs are not yet supported by NV2D");
+			return;
+		}
+
+		NodeList children = n.getChildNodes();
+		// process the keys first
+		for(int j = 0; j < children.getLength(); j++) {
+			Node childNode = children.item(j);
+			if (childNode.getNodeName().equals("desc")) {
+				// TODO
+				System.out.println(childNode);
+			} else if (childNode.getNodeName().equals("data")) {
+			} else {
+				// System.err.println("GraphmlImporter: NV2D does not yet support the ["
+				//		+ childNode.getNodeName() + "] element under the ["
+				//		+ n.getNodeName() + "] element");
+			}
+		}
+		// process vertices
+		for(int j = 0; j < children.getLength(); j++) {
+			Node childNode = children.item(j);
+			if(childNode.getNodeName().equals("node")) {
+				processNode(childNode);
+			}
+		}
+		// process edges
+		for(int j = 0; j < children.getLength(); j++) {
+			Node childNode = children.item(j);
+			if (childNode.getNodeName().equals("edge")) {
+				processEdge(childNode);
+			}
+		}
+	}
+
+	/**
+	 * Take a "data" node and create a {@link nv2d.graph.Datum} from it.
+	 */
+	private Datum processData(Node n) {
+		// attributes
+		// key
+		NamedNodeMap attributes = n.getAttributes();
+		String id = attributes.getNamedItem("key").getNodeValue();
+		String aName = ((KeyItem) _keyTable.get(id)).getAttributeName();
+		System.out.println("   Datum("+aName+","+getText(n)+")");
+		
+		Object val = getKeyItemValue(getText(n), KeyItem.getType(aName));
+		
+		Datum datum = new Datum(aName, val);
+		return datum;
+	}
+
+	private void processNode(Node n) {
+		// attributes:
+		// id
+		NamedNodeMap attributes = n.getAttributes();
+		Node idNode = attributes.getNamedItem("id");
+		String id;
+		if(idNode != null) {
+			id = idNode.getNodeValue();
+		} else {
+			id = "__nv2d_id_v" + _vCount;
+			_vCount++;
+		}
+		System.out.println("node id="+id);
+		
+		if(_vertexSet.containsKey(id)) {
+			System.err.println("Duplicate vertex ID found: " + id + "; not adding.");
+			return;
+		}
+		
+		Vertex v;
+		if(_directed) {
+			v = new DVertex(id);
+		} else {
+			v = new UVertex(id);
+		}
+
+		// make datum for data node
+		NodeList children = n.getChildNodes();
+		for(int j = 0; j < children.getLength(); j++) {
+			Node childNode = children.item(j);
+			// TODO get datum from this
+			if(childNode.getNodeName().equals("data")) {
+				v.setDatum(processData(childNode));
+			}
+		}
+		
+		_vertexSet.put(id, v);
+	}
+
+	/**
+	 * The GraphML standard does not contain a special length attribute for edges
+	 * so this plugin will treat a number of attribute names as length attributes.
+	 * In order to specify a length attribute, <code>attr.name</code> must be
+	 * one of <code>(length, weight, distance)</code> and <code>attr.type</code>
+	 * must be one of <code>(int, long, float, double)</code>
+	 *
+	 * TODO
+	 */
+	private void processEdge(Node n) {
+		// attributes:
+		// id
+		// source
+		// target
+		NamedNodeMap attributes = n.getAttributes();
+		Node idNode = attributes.getNamedItem("id");
+		String id;
+		if(idNode != null) {
+			id = idNode.getNodeValue();
+		} else {
+			id = "__nv2d_id_e" + _eCount;
+			_eCount++;
+		}
+				
+		String source = attributes.getNamedItem("source").getNodeValue();
+		String target = attributes.getNamedItem("target").getNodeValue();
+		System.out.println("edge id="+id+" source="+source+" target="+target);
+
+		if(!(_vertexSet.containsKey(source) && _vertexSet.containsKey(target))) {
+			System.out.println("Invalid edge endpoint found ("
+					+ source + " or " + target + ".  Ignoring.");
+			return;
+		}
+		
+		Edge e;
+		// set the edge length to 1.0, change it later if the file specifies
+		if(_directed) {
+			e = new DEdge((DVertex) _vertexSet.get(source), (DVertex) _vertexSet.get(target), 1.0);
+		} else {
+			e = new UEdge((UVertex) _vertexSet.get(source), (UVertex) _vertexSet.get(target), 1.0);
+		}
+
+		// make datum for data node
+		NodeList children = n.getChildNodes();
+		for(int j = 0; j < children.getLength(); j++) {
+			Node childNode = children.item(j);
+			// TODO get datum from this
+			if(childNode.getNodeName().equals("data")) {
+				e.setDatum(processData(childNode));
+			}
+		}
+		
+		_edgeSet.put(id, e);
+	}
+	
+	private static String getText(Node n) {
+		NodeList list = n.getChildNodes();
+		for(int j = 0; j < list .getLength(); j++) {
+			if(list.item(j).getNodeName().equals("#text")) {
+				return list.item(j).getNodeValue();
+			}
+		}
+		return "";
+	}
+
+	public static Object getKeyItemValue(String val, int type) {
+		switch(type) {
+			case TYPE_BOOLEAN: return Boolean.valueOf(val);
+			case TYPE_INT: return Integer.valueOf(val);
+			case TYPE_LONG: return Long.valueOf(val);
+			case TYPE_FLOAT: return Float.valueOf(val);
+			case TYPE_DOUBLE: return Double.valueOf(val);
+			default: return val;
+		}
 	}
 
 	private class MenuListener implements ActionListener {
@@ -227,5 +473,41 @@ class Nv2dXmlErrorHandler
 				+ ", line " + err.getLineNumber()
 				+ ", uri " + err.getSystemId());
 		System.err.println("   " + err.getMessage());
+	}
+}
+
+class KeyItem {
+
+	private String _attr;
+	private int _type;
+
+	public KeyItem(String type, String attribute) {
+		_type = getType(type);
+		_attr = attribute;
+	}
+
+	public static int getType(String t) {
+		if(t.equals("boolean")) {
+			return GraphmlImporter.TYPE_BOOLEAN;
+		} else if (t.equals("int")) {
+			return GraphmlImporter.TYPE_INT;
+		} else if (t.equals("long")) {
+			return GraphmlImporter.TYPE_LONG;
+		} else if (t.equals("float")) {
+			return GraphmlImporter.TYPE_FLOAT;
+		} else if (t.equals("double")) {
+			return GraphmlImporter.TYPE_DOUBLE;
+		} else if (t.equals("string")) {
+			return GraphmlImporter.TYPE_STRING;
+		}
+		return -1;
+	}
+
+	public String getAttributeName() {
+		return _attr;
+	}
+
+	public int getType() {
+		return _type;
 	}
 }
