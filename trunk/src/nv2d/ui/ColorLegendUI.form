@@ -22,7 +22,7 @@
         <Component class="javax.swing.JList" name="_jlist">
           <AuxValues>
             <AuxValue name="JavaCodeGenerator_CreateCodePost" type="java.lang.String" value="_jlist.setCellRenderer(new ColorLegendListRenderer());"/>
-            <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new javax.swing.JList(_legend.getListModel());"/>
+            <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new javax.swing.JList(_legend.getFilteredListModel(_ctl.getSubgraph()));"/>
           </AuxValues>
         </Component>
       </SubComponents>

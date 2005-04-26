@@ -99,7 +99,7 @@ public class NMenu extends JMenuBar {
 			_legend.add(item);
 			item.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
-					ColorLegendUI colorLegendUI = new ColorLegendUI(map.getLegend(name));
+					ColorLegendUI colorLegendUI = new ColorLegendUI(_ctl, map.getLegend(name));
 					map.getLegend(name).assignColors();
 					// _ctl.getView().addComponent(new ColorLegendUI(map.getLegend(name)), "Legend", ViewInterface.SIDE_PANEL);
 					_viewLegendMenuActionPerformed(e, colorLegendUI);

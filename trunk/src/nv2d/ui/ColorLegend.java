@@ -39,7 +39,12 @@ import nv2d.utils.Pair;
 public class ColorLegend {
 	private String _datumName;
 	private Graph _g;
+	
+	/**
+	 * Keys are datum values and values are colors.
+	 */
 	private Hashtable _table;
+	
 	private DefaultListModel _legendListModel;
 	
 	public ColorLegend(Graph g, String datumName) {
@@ -106,6 +111,30 @@ public class ColorLegend {
 	
 	public DefaultListModel getListModel() {
 		return _legendListModel;
+	}
+	
+	/**
+	 * Return a legend listing comprised of only the visible components.  This
+	 * is useful if only a small subset of the complete model is visible and
+	 * the user would like a more compact legend view.
+	 */
+	public DefaultListModel getFilteredListModel(Graph subset) {
+		if(subset == _g) {
+			return getListModel();
+		}
+		
+		Set uniqueVals = new HashSet();
+		DefaultListModel filteredModel = new DefaultListModel();
+		Iterator i = subset.getVertices().iterator();
+		
+		while(i.hasNext()) {
+			Datum d = ((Vertex) i.next()).getDatum(_datumName);
+			if(d != null && !uniqueVals.contains(d.get())) {
+				filteredModel.addElement(new Pair(d.get(), _table.get(d.get())));
+				uniqueVals.add(d.get());
+			}
+		}
+		return filteredModel;
 	}
 	
 	public Color getColor(Object value) {

@@ -31,10 +31,12 @@ import nv2d.utils.Pair;
  * @author  bshi
  */
 public class ColorLegendUI extends javax.swing.JPanel {
+	private NController _ctl;
 	private ColorLegend _legend;
 	
 	/** Creates new form ColorLegendUI */
-	public ColorLegendUI(ColorLegend legend) {
+	public ColorLegendUI(NController ctl, ColorLegend legend) {
+		_ctl = ctl;
 		_legend = legend;
 		
 		initComponents();
@@ -51,7 +53,7 @@ public class ColorLegendUI extends javax.swing.JPanel {
 	 */
     private void initComponents() {//GEN-BEGIN:initComponents
         _scrollPane = new javax.swing.JScrollPane();
-        _jlist = new javax.swing.JList(_legend.getListModel());
+        _jlist = new javax.swing.JList(_legend.getFilteredListModel(_ctl.getSubgraph()));
         _jlist.setCellRenderer(new ColorLegendListRenderer());
         _topPanel = new javax.swing.JPanel();
         _legendAttribute = new JLabel("Color Legend - " + _legend.getAttribute());
@@ -99,7 +101,7 @@ class ColorLegendListRenderer extends DefaultListCellRenderer {
 		String iconLabel;
 		label.setIcon(new ColorIcon((Color) pair.cdr()));
 		iconLabel = pair.car().toString();
-		label.setText((iconLabel.length() > 10 ? iconLabel.substring(0, 10) + "..." : iconLabel));
+		label.setText((iconLabel.length() > 20 ? iconLabel.substring(0, 20) + "..." : iconLabel));
 		label.setToolTipText(iconLabel);
 		
 		label.setVerticalTextPosition(SwingConstants.TOP);
