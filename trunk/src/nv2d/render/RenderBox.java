@@ -153,6 +153,8 @@ public class RenderBox extends Display {
 		
 		_empty = true;
 		
+		initialize(null);
+		
 		//_isInitialized = false;
 	}
 
@@ -214,7 +216,10 @@ public class RenderBox extends Display {
 //	    System.out.println("** Initializing Renderbox");
         _g = g;
         _registry = getRegistry();
-        _registry.setGraph(new PGraph(g));
+		
+		if(g != null) {
+			_registry.setGraph(new PGraph(g));
+		}
 
         _colorizer = new Colorizer();
         _legendColorizer = new LegendColorizer(_ctl);

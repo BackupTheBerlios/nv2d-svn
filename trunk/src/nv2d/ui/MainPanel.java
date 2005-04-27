@@ -272,7 +272,7 @@ public class MainPanel implements NController {
 		// we now supposedly have a graph, reinit all modules
 		Iterator j = _pm.pluginIterator();
 		while(j.hasNext()) {
-			((NV2DPlugin) j.next()).initialize(_g, _r, this);
+			((NV2DPlugin) j.next()).reloadAction(_g);
 		}
 		// start things up
 		_r.initialize(_g);
@@ -282,7 +282,11 @@ public class MainPanel implements NController {
 			_history.addElement(new HistoryElement(this));
 		}
 	}
-		
+
+	/**
+	 * Perform first-time initialization for all plugins.  This method is called
+	 * after the classloader finishes loading all the plugin classes.
+	 */
 	private void modulesPostLoad() {
 		_view.getMenu().resetPluginMenu();
 		_view.getMenu().resetImporterMenu();

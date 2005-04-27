@@ -29,12 +29,21 @@ public interface NV2DPlugin {
 	/** This method is invoked by the plugin manager after NV2D core
 	 * initialization is done [most importantly, the current Model (the graph)
 	 * is done].  We need to pass this the model, view, controller.
+	 * This method should only be called upon loading of the plugin.  Actions
+	 * which need to be taken when a graph is loaded should be delegated
+	 * to <code>reloadAction</code>.  Only objects which will require persistence
+	 * should be instantiated in this method.
 	 *
 	 * Model --> Graph
 	 * View -->  (Container --> RenderBox)
 	 * Controller --> NController (top level program object)
 	 * */
 	public void initialize(Graph g, Container view, NController control);
+	
+	/**
+	 * This method is called each time a graph is reloaded.
+	 */
+	public void reloadAction(Graph g);
 
 	/** If this plugin has set any DATUM's, this method should clean them up
 	 * here.

@@ -66,6 +66,10 @@ public class DefaultImporter implements IOInterface {
 		// io-plugins can ignore this
 		_control = control;
 	}
+	
+	public void reloadAction(Graph g) {
+		// nothing needs to be done
+	}
 
 	public void cleanup() {
 		System.out.print("--> cleanup()\n");

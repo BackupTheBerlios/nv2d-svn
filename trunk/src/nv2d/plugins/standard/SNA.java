@@ -63,6 +63,8 @@ public class SNA implements NV2DPlugin  {
 	private NController _control;
 
 	private NumberFormat _formatter;
+	
+	private JMenu _menu;
 
 	/* Some datums */
 
@@ -97,6 +99,12 @@ public class SNA implements NV2DPlugin  {
 		_graph = g;
 		_view = view;
 		_control = control;
+		
+		_menu = createMenu();
+	}
+	
+	public void reloadAction(Graph g) {
+		_graph = g;
 	}
         
         
@@ -113,6 +121,24 @@ public class SNA implements NV2DPlugin  {
 	}
 	
 	public JMenu menu() {
+		return _menu;
+	}
+
+	public String require() {
+		return "";
+	}
+
+	public String name() {
+		return _name;
+	}
+	public String description() {
+		return _desc;
+	}
+	public String author() {
+		return _author;
+	}
+	
+	private JMenu createMenu() {
 		JMenu m = new JMenu("Social Network Analysis");
 		JMenuItem recalc = new JMenuItem("(re)Calculate Measures");
 		final JMenuItem sizeby_betw = new JMenuItem("Betweenness");
@@ -162,20 +188,6 @@ public class SNA implements NV2DPlugin  {
 		m.add(sizeby_indeg);
 		m.add(sizeby_outdeg);
 		return m;
-	}
-
-	public String require() {
-		return "";
-	}
-
-	public String name() {
-		return _name;
-	}
-	public String description() {
-		return _desc;
-	}
-	public String author() {
-		return _author;
 	}
    
 	/* ===================================== *

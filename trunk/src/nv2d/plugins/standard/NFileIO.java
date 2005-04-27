@@ -108,6 +108,10 @@ public class NFileIO implements IOInterface {
 		_view = view;
 		_control = control;
 	}
+	
+	public void reloadAction(Graph g) {
+		// nothing needs to be done
+	}
 
 	public void cleanup() {
 	}

@@ -52,12 +52,15 @@ public class Orgstudies implements NV2DPlugin, FilterInterface {
 	private Object [] _filterArgs;
 	
 	public void initialize(Graph g, Container view, NController control) {
-		_graph = g;
 		_view = view;
 		_ctl = control;
 		
+		reloadAction(g);
+	}
+	
+	public void reloadAction(Graph g) {
 		_inited = false;
-		
+		_graph = g;
 		run(_graph);
 	}
 	
