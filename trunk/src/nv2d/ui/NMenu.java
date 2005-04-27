@@ -136,6 +136,7 @@ public class NMenu extends JMenuBar {
 	private JMenuItem _viewRenderBox;
 	private JMenuItem _viewErrTxt;
 	private JMenuItem _viewOutTxt;
+	private JMenuItem _viewSaveImage;
 	
 	private JMenu _legend;
 	private JMenuItem _legendDefaultColoring;
@@ -225,6 +226,7 @@ public class NMenu extends JMenuBar {
 		_viewErrTxt = new JMenuItem("Error Messages");
 		_viewOutTxt = new JMenuItem("Program Output");
 		_viewRenderBox = new JMenuItem("Graph Visualization");
+		_viewSaveImage = new JMenuItem("Save Image...");
 
 		_view.add(_viewSouthPanel);
 		_view.add(_viewSidePanel);
@@ -240,6 +242,9 @@ public class NMenu extends JMenuBar {
 		_viewVis.add(_viewLength);
 		// filter submenu
 		_viewFilter.add(_viewFilterDegree);
+		// save image option
+		_view.add(new JSeparator());
+		_view.add(_viewSaveImage);
 		_viewFilterDegree.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				_viewFilterDegreeActionPerformed(e);
@@ -283,6 +288,11 @@ public class NMenu extends JMenuBar {
 		_viewRenderBox.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				_viewRenderBoxActionPerformed(e);
+			}
+		});
+		_viewSaveImage.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				_viewSaveImageActionPerformed(e);
 			}
 		});
 		
@@ -366,6 +376,10 @@ public class NMenu extends JMenuBar {
 		}
 	}
 
+	private void _viewSaveImageActionPerformed(ActionEvent e) {
+	    _renderbox.handleSaveImage();
+	}
+	
 	private void _viewLengthItemStateChanged(ItemEvent e) {
 		_renderbox.getRenderSettings().setBoolean(RenderSettings.SHOW_LENGTH, _viewLength.getState());
 	}
