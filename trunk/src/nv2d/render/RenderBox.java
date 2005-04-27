@@ -174,7 +174,7 @@ public class RenderBox extends Display {
 
 	
 	public void clear() {
-	    System.out.println("Clearing RenderBox");
+//	    System.out.println("Clearing RenderBox");
 		if(_empty) {
 			return;
 		}
@@ -211,7 +211,7 @@ public class RenderBox extends Display {
 	//
 	// -sp
 	public void initialize(Graph g) {
-	    System.out.println("** Initializing Renderbox");
+//	    System.out.println("** Initializing Renderbox");
         _g = g;
         _registry = getRegistry();
         _registry.setGraph(new PGraph(g));
@@ -336,8 +336,6 @@ public class RenderBox extends Display {
 	// ---- Layouts ----
 	
 	public void setActiveLayout(String name) {
-	    // TODO - dont need to stop anymore?
-	    // stopLayout();
 	    _director.setActive(name);
 	}
 	
@@ -345,7 +343,6 @@ public class RenderBox extends Display {
 	 * StartLayout
 	 */
 	public void startLayout() {
-	    _director.printActivities();
 		if(_empty || _director.isRunning()) {
 			return;
 		}
@@ -370,7 +367,6 @@ public class RenderBox extends Display {
 	 * AddActivity
 	 */
 	public void addActivity(String name, Activity a) {
-	    System.out.println("RB: Adding Activity: " + name);
 	    _director.add(name, a);
 	}
 	

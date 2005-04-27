@@ -82,8 +82,7 @@ public class ActivityDirector {
      */
     public void runNow() {
         if(_isActiveSet) {
-            System.out.println("Director Running: " + _activeName);
-            printActivities();
+//            System.out.println("Director Running: " + _activeName);
             _activities.get(_activeName).runNow();
         }
     }
@@ -118,7 +117,7 @@ public class ActivityDirector {
     // TODO: handle case where names clash?
     public void add(String name, Activity a) {
         _activities.put(name, a);
-        printActivities();
+//        printActivities();
     }
 
     
