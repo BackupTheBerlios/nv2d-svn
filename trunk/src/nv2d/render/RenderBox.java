@@ -26,7 +26,6 @@ import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
-import java.awt.Component;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
@@ -54,28 +53,22 @@ import edu.berkeley.guir.prefuse.NodeItem;
 import edu.berkeley.guir.prefuse.EdgeItem;
 import edu.berkeley.guir.prefuse.VisualItem;
 import edu.berkeley.guir.prefuse.action.RepaintAction;
-import edu.berkeley.guir.prefuse.action.animate.ColorAnimator;
-import edu.berkeley.guir.prefuse.action.animate.PolarLocationAnimator;
 import edu.berkeley.guir.prefuse.action.assignment.ColorFunction;
 import edu.berkeley.guir.prefuse.action.filter.GraphFilter;
-import edu.berkeley.guir.prefuse.action.filter.TreeFilter;
 import edu.berkeley.guir.prefuse.activity.ActionList;
-import edu.berkeley.guir.prefuse.activity.SlowInSlowOutPacer;
+import edu.berkeley.guir.prefuse.activity.Activity;
 import edu.berkeley.guir.prefuse.event.ControlAdapter;
 import edu.berkeley.guir.prefuse.graph.DefaultGraph;
-import edu.berkeley.guir.prefuse.graph.Entity;
-import edu.berkeley.guir.prefuse.graph.Node;
 import edu.berkeley.guir.prefusex.controls.DragControl;
 import edu.berkeley.guir.prefusex.controls.PanControl;
 import edu.berkeley.guir.prefusex.controls.ZoomControl;
+import edu.berkeley.guir.prefusex.controls.RotationControl;
 import edu.berkeley.guir.prefusex.layout.RandomLayout;
 import edu.berkeley.guir.prefusex.force.DragForce;
 import edu.berkeley.guir.prefusex.force.ForceSimulator;
 import edu.berkeley.guir.prefusex.force.NBodyForce;
 import edu.berkeley.guir.prefusex.force.SpringForce;
 import edu.berkeley.guir.prefusex.layout.ForceDirectedLayout;
-import edu.berkeley.guir.prefusex.layout.RadialTreeLayout;
-import edu.berkeley.guir.prefusex.layout.RandomLayout;
 
 import nv2d.graph.Datum;
 import nv2d.graph.Edge;
@@ -94,29 +87,17 @@ public class RenderBox extends Display {
 	
 	private NController _ctl;
 	private ItemRegistry _registry;
-	private ActionList _actions;
 	private RenderSettings _settings;
 	private Graph _g;
+	private ActivityDirector _director;
+	private ControlManager _controls;
 	
 	private PopupFactory _pFactory;
 	private Popup _popup = null;
 	
 	private boolean _empty;
-	private boolean _layoutRunning;
-	private boolean _isExternalLayoutHandler;
-	private boolean _first_initialization;
+	private boolean _isInitialized;
 	
-	// Standard Pre-defined Layouts
-	private ForceSimulator _fsim;
-	private ForceDirectedLayout _flayout;
-	private ActionList _fd_actions;
-	private ActionList _sr_actions;
-	private ActionList _ra_actions;
-	private ActionList _rg_actions;
-	private ActionList _rg_animate;
-	private RandomLayout _randomLayout;
-	private SemiRandomLayout _semiRandomLayout;
-
 	// various colorizers
 	ColorFunction _colorizer;
 	ColorFunction _legendColorizer;
@@ -125,6 +106,20 @@ public class RenderBox extends Display {
 	
 	// for the mouse interface
 	private static VisualItem _lastItemClicked;
+
+	// Activity and Layout String Names
+	public static final String ACT_BACKGROUND = "standard_BackgroundActivity";
+	public static final String ACT_SEMIRANDOM = "standard_SemiRandomLayout";
+	public static final String ACT_RANDOM = "standard_RandomLayout";
+	public static final String ACT_FORCEDIRECTED = "standard_ForceDirectedLayout";
+
+	// Control Listener String Names
+	public static final String CTL_MOUSE_ADAPTOR = "standard_MouseAdaptor";
+	public static final String CTL_DRAG_CONTROL = "standard_DragControl";
+	public static final String CTL_PAN_CONTROL = "standard_PanControl";
+	public static final String CTL_ZOOM_CONTROL = "standard_ZoomControl";
+	public static final String CTL_ROTATION_CONTROL = "standard_RotationControl";
+	
 	
 	public RenderBox(NController ctl) {
 		// (1) convert NV2D graph to a data structure usable by Prefuse
@@ -132,7 +127,7 @@ public class RenderBox extends Display {
 		//  the item registry stores all the visual
 		//  representations of different graph elements
 		super(new ItemRegistry(new DefaultGraph(true)));
-	    
+
 		// establish settings controller
 		_settings = new RenderSettings();
 		_pFactory = PopupFactory.getSharedInstance();
@@ -142,35 +137,25 @@ public class RenderBox extends Display {
 		// setup the popup menu for vertices
 		_vertexMenu = new PopupMenu();
 		_lastItemClicked = null;
-		
+
+		_director = new ActivityDirector();
+		_controls = new ControlManager();
+		initStandardControls();
+
 		// create a new display component to show the data
 		// setSize(400,400);
 		// pan(350, 350);
 		// lets users drag nodes around on screen (Display class method)
-		addControlListener(new MouseAdapter(this));
-		addControlListener(new DragControl());
-		addControlListener(new PanControl());
-		addControlListener(new ZoomControl());
-
+		addControlListener(_controls.getControl(CTL_MOUSE_ADAPTOR));
+		addControlListener(_controls.getControl(CTL_DRAG_CONTROL));
+		addControlListener(_controls.getControl(CTL_PAN_CONTROL));
+		addControlListener(_controls.getControl(CTL_ZOOM_CONTROL));
+		
 		_empty = true;
-		_layoutRunning = false;
-		_isExternalLayoutHandler = false;
-		_first_initialization = true;
+		
+		//_isInitialized = false;
 	}
 
-	// TODO
-	// this will be removed in the next version
-	public void setExternalLayoutHandler(ActionList init_actions, boolean resetLayout) {
-	    if(resetLayout) {
-	        _layoutRunning = false;
-	    }
-	    
-	    _isExternalLayoutHandler = true;
-
-	    if(!_layoutRunning) {
-	        setLayout(init_actions);
-	    }
-	}
 
 	public void useLegendColoring() {
 		_colorizer.setEnabled(false);
@@ -179,6 +164,7 @@ public class RenderBox extends Display {
 		_legendColorizer.run(_registry, 0.0);
 	}
 
+	
 	public void useDefaultColoring() {
 		_colorizer.setEnabled(true);
 		_legendColorizer.setEnabled(false);
@@ -186,19 +172,21 @@ public class RenderBox extends Display {
 		_colorizer.run(_registry, 0.0);
 	}
 
+	
 	public void clear() {
+	    System.out.println("Clearing RenderBox");
 		if(_empty) {
 			return;
 		}
 		
 		doSaveVertexLocations();
 		_registry.clear();
-		_actions = null;
-		_fsim = null;
-		_flayout = null;
+		//_director.clear();
 		_empty = true;
+		repaint();
 	}
 
+	
 	public BufferedImage screenShot() {
 		BufferedImage bi = new BufferedImage(
 				(int) getWidth(),
@@ -212,128 +200,209 @@ public class RenderBox extends Display {
 		return bi;
 	}
 	
+	// TODO - initialize is called twice.  why does this happen?
+	// necessitates some if statements to tell if it has happened
+	// before, but works for now with bug.
+	//
+	// Also, is it possible to initialize the renderbox before
+	// loading all of the plugins.  If the plugin requires use
+	// of the renderbox or registry, it is difficult to handle
+	// through the plugin constructor or init methods.
+	//
+	// -sp
 	public void initialize(Graph g) {
-		_g = g;
-		_registry = getRegistry();
-		_registry.setGraph(new PGraph(g));
-		
-		_colorizer = new Colorizer();
-		_legendColorizer = new LegendColorizer(_ctl);
+	    System.out.println("** Initializing Renderbox");
+        _g = g;
+        _registry = getRegistry();
+        _registry.setGraph(new PGraph(g));
 
-		_colorizer.setEnabled(true);
-		_legendColorizer.setEnabled(false);
-		
-		// antialias?
-		setHighQuality(_settings.getBoolean(RenderSettings.ANTIALIAS));
-		
-		// Initialize built-in Layouts
-		initStandardLayouts();
-		if (!_layoutRunning && !_isExternalLayoutHandler) {
-		    _actions = _fd_actions;		// set Force Directed as default
-		}
+        _colorizer = new Colorizer();
+        _legendColorizer = new LegendColorizer(_ctl);
 
-	    _empty = false;
-	    
-		// Begin by randomly setting all the items
-		doSemiRandomLayout();
-		
-		_first_initialization = false;
+        _colorizer.setEnabled(true);
+        _legendColorizer.setEnabled(false);
+
+        // antialias?
+        setHighQuality(_settings.getBoolean(RenderSettings.ANTIALIAS));
+
+        //if (!_isInitialized) {
+        initStandardLayouts();
+        if (!_director.isRunning()) {
+            _director.setActive(ACT_FORCEDIRECTED);
+        }
+        if (!_director.isBackgroundRunning()) {
+            _director.setBackground(ACT_BACKGROUND);
+            _director.startBackground();
+        }
+        //}
+
+        _empty = false;
+
+        // Begin by randomly setting all the items
+        doSemiRandomLayout();
+
+        //_isInitialized = true;
 	}
 
+	
+	/**
+	 * Standard Controls
+	 */
+	private void initStandardControls() {
+	    _controls.addControl(CTL_MOUSE_ADAPTOR, new MouseAdapter(this));
+	    _controls.addControl(CTL_DRAG_CONTROL, new DragControl());
+	    _controls.addControl(CTL_PAN_CONTROL, new PanControl());
+	    _controls.addControl(CTL_ZOOM_CONTROL, new ZoomControl());
+	    _controls.addControl(CTL_ROTATION_CONTROL, new RotationControl());
+	    // TODO - add more
+	}
+	
+	
+	/**
+     * Standard Layouts
+     */
 	private void initStandardLayouts() {
-		// Semi-Random Layout
-		_semiRandomLayout = new SemiRandomLayout(_ctl);		
-		_sr_actions = new ActionList(_registry);
-		_sr_actions.add(new GraphFilter());
-		_sr_actions.add(_colorizer); 		// colors nodes & edges
-		_sr_actions.add(_legendColorizer);
-		_sr_actions.add(new RepaintAction());
-		_sr_actions.add(_semiRandomLayout);
+		ForceSimulator _fsim;
+		ForceDirectedLayout _flayout;
+		RandomLayout _randomLayout;
+		SemiRandomLayout _semiRandomLayout;
+		ActionList s, r, f;
+		
+		GraphFilter graphFilter = new GraphFilter();
+		RepaintAction repaintAction = new RepaintAction();
+	    
+		// Default Background Activity
+		ActionList background = new ActionList(_registry, -1, 20);
+		background.add(_colorizer);
+		background.add(_legendColorizer);
+		//background.add(repaintAction);
+		_director.add(ACT_BACKGROUND, background);
+		
+		
+	    // Semi-Random Layout
+		_semiRandomLayout = new SemiRandomLayout(_ctl);
+		s = new ActionList(_registry);
+		s.add(graphFilter);
+		//s.add(_colorizer);
+		//s.add(_legendColorizer);
+		s.add(repaintAction);
+		s.add(_semiRandomLayout);
+		_director.add(ACT_SEMIRANDOM, s);
 		
 		// init random layout
 		_randomLayout = new RandomLayout();
-		_ra_actions = new ActionList(_registry);
-		_ra_actions.add(new GraphFilter());
-		_ra_actions.add(_colorizer); 		// colors nodes & edges
-		_ra_actions.add(_legendColorizer);
-		_ra_actions.add(new RepaintAction());
-		_ra_actions.add(_randomLayout);
+		r = new ActionList(_registry);
+		r.add(graphFilter);
+		//r.add(_colorizer);
+		//r.add(_legendColorizer);
+		r.add(repaintAction);
+		r.add(_randomLayout);
+		_director.add(ACT_RANDOM, r);
 		
 		// init fd layout
-		// set up attract/repulse
 		_fsim = new ForceSimulator();
 		_fsim.addForce(new NBodyForce(-0.4f, -1f, 0.9f));
 		_fsim.addForce(new SpringForce(4E-5f, 75f));
 		_fsim.addForce(new DragForce(-0.005f));
 		_flayout = new ForceDirectedLayout(_fsim, false, false);
 		
-		_fd_actions = new ActionList(_registry, -1, 20);
-		_fd_actions.add(new GraphFilter());
-		_fd_actions.add(_colorizer); 		// colors nodes & edges
-		_fd_actions.add(_legendColorizer);
-		_fd_actions.add(new RepaintAction());
-		_fd_actions.add(_flayout);
-		
-		// Radial Graph Layout
-		_rg_actions = new ActionList(_registry);
-		_rg_actions.add(new TreeFilter(true));
-		_rg_actions.add(new RadialTreeLayout());
-        _rg_animate = new ActionList(_registry, 1500, 20);
-        _rg_animate.setPacingFunction(new SlowInSlowOutPacer());
-        _rg_animate.add(new PolarLocationAnimator());
-        _rg_animate.add(new ColorAnimator());
-        _rg_animate.add(new RepaintAction());
-        _rg_animate.alwaysRunAfter(_rg_actions);
+		f = new ActionList(_registry, -1, 20);
+		f.add(graphFilter);
+		//f.add(_colorizer);
+		//f.add(_legendColorizer);
+		f.add(repaintAction);
+		f.add(_flayout);
+		_director.add(ACT_FORCEDIRECTED, f);
 	}
 	
-	public void setLayout(ActionList a) {
-	    stopLayout();
-	    _actions = a;
+	
+	// ---- Control Listeners ----
+	
+	// TODO - implement all of this as ControlSchemes in the ControlManager
+	public void setRotateMode(boolean mode) {
+	    if(mode) {
+	        removeControlListener(_controls.getControl(CTL_DRAG_CONTROL));
+	        removeControlListener(_controls.getControl(CTL_PAN_CONTROL));
+	        addControlListener(_controls.getControl(CTL_ROTATION_CONTROL));	        
+	    }
+	    else {
+	        removeControlListener(_controls.getControl(CTL_ROTATION_CONTROL));	
+	        addControlListener(_controls.getControl(CTL_DRAG_CONTROL));
+	        addControlListener(_controls.getControl(CTL_PAN_CONTROL));
+	    }
 	}
 	
+	
+	// ---- Layouts ----
+	
+	public void setActiveLayout(String name) {
+	    // TODO - dont need to stop anymore?
+	    // stopLayout();
+	    _director.setActive(name);
+	}
+	
+	/**
+	 * StartLayout
+	 */
 	public void startLayout() {
-		if(_empty || _layoutRunning) {
+	    _director.printActivities();
+		if(_empty || _director.isRunning()) {
 			return;
 		}
-		_actions.runNow();
-		_layoutRunning = true;
+		
+		_director.runNow();
 	}
 
-	// TODO: there is a bug that sometimes the layout does not
-	// stop, in which case it can never be stopped and things
-	// get all messed up.  this bug can not be reproduced every
-	// time things get clicked though so i bet it's another
-	// thread issue -bs
+	/**
+	 * StopLayout
+	 */
 	public void stopLayout() {
 		if(_empty) {
 			return;
 		}
 
-		if(_layoutRunning) {
-		    try {
-		        _actions.cancel();
-				_layoutRunning = false;
-		    }
-		    catch (Exception e) {
-		        e.printStackTrace();
-		    }
+		if(_director.isRunning()) {
+		    _director.stop();
 		}
 	}
 
+	/**
+	 * AddActivity
+	 */
+	public void addActivity(String name, Activity a) {
+	    System.out.println("RB: Adding Activity: " + name);
+	    _director.add(name, a);
+	}
+	
+	/**
+	 * RemoveActivity
+	 */
+	public void removeActivity(String name) {
+	    _director.remove(name);
+	}
+	
 	
 	/** Randomly place the vertices of a graph on the drawing surface. */
 	public void doRandomLayout() {
 		if(_empty) {
 			return;
 		}
-		_ra_actions.runNow();
+		
+		// store previous active layout, just want to run random once
+		String prev_activity = _director.getActive();
+		_director.setActive(ACT_RANDOM);
+		_director.runNow();
+		_director.setActive(prev_activity);
 	}
 	
 	public void doSemiRandomLayout() {
 		if(_empty) {
 			return;
 		}
-		_sr_actions.runNow();
+		String prev_activity = _director.getActive();
+		_director.setActive(ACT_SEMIRANDOM);
+		_director.runNow();
+		_director.setActive(prev_activity);		
 	}
 	
 	public void doCenterLayout() {
@@ -353,6 +422,7 @@ public class RenderBox extends Display {
 		x = x / (double) ct;
 		y = y / (double) ct;
 		panToAbs(new java.awt.geom.Point2D.Double(x, y));
+		repaint();
 	}
 	
 	/**
@@ -576,12 +646,14 @@ public class RenderBox extends Display {
 				// close it
 				_popup.hide();
 				_popup = null;
+				repaint();
 			}
 		}
 		
 		public void itemEntered(VisualItem item, MouseEvent e) {
 			((Display)e.getSource()).setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 			item.setHighlighted(true);
+			repaint();
 		}
 		
 		public void itemPressed(VisualItem item, MouseEvent e) {
@@ -610,6 +682,7 @@ public class RenderBox extends Display {
 					_popup = _pFactory.getPopup(_parent, new PopupProp(_ctl, geData), e.getX() + _xOffset, e.getY() + _yOffset);
 					_popup.show();
 				}
+				repaint();
 			}
 			
 			_lastItemClicked = item;
@@ -623,11 +696,13 @@ public class RenderBox extends Display {
 		public void itemExited(VisualItem item, MouseEvent e) {
 			((Display)e.getSource()).setCursor(Cursor.getDefaultCursor());
 			item.setHighlighted(false);
+			repaint();
 		}
 		
 		private void maybeShowPopup(MouseEvent e) {
 			if (e.isPopupTrigger()) {
 				_vertexMenu.getMenu().show(e.getComponent(), e.getX(), e.getY());
+				repaint();
 			}
 		}
 		
