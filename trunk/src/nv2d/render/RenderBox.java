@@ -40,6 +40,7 @@ import java.awt.event.ActionEvent;
 import java.awt.Point;
 import java.util.Iterator;
 import javax.imageio.ImageIO;
+import javax.swing.filechooser.FileFilter;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
@@ -77,6 +78,7 @@ import nv2d.graph.Path;
 import nv2d.graph.Vertex;
 import nv2d.graph.filter.DegreeFilter;
 import nv2d.ui.NController;
+import nv2d.utils.filefilter.*;
 
 /**
  * Creates a new graph and draws it on the screen.
@@ -176,7 +178,7 @@ public class RenderBox extends Display {
 
 	
 	public void clear() {
-//	    System.out.println("Clearing RenderBox");
+	    System.out.println("Clearing RenderBox");
 		if(_empty) {
 			return;
 		}
@@ -213,7 +215,7 @@ public class RenderBox extends Display {
 	//
 	// -sp
 	public void initialize(Graph g) {
-//	    System.out.println("** Initializing Renderbox");
+	    System.out.println("** Initializing Renderbox");
         _g = g;
         _registry = getRegistry();
 		
@@ -428,7 +430,9 @@ public class RenderBox extends Display {
 	
 	/**
 	 * Saves an image by opening a file chooser and saving to specified 
-	 * disk location
+	 * disk location.
+	 * 
+	 * Can write JPG and PNG formats.
 	 */
 	public void handleSaveImage() {
 	    // Ensure layout is not running
@@ -436,47 +440,38 @@ public class RenderBox extends Display {
 
 	    // create file chooser and show dialog
 	    javax.swing.JFileChooser fc = new javax.swing.JFileChooser();
+	    fc.addChoosableFileFilter(new PNGFilter());
+	    fc.setFileFilter(new JPGFilter());
 	    int returnVal = fc.showSaveDialog(this);
 	    if (returnVal == javax.swing.JFileChooser.APPROVE_OPTION) {
 	        File file = fc.getSelectedFile();
+	        FileFilter filter = fc.getFileFilter();
+	        String outputExt;
+            if(filter instanceof PNGFilter) {
+	            outputExt = FileFilterUtils.png;
+	        }
+	        else {
+	            // JPG is Default
+	            outputExt = FileFilterUtils.jpg;
+	        }
+            
+            // TODO: should we use AbsolutePath or CanonicalPath???
+            // TODO: all of the logic here should probably be moved to NMenu
+            // check if they already typed file extension
+            if(!file.getName().toLowerCase().contains("." + outputExt)) {
+                file = new File(file.getAbsolutePath() + "." + outputExt);
+            }
+	        
 		    try {
-		        this.saveImage(new FileOutputStream(file), "JPG", 1.0);
+		        FileOutputStream f_out = new FileOutputStream(file);
+		        this.saveImage(f_out, outputExt, 1.0);
+		        f_out.close();  // need to close stream to view file
 		    }
 		    catch (Exception e) {
 		        e.printStackTrace();
 		    }
 	    }
 	}
-
-    
-	/** TODO: Saves the current visualization to a PNG or JPEG file.
-	 *
-	 * @param filename	the name of the file to save to.
-	 */
-/*	public void saveVisualFile(String filename) {
-		BufferedImage bi = new BufferedImage(
-				(int) getWidth(),
-				(int) getHeight(),
-				BufferedImage.TYPE_INT_RGB);
-		Graphics2D g = bi.createGraphics();
-		
-		// draw what we have
-		this.update(g);
-		
-		// saves according to extension.  if extension is invalid
-		// (i.e. not .jpg or .png) will default to jpg file.
-		try {
-			File f = new File(filename);
-			if(filename.substring(filename.length() - 4).equals(".png")) {
-				ImageIO.write((RenderedImage) bi, "png", f);
-			} else {
-				ImageIO.write((RenderedImage) bi, "jpg", f);
-			}
-		} catch (IOException e) {
-			System.out.println("Error: " + e);
-		}
-		g.dispose();
-	}*/
 
 	
 	public void doSaveVertexLocations() {
@@ -827,3 +822,38 @@ public class RenderBox extends Display {
 		}
 	}
 }
+
+
+
+
+
+// Unused:
+
+/** TODO: Saves the current visualization to a PNG or JPEG file.
+ *
+ * @param filename	the name of the file to save to.
+ */
+/*	public void saveVisualFile(String filename) {
+	BufferedImage bi = new BufferedImage(
+			(int) getWidth(),
+			(int) getHeight(),
+			BufferedImage.TYPE_INT_RGB);
+	Graphics2D g = bi.createGraphics();
+	
+	// draw what we have
+	this.update(g);
+	
+	// saves according to extension.  if extension is invalid
+	// (i.e. not .jpg or .png) will default to jpg file.
+	try {
+		File f = new File(filename);
+		if(filename.substring(filename.length() - 4).equals(".png")) {
+			ImageIO.write((RenderedImage) bi, "png", f);
+		} else {
+			ImageIO.write((RenderedImage) bi, "jpg", f);
+		}
+	} catch (IOException e) {
+		System.out.println("Error: " + e);
+	}
+	g.dispose();
+}*/
