@@ -17,6 +17,7 @@ import nv2d.graph.Graph;
 import nv2d.graph.GraphElement;
 import nv2d.graph.Vertex;
 import nv2d.graph.Path;
+import nv2d.graph.directed.DVertex;
 import nv2d.utils.Pair;
 
 /**
@@ -131,6 +132,7 @@ public class UGraphTest extends TestCase {
 		System.out.println("testNumVertices");
 
 		assertTrue(_g.getVertices().size() == 10);
+		assertTrue(_g.getVertices().size() == _g.numVertices());
 	}
 
 	/**
@@ -140,6 +142,7 @@ public class UGraphTest extends TestCase {
 		System.out.println("testNumEdges");
 
 		assertTrue(_g.getEdges().size() == 9);
+		assertTrue(_g.getEdges().size() == _g.numEdges());
 	}
 
 	/**
@@ -168,7 +171,7 @@ public class UGraphTest extends TestCase {
 		assertTrue(_g.edgeLen(_n04, _n06) == 9.0);
 		
 		try {
-			_g.edgeLen(_n04, new UVertex("foobar"));
+			_g.edgeLen(_n01, new UVertex("foobar"));
 			fail("Invalid input must throw an IllegalArgumentException");
 		} catch (IllegalArgumentException exception) {
 			// correct bahavior
@@ -234,6 +237,12 @@ public class UGraphTest extends TestCase {
 	 */
 	public void testAddRemove() {
 		System.out.println("testAddRemove");
+		
+		assertTrue(false == _g.remove(new UVertex("foobar")));
+		assertTrue(false == _g.add(_n01));
+		assertTrue(false == _g.add(_e01));
+		assertTrue(false == _g.add(new DVertex("directed vertex")));
+		assertTrue(_g.findVertex("directed vertex") == null);
 
 		/* remove nodes (also tests edge removal) */
 		_g.remove(_n01);
@@ -287,6 +296,14 @@ public class UGraphTest extends TestCase {
 		assertTrue(_g.edgeLen(_n01, _n02) == 1.0);
 		assertTrue(_g.edgeLen(_n01, _n03) == 2.0);
 		assertTrue(_g.edgeLen(_n01, _n04) == 3.0);
+		
+		_g.remove(_e01);
+		try {
+			_g.edgeLen(_n01, _n02);
+			fail("edge not removed correctly in response to vertex removal");
+		} catch (IllegalArgumentException exception) {
+			// correct bahavior
+		}
 	}
 
 	/**

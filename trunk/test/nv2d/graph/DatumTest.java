@@ -52,6 +52,20 @@ public class DatumTest extends TestCase {
 		b = null;
 		c = null;
 	}
+	
+	public void testConstructor() {
+		a = new Datum("null");
+		try {
+			b = new Datum(null);
+			fail("Exception not thrown for declaring a null Datum");
+		} catch (IllegalArgumentException e) {
+			// correct
+		}
+	}
+	
+	public void testSetId() {
+		a = new Datum("a");
+	}
 
 	public void testException() {
 		boolean passed = false;
@@ -81,6 +95,16 @@ public class DatumTest extends TestCase {
 
 		a.set(Color.blue);
 		assertTrue((Color) a.get() == Color.blue);
+	}
+	
+	public void testEquals() {
+		a = new Datum("a");
+		b = new Datum("a");
+		c = new Datum("c");
+		
+		assertTrue(a.equals(b));
+		assertTrue(!a.equals(c));
+		assertTrue(!a.equals("a"));
 	}
 
 	public void testCompare() {

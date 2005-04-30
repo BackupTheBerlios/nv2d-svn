@@ -37,11 +37,17 @@ public class PopupProp extends JPanel {
 	public PopupProp(NController ctl, GraphElement ge) {
 		_ctl = ctl;
 		
-		setLayout(new SpringLayout());
-		setBorder(new javax.swing.border.LineBorder(new java.awt.Color(0, 0, 0)));
+		// setLayout(new SpringLayout());
+		// setBorder(new javax.swing.border.LineBorder(new java.awt.Color(0, 0, 0)));
 		//setBorder(new javax.swing.border.TitledBorder(ge.id() + " [" + ge.getClass() + "]"));
 		
-		Object [] datums = ge.getDatumSet().toArray();
+		setBorder(new javax.swing.border.EmptyBorder(1, 1, 1, 1));
+		this.setBackground(Color.PINK);
+		
+		add(new JLabel(createHtml(ge)));
+		
+		/*
+		Object [] datums = ge.getVisibleDatumSet().toArray();
 		Arrays.sort(datums);
 		
 		if(datums.length < 1) {
@@ -71,6 +77,30 @@ public class PopupProp extends JPanel {
 				datums.length, 2,
 				1, 0,
 				5, 0);
+		 */
+	}
+
+	private String createHtml(GraphElement ge) {
+		StringBuffer buf = new StringBuffer();
+		Object [] datums = ge.getVisibleDatumSet().toArray();
+		Arrays.sort(datums);
+		
+		if(datums.length < 1) {
+			return null;
+		}
+		
+		buf.append("<html><p><b>" + ge.displayId() + "</b> (" + ge.id() + ")</p>");
+		
+		buf.append("<table>");
+		for(int j = 0; j < datums.length; j++) {
+			Datum d = (Datum) datums[j];
+			buf.append("<tr><td>" + d.name() + "</td><td>" + d.get() + "</td></tr>");
+		}
+		buf.append("</table>");
+	
+		buf.append("</html>");
+		
+		return buf.toString();
 	}
 	
 	private JLabel createURLButton(final URL url) {

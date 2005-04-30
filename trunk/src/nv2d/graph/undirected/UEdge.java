@@ -44,10 +44,6 @@ public class UEdge extends Edge {
 		_id1 = "UndirectedEdge [" + source.id() + "]<->[" + dest.id() + "]";
 		_id2 = "UndirectedEdge [" + dest.id() + "]<->[" + source.id() + "]";
 
-		if(source == null || dest == null || source.equals(dest)) {
-			throw new java.lang.IllegalArgumentException("Could not create edge");
-		}
-
 		_v = new Pair(source, dest);
 		_len = length;
 	}
@@ -128,14 +124,10 @@ public class UEdge extends Edge {
 		
 		e.setParent(destGraph);
 
-		Set attr = getDatumSet();
+		Set attr = getVisibleDatumSet();
 		Iterator i = attr.iterator();
 		while(i.hasNext()) {
-			Datum d = (Datum) i.next();
-			if(!d.name().matches("__.*:.*")) {
-				// not a 'reserved' system datum
-				e.setDatum(d);
-			}
+			e.setDatum((Datum) i.next());
 		}
 		return e;
 	}

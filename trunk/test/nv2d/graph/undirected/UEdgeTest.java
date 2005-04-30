@@ -58,6 +58,15 @@ public class UEdgeTest extends TestCase {
 		
 		return suite;
 	}
+	
+	public void testConstructor() {
+		try {
+			UEdge edge = new UEdge(_a, null, 1.0);
+			fail("illegal argument should be thrown for invalid edge constructor arguments");
+		} catch (NullPointerException e) {
+			// correct behavior
+		}
+	}
 
 	/**
 	 * Test of equals method, of class nv2d.graph.undirected.UEdge.
@@ -67,6 +76,8 @@ public class UEdgeTest extends TestCase {
 		
 		assertTrue(_eab.equals(_eba));
 		assertTrue(_eab.equals(_eaabb));
+		assertTrue(!_eab.equals(new UEdge(_c, _b, 1.0)));
+		assertTrue(!_eab.equals(_a));
 	}
 
 	/**
@@ -149,7 +160,11 @@ public class UEdgeTest extends TestCase {
 	public void testClone() {
 		System.out.println("testClone");
 		
+		UGraph originalOwner = new UGraph();
 		UGraph g = new UGraph();
+		
+		originalOwner.add(_eab);
+		assertTrue(null == _eab.clone(originalOwner));
 		
 		Integer data1 = new Integer(2345);
 		String data2 = "should not be cloned";

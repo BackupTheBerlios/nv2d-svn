@@ -63,7 +63,7 @@ public class DataStore {
 	 * Remember that internal variables are also stored but their keys
 	 * begin with two underscores (__).  These should not be displayed.
 	 */
-	public Set getDatumSet() {
+	public Set getVisibleDatumSet() {
 		Set ds = new HashSet();
 		Iterator i = _store.values().iterator();
 
@@ -81,7 +81,7 @@ public class DataStore {
 	 * same. This has important implications for <code>setDatum()</code> and
 	 * <code>getDatum()</code> */
 	public boolean equals(Object o) {
-		if(o.getClass() != DataStore.class) {
+		if(o == null || !(o instanceof DataStore)) {
 			return false;
 		}
 		return _store.equals(((DataStore) o)._store);

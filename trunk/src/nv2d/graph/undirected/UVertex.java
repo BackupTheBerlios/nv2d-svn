@@ -66,15 +66,11 @@ public class UVertex extends Vertex implements Serializable {
 		} else {
 			return null;
 		}
-		Set attr = getDatumSet();
+		Set attr = getVisibleDatumSet();
 		v.setDisplayId(displayId());
 		Iterator i = attr.iterator();
 		while(i.hasNext()) {
-			Datum d = (Datum) i.next();
-			if(!d.name().matches("__.*:.*")) {
-				// not a 'reserved' system datum
-				v.setDatum(d);
-			}
+			v.setDatum((Datum) i.next());
 		}
 		return v;
 	}

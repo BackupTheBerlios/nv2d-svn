@@ -40,10 +40,6 @@ public class DEdge extends Edge implements Serializable {
 			+ source.id() + "]-->["
 			+ dest.id() + "]");
 
-		if(source == null || dest == null || source.equals(dest)) {
-			throw new IllegalArgumentException("Could not create edge");
-		}
-
 		_v = new Pair(source, dest);
 		_len = length;
 	}
@@ -61,14 +57,10 @@ public class DEdge extends Edge implements Serializable {
 		DEdge e = new DEdge((DVertex) destGraph.findVertex(getSource().id()),
 				(DVertex) destGraph.findVertex(getDest().id()), _len);
 
-		Set attr = getDatumSet();
+		Set attr = getVisibleDatumSet();
 		Iterator i = attr.iterator();
 		while(i.hasNext()) {
-			Datum d = (Datum) i.next();
-			if(!d.name().matches("__.*:.*")) {
-				// not a 'reserved' system datum
-				e.setDatum(d);
-			}
+			e.setDatum((Datum) i.next());
 		}
 		return e;
 	}

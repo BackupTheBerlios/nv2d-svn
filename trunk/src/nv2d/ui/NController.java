@@ -60,7 +60,9 @@ public interface NController {
 	public Graph getModel();
 
 	/**
-	 * Returns the viewable subgraph of the model.
+	 * Returns the viewable subgraph of the model.  If the loaded graph has not
+	 * been filtered, this method may return the same <code>Graph</code> object
+	 * as the <code>getModel()</code> method.
 	 * @return returns a {@link nv2d.graph.Graph} object or <code>null</code>
 	 *  if no graph has been loaded yet.
 	 */
@@ -117,6 +119,9 @@ public interface NController {
 	
 	/**
 	 * Get the Graph history
+	 */
+	/**
+	 * Get a listing of the old graphs which
 	 */
 	public ListModel getHistory();
 

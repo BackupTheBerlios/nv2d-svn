@@ -69,14 +69,10 @@ public class DVertex extends Vertex implements Serializable {
 		DVertex v = new DVertex(id());
 		v.setDisplayId(displayId());
 		v.setParent(destGraph);
-		Set attr = getDatumSet();
+		Set attr = getVisibleDatumSet();
 		Iterator i = attr.iterator();
 		while(i.hasNext()) {
-			Datum d = (Datum) i.next();
-			if(!d.name().matches("__.*:.*")) {
-				// not a 'reserved' system datum
-				v.setDatum(d);
-			}
+			v.setDatum((Datum) i.next());
 		}
 		return v;
 	}

@@ -146,11 +146,17 @@ public class UVertexTest extends TestCase {
 	public void testClone() {
 		System.out.println("testClone");
 		
+		UGraph originalOwner = new UGraph();
+		originalOwner.add(_a);
+		
 		UGraph g = new UGraph();
 		
 		Integer data1 = new Integer(2345);
 		String data2 = "should not be cloned";
 		String data3 = "a";
+		
+		// if the destination graph is the same as the original graph, don't clone
+		assertTrue(null == _a.clone(originalOwner));
 		
 		_a.setDatum(new Datum("number", data1));
 		_a.setDatum(new Datum("__private:datum", data2));

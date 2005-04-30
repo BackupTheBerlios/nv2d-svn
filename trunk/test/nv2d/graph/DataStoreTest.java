@@ -64,6 +64,20 @@ public class DataStoreTest extends TestCase {
 		e = null;
 		f = null;
 	}
+	
+	public void testRemDatum() {
+		A.setDatum(a);
+		A.setDatum(b);
+		A.setDatum(c);
+
+		A.remDatum("red");
+		assertTrue(A.getDatum("red") == null);
+		assertTrue(A.getDatum("green") == b && A.getDatum("blue") == c);
+		
+		A.remDatum("green");
+		assertTrue(A.getDatum("red") == null && A.getDatum("green") == null);
+		assertTrue(A.getDatum("blue") == c);
+	}
 
 	public void testGetAndSet() {
 		A.setDatum(a);
@@ -93,6 +107,7 @@ public class DataStoreTest extends TestCase {
 		B.setDatum(f);
 		B.setDatum(d);
 		assertTrue(A.equals(B));
+		assertTrue(A.equals("a") == false);
 	}
 
 	public void testNull() {

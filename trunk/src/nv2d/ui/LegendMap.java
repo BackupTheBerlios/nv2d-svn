@@ -55,7 +55,7 @@ public class LegendMap {
 		_datums = new HashSet();
 		Iterator i = _g.getVertices().iterator();
 		while(i.hasNext()) {
-			_datums.addAll(((Vertex) i.next()).getDatumSet());
+			_datums.addAll(((Vertex) i.next()).getVisibleDatumSet());
 		}
 	}
 
