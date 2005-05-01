@@ -2,17 +2,17 @@
  * NV2D - Social Network Visualization
  * Copyright (C) 2005 Bo Shi
  * $Id$
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -101,6 +101,12 @@ public class RenderBox extends Display {
 	private boolean _empty;
 	private boolean _isInitialized;
 	
+	/**
+	 * Used to keep track of the source for shortest paths calculations and
+	 * visualization
+	 */
+	private Vertex _apspSource;
+	
 	// various colorizers
 	ColorFunction _colorizer;
 	ColorFunction _legendColorizer;
@@ -109,13 +115,13 @@ public class RenderBox extends Display {
 	
 	// for the mouse interface
 	private static VisualItem _lastItemClicked;
-
+	
 	// Activity and Layout String Names
 	public static final String ACT_BACKGROUND = "standard_BackgroundActivity";
 	public static final String ACT_SEMIRANDOM = "standard_SemiRandomLayout";
 	public static final String ACT_RANDOM = "standard_RandomLayout";
 	public static final String ACT_FORCEDIRECTED = "standard_ForceDirectedLayout";
-
+	
 	// Control Listener String Names
 	public static final String CTL_MOUSE_ADAPTOR = "standard_MouseAdaptor";
 	public static final String CTL_DRAG_CONTROL = "standard_DragControl";
@@ -130,21 +136,21 @@ public class RenderBox extends Display {
 		//  the item registry stores all the visual
 		//  representations of different graph elements
 		super(new ItemRegistry(new DefaultGraph(true)));
-
+		
 		// establish settings controller
 		_settings = new RenderSettings();
 		_pFactory = PopupFactory.getSharedInstance();
 		
 		_ctl = ctl;
-
+		
 		// setup the popup menu for vertices
 		_vertexMenu = new PopupMenu();
 		_lastItemClicked = null;
-
+		
 		_director = new ActivityDirector();
 		_controls = new ControlManager();
 		initStandardControls();
-
+		
 		// create a new display component to show the data
 		// setSize(400,400);
 		// pan(350, 350);
@@ -160,15 +166,15 @@ public class RenderBox extends Display {
 		
 		//_isInitialized = false;
 	}
-
-
+	
+	
 	public void useLegendColoring() {
 		_colorizer.setEnabled(false);
 		_legendColorizer.setEnabled(true);
 		
 		_legendColorizer.run(_registry, 0.0);
 	}
-
+	
 	
 	public void useDefaultColoring() {
 		_colorizer.setEnabled(true);
@@ -176,10 +182,10 @@ public class RenderBox extends Display {
 		
 		_colorizer.run(_registry, 0.0);
 	}
-
+	
 	
 	public void clear() {
-	    System.out.println("Clearing RenderBox");
+		System.out.println("Clearing RenderBox");
 		if(_empty) {
 			return;
 		}
@@ -190,7 +196,7 @@ public class RenderBox extends Display {
 		_empty = true;
 		repaint();
 	}
-
+	
 	
 	public BufferedImage screenShot() {
 		BufferedImage bi = new BufferedImage(
@@ -198,10 +204,10 @@ public class RenderBox extends Display {
 				(int) getHeight(),
 				BufferedImage.TYPE_INT_RGB);
 		Graphics2D g = bi.createGraphics();
-
+		
 		// draw to image
 		update(g);
-
+		
 		return bi;
 	}
 	
@@ -216,59 +222,59 @@ public class RenderBox extends Display {
 	//
 	// -sp
 	public void initialize(Graph g) {
-	    System.out.println("** Initializing Renderbox");
-        _g = g;
-        _registry = getRegistry();
+		System.out.println("** Initializing Renderbox");
+		_g = g;
+		_registry = getRegistry();
 		
 		if(g != null) {
 			_registry.setGraph(new PGraph(g));
 		}
-
-        _colorizer = new Colorizer();
-        _legendColorizer = new LegendColorizer(_ctl);
-
-        _colorizer.setEnabled(true);
-        _legendColorizer.setEnabled(false);
-
-        // antialias?
-        setHighQuality(_settings.getBoolean(RenderSettings.ANTIALIAS));
-
-        //if (!_isInitialized) {
-        initStandardLayouts();
-        if (!_director.isRunning()) {
-            _director.setActive(ACT_FORCEDIRECTED);
-        }
-        if (!_director.isBackgroundRunning()) {
-            _director.setBackground(ACT_BACKGROUND);
-            _director.startBackground();
-        }
-        //}
-
-        _empty = false;
-
-        // Begin by randomly setting all the items
-        doSemiRandomLayout();
-
-        //_isInitialized = true;
+		
+		_colorizer = new Colorizer();
+		_legendColorizer = new LegendColorizer(_ctl);
+		
+		_colorizer.setEnabled(true);
+		_legendColorizer.setEnabled(false);
+		
+		// antialias?
+		setHighQuality(_settings.getBoolean(RenderSettings.ANTIALIAS));
+		
+		//if (!_isInitialized) {
+		initStandardLayouts();
+		if (!_director.isRunning()) {
+			_director.setActive(ACT_FORCEDIRECTED);
+		}
+		if (!_director.isBackgroundRunning()) {
+			_director.setBackground(ACT_BACKGROUND);
+			_director.startBackground();
+		}
+		//}
+		
+		_empty = false;
+		
+		// Begin by randomly setting all the items
+		doSemiRandomLayout();
+		
+		//_isInitialized = true;
 	}
-
+	
 	
 	/**
 	 * Standard Controls
 	 */
 	private void initStandardControls() {
-	    _controls.addControl(CTL_MOUSE_ADAPTOR, new MouseAdapter(this));
-	    _controls.addControl(CTL_DRAG_CONTROL, new DragControl());
-	    _controls.addControl(CTL_PAN_CONTROL, new PanControl());
-	    _controls.addControl(CTL_ZOOM_CONTROL, new ZoomControl());
-	    _controls.addControl(CTL_ROTATION_CONTROL, new RotationControl());
-	    // TODO - add more
+		_controls.addControl(CTL_MOUSE_ADAPTOR, new MouseAdapter(this));
+		_controls.addControl(CTL_DRAG_CONTROL, new DragControl());
+		_controls.addControl(CTL_PAN_CONTROL, new PanControl());
+		_controls.addControl(CTL_ZOOM_CONTROL, new ZoomControl());
+		_controls.addControl(CTL_ROTATION_CONTROL, new RotationControl());
+		// TODO - add more
 	}
 	
 	
 	/**
-     * Standard Layouts
-     */
+	 * Standard Layouts
+	 */
 	private void initStandardLayouts() {
 		ForceSimulator _fsim;
 		ForceDirectedLayout _flayout;
@@ -278,7 +284,7 @@ public class RenderBox extends Display {
 		
 		GraphFilter graphFilter = new GraphFilter();
 		RepaintAction repaintAction = new RepaintAction();
-	    
+		
 		// Default Background Activity
 		ActionList background = new ActionList(_registry, -1, 20);
 		background.add(_colorizer);
@@ -287,7 +293,7 @@ public class RenderBox extends Display {
 		_director.add(ACT_BACKGROUND, background);
 		
 		
-	    // Semi-Random Layout
+		// Semi-Random Layout
 		_semiRandomLayout = new SemiRandomLayout(_ctl);
 		s = new ActionList(_registry);
 		s.add(graphFilter);
@@ -328,23 +334,22 @@ public class RenderBox extends Display {
 	
 	// TODO - implement all of this as ControlSchemes in the ControlManager
 	public void setRotateMode(boolean mode) {
-	    if(mode) {
-	        removeControlListener(_controls.getControl(CTL_DRAG_CONTROL));
-	        removeControlListener(_controls.getControl(CTL_PAN_CONTROL));
-	        addControlListener(_controls.getControl(CTL_ROTATION_CONTROL));	        
-	    }
-	    else {
-	        removeControlListener(_controls.getControl(CTL_ROTATION_CONTROL));	
-	        addControlListener(_controls.getControl(CTL_DRAG_CONTROL));
-	        addControlListener(_controls.getControl(CTL_PAN_CONTROL));
-	    }
+		if(mode) {
+			removeControlListener(_controls.getControl(CTL_DRAG_CONTROL));
+			removeControlListener(_controls.getControl(CTL_PAN_CONTROL));
+			addControlListener(_controls.getControl(CTL_ROTATION_CONTROL));
+		} else {
+			removeControlListener(_controls.getControl(CTL_ROTATION_CONTROL));
+			addControlListener(_controls.getControl(CTL_DRAG_CONTROL));
+			addControlListener(_controls.getControl(CTL_PAN_CONTROL));
+		}
 	}
 	
 	
 	// ---- Layouts ----
 	
 	public void setActiveLayout(String name) {
-	    _director.setActive(name);
+		_director.setActive(name);
 	}
 	
 	/**
@@ -357,7 +362,7 @@ public class RenderBox extends Display {
 		
 		_director.runNow();
 	}
-
+	
 	/**
 	 * StopLayout
 	 */
@@ -365,26 +370,66 @@ public class RenderBox extends Display {
 		if(_empty) {
 			return;
 		}
-
+		
 		if(_director.isRunning()) {
-		    _director.stop();
+			_director.stop();
 		}
 	}
-
+	
 	/**
 	 * AddActivity
 	 */
 	public void addActivity(String name, Activity a) {
-	    _director.add(name, a);
+		_director.add(name, a);
 	}
 	
 	/**
 	 * RemoveActivity
 	 */
 	public void removeActivity(String name) {
-	    _director.remove(name);
+		_director.remove(name);
+	}
+
+	public void clearHighlightedPaths() {
+		Iterator i = _registry.getNodeItems();
+		while(i.hasNext()) {
+			PNode pnode = (PNode) ((VisualItem) i.next()).getEntity();
+			pnode.setPathElement(false);
+			pnode.setStartPoint(false);
+			pnode.setEndPoint(false);
+		}
+		
+		i = _registry.getEdgeItems();
+		while(i.hasNext()) {
+			PEdge pedge = (PEdge) ((VisualItem) i.next()).getEntity();
+			pedge.setPathElement(false);
+		}
+		repaint();
 	}
 	
+	public void highlightPath(Path p) {
+		// run through all the visible nodes
+		Iterator i = _registry.getNodeItems();
+		PNode pnode = null;
+		while(i.hasNext()) {
+			pnode = (PNode) ((VisualItem) i.next()).getEntity();
+			pnode.setPathElement(p.contains(pnode.v()) ? true : false);
+			pnode.setStartPoint(pnode.v().equals(p.start()) ? true : false);
+			pnode.setEndPoint(false);
+		}
+		pnode.setEndPoint(true);
+		
+		i = _registry.getEdgeItems();
+		while(i.hasNext()) {
+			PEdge pedge = (PEdge) ((VisualItem) i.next()).getEntity();
+			if(p.contains(pedge.e())) {
+				pedge.setPathElement(true);
+			} else {
+				pedge.setPathElement(false);
+			}
+		}
+		repaint();
+	}
 	
 	/** Randomly place the vertices of a graph on the drawing surface. */
 	public void doRandomLayout() {
@@ -406,14 +451,14 @@ public class RenderBox extends Display {
 		String prev_activity = _director.getActive();
 		_director.setActive(ACT_SEMIRANDOM);
 		_director.runNow();
-		_director.setActive(prev_activity);		
+		_director.setActive(prev_activity);
 	}
 	
 	public void doCenterLayout() {
 		if(_empty) {
 			return;
 		}
-
+		
 		int ct = 0;
 		double x = 0, y = 0;
 		Iterator nodeIter = _registry.getNodeItems();
@@ -430,50 +475,48 @@ public class RenderBox extends Display {
 	}
 	
 	/**
-	 * Saves an image by opening a file chooser and saving to specified 
+	 * Saves an image by opening a file chooser and saving to specified
 	 * disk location.
-	 * 
+	 *
 	 * Can write JPG and PNG formats.
 	 */
 	public void handleSaveImage() {
-	    // Ensure layout is not running
-	    stopLayout();
-
-	    // create file chooser and show dialog
-	    javax.swing.JFileChooser fc = new javax.swing.JFileChooser();
-	    fc.addChoosableFileFilter(new PNGFilter());
-	    fc.setFileFilter(new JPGFilter());
-	    int returnVal = fc.showSaveDialog(this);
-	    if (returnVal == javax.swing.JFileChooser.APPROVE_OPTION) {
-	        File file = fc.getSelectedFile();
-	        FileFilter filter = fc.getFileFilter();
-	        String outputExt;
-            if(filter instanceof PNGFilter) {
-	            outputExt = FileFilterUtils.png;
-	        }
-	        else {
-	            // JPG is Default
-	            outputExt = FileFilterUtils.jpg;
-	        }
-            
-            // TODO: should we use AbsolutePath or CanonicalPath???
-            // TODO: all of the logic here should probably be moved to NMenu
-            // check if they already typed file extension
-            if(!file.getName().toLowerCase().contains("." + outputExt)) {
-                file = new File(file.getAbsolutePath() + "." + outputExt);
-            }
-	        
-		    try {
-		        FileOutputStream f_out = new FileOutputStream(file);
-		        this.saveImage(f_out, outputExt, 1.0);
-		        f_out.close();  // need to close stream to view file
-		    }
-		    catch (Exception e) {
-		        e.printStackTrace();
-		    }
-	    }
+		// Ensure layout is not running
+		stopLayout();
+		
+		// create file chooser and show dialog
+		javax.swing.JFileChooser fc = new javax.swing.JFileChooser();
+		fc.addChoosableFileFilter(new PNGFilter());
+		fc.setFileFilter(new JPGFilter());
+		int returnVal = fc.showSaveDialog(this);
+		if (returnVal == javax.swing.JFileChooser.APPROVE_OPTION) {
+			File file = fc.getSelectedFile();
+			FileFilter filter = fc.getFileFilter();
+			String outputExt;
+			if(filter instanceof PNGFilter) {
+				outputExt = FileFilterUtils.png;
+			} else {
+				// JPG is Default
+				outputExt = FileFilterUtils.jpg;
+			}
+			
+			// TODO: should we use AbsolutePath or CanonicalPath???
+			// TODO: all of the logic here should probably be moved to NMenu
+			// check if they already typed file extension
+			if(!file.getName().toLowerCase().contains("." + outputExt)) {
+				file = new File(file.getAbsolutePath() + "." + outputExt);
+			}
+			
+			try {
+				FileOutputStream f_out = new FileOutputStream(file);
+				this.saveImage(f_out, outputExt, 1.0);
+				f_out.close();  // need to close stream to view file
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
 	}
-
+	
 	
 	public void doSaveVertexLocations() {
 		// when graph is cleared, save the locations of the
@@ -490,7 +533,7 @@ public class RenderBox extends Display {
 					v.setDatum(new Datum(DATUM_LASTLOCATION, loc));
 				}
 			}
-		}		
+		}
 	}
 	
 	public RenderSettings getRenderSettings() {
@@ -567,7 +610,7 @@ public class RenderBox extends Display {
 		{"\\hline",""},
 		{"test2","135"}};
 		renderTable(g, (int) getDisplayX() + 5, (int) getDisplayY() + 5, "", test);
-		*/
+		 */
 	}
 	
 	private double getTheta(int x1, int y1, int x2, int y2) {
@@ -577,58 +620,6 @@ public class RenderBox extends Display {
 	private void setAlpha(Graphics2D g, float alpha) {
 		g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, alpha));
 	}
-	
-	/*
-	private void renderTable(Graphics2D g, int x, int y, String layout, String [][] content) {
-		// overridden method to paint stuff _after_ graph elements
-		// have been drawn
-		if(content.length > 0) {
-			return;
-		}
-		String HLINE = "\\hline";
-		FontMetrics fm = g.getFontMetrics();
-		int padding = 5;
-		int fheight = fm.getAscent() + padding;
-		int [] maxWidth = new int[content[0].length];
-		int totalx, width, i, j;
-		int cols;
-		
-		cols = 0;
-		for(i = 0; i < content.length; i++) {
-			if(content[i][0].equals(HLINE)) {
-				continue;
-			}
-			for(j = 0; j < content[i].length; j++) {
-				width = fm.stringWidth(content[i][j]);
-				maxWidth[j] = (width > maxWidth[j] ? width : maxWidth[j]);
-			}
-			cols++;
-		}
-		
-		totalx = 0;
-		for(i = 0; i < maxWidth.length; i++ ) {
-			totalx += maxWidth[i];
-		}
-		
-		g.setPaint(Color.WHITE);
-		setAlpha(g, TRANSPARENCY);
-		g.fill(new Rectangle(x, y, totalx, fheight * cols));
-		setAlpha(g, 1.0f);
-		g.setPaint(Color.BLACK);
-		g.draw(new Rectangle(x, y, totalx, fheight * cols));
-		
-		y = y + fm.getAscent();
-		for(i = 0; i < content.length; i++) {
-			if(content[i][0].equals(HLINE)) {
-				g.draw(new Line2D.Double((double) x, (double) (y + padding),
-						(double) (x + totalx), (double) (y + padding)));
-			}
-			for(j = 0; j < content[i].length; j++) {
-				
-			}
-		}
-	}
-	*/
 	
 	private class MouseAdapter extends ControlAdapter {
 		private RenderBox _parent;
@@ -659,7 +650,7 @@ public class RenderBox extends Display {
 			// first click selects, second click deselects
 			if(checkMask(e.getModifiers(), MouseEvent.BUTTON1_MASK) && item.getEntity() instanceof PElement) {
 				p.setSelected(!p.isSelected());
-
+				
 				// when showing popups, coordinates are calculated relative to the
 				// top level container, so we need to add an offset to the popup to
 				// fix this.
@@ -667,7 +658,7 @@ public class RenderBox extends Display {
 				Point pWindow = _ctl.getView().gui().getLocationOnScreen();
 				_xOffset = (int) (pRenderBox.getX() - pWindow.getX());
 				_yOffset = (int) (pRenderBox.getY() - pWindow.getX());
-
+				
 				if(_popup == null) {
 					// show popup
 					nv2d.graph.GraphElement geData = p.getNV2DGraphElement();
@@ -709,7 +700,6 @@ public class RenderBox extends Display {
 	}
 	
 	class PopupMenu {
-		private Vertex _apspSource;
 		private JMenuItem _centerDegreeFilter = new JMenuItem("Center DegreeFilter here");
 		private JMenuItem _clearPath = new JMenuItem("Clear Path");
 		private JMenuItem _setStartPoint = new JMenuItem("Start Path");
@@ -733,79 +723,26 @@ public class RenderBox extends Display {
 					_ctl.runFilter(fargs, true);
 				}
 			});
-
+			
 			
 			_clearPath.setToolTipText("Clear any highlighted paths.");
 			_clearPath.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
-					Iterator i = _registry.getNodeItems();
-					while(i.hasNext()) {
-						PNode pnode = (PNode) ((VisualItem) i.next()).getEntity();
-						pnode.setPathElement(false);
-						pnode.setStartPoint(false);
-						pnode.setEndPoint(false);
-					}
-					
-					i = _registry.getEdgeItems();
-					while(i.hasNext()) {
-						PEdge pedge = (PEdge) ((VisualItem) i.next()).getEntity();
-						pedge.setPathElement(false);
-					}
+					clearHighlightedPaths();
 				}
 			});
 			
 			_setStartPoint.setToolTipText("Set the starting point for a shortest path calculation.");
 			_setStartPoint.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
-					try {
-						Vertex v = ((PNode) _lastItemClicked.getEntity()).v();
-						_apspSource = v;
-					} catch (java.lang.ClassCastException err) {
-						return;
-					}
+					actionPerformedSetStartPoint(e);
 				}
 			});
 			
 			_setEndPoint.setToolTipText("Calculate and highlight the all-pairs shortest path from the start vertex to this vertex.");
 			_setEndPoint.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
-					Vertex v = ((PNode) _lastItemClicked.getEntity()).v();
-					if(v.equals(_apspSource)) {
-						_ctl.getView().errorPopup("Path Error",
-								"You picked the same node " + _apspSource.id() + " to be the source and destination.",
-								null);
-						return;
-					}
-					
-					Path p = _g.shortestPath(_apspSource, v);
-					
-					if(p == null) {
-						_ctl.getView().errorPopup("Path Error",
-								"There is no path from " + _apspSource.id() + " to " + v.id() + ".",
-								null);
-						return;
-					}
-					
-					// run through all the visible nodes
-					Iterator i = _registry.getNodeItems();
-					PNode pnode = null;
-					while(i.hasNext()) {
-						pnode = (PNode) ((VisualItem) i.next()).getEntity();
-						pnode.setPathElement(p.contains(pnode.v()) ? true : false);
-						pnode.setStartPoint(pnode.v().equals(p.start()) ? true : false);
-						pnode.setEndPoint(false);
-					}
-					pnode.setEndPoint(true);
-					
-					i = _registry.getEdgeItems();
-					while(i.hasNext()) {
-						PEdge pedge = (PEdge) ((VisualItem) i.next()).getEntity();
-						if(p.contains(pedge.e())) {
-							pedge.setPathElement(true);
-						} else {
-							pedge.setPathElement(false);
-						}
-					}
+					actionPerformedSetEndPoint(e);
 				}
 			});
 		}
@@ -822,39 +759,35 @@ public class RenderBox extends Display {
 			return m;
 		}
 	}
-}
-
-
-
-
-
-// Unused:
-
-/** TODO: Saves the current visualization to a PNG or JPEG file.
- *
- * @param filename	the name of the file to save to.
- */
-/*	public void saveVisualFile(String filename) {
-	BufferedImage bi = new BufferedImage(
-			(int) getWidth(),
-			(int) getHeight(),
-			BufferedImage.TYPE_INT_RGB);
-	Graphics2D g = bi.createGraphics();
 	
-	// draw what we have
-	this.update(g);
-	
-	// saves according to extension.  if extension is invalid
-	// (i.e. not .jpg or .png) will default to jpg file.
-	try {
-		File f = new File(filename);
-		if(filename.substring(filename.length() - 4).equals(".png")) {
-			ImageIO.write((RenderedImage) bi, "png", f);
-		} else {
-			ImageIO.write((RenderedImage) bi, "jpg", f);
+	private void actionPerformedSetEndPoint(ActionEvent e) {
+		Vertex v = ((PNode) _lastItemClicked.getEntity()).v();
+		if(v.equals(_apspSource)) {
+			_ctl.getView().errorPopup("Path Error",
+					"You picked the same node " + _apspSource.id() + " to be the source and destination.",
+					null);
+			return;
 		}
-	} catch (IOException e) {
-		System.out.println("Error: " + e);
+		
+		Path p = _g.shortestPath(_apspSource, v);
+		
+		if(p == null) {
+			_ctl.getView().errorPopup("Path Error",
+					"There is no path from " + _apspSource.id() + " to " + v.id() + ".",
+					null);
+			return;
+		}
+
+		clearHighlightedPaths();
+		highlightPath(p);
 	}
-	g.dispose();
-}*/
+
+	private void actionPerformedSetStartPoint(ActionEvent e) {
+		try {
+			Vertex v = ((PNode) _lastItemClicked.getEntity()).v();
+			_apspSource = v;
+		} catch (java.lang.ClassCastException err) {
+			return;
+		}
+	}
+}

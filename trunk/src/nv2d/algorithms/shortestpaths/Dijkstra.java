@@ -88,7 +88,7 @@ public class Dijkstra implements APSPInterface {
 		_s.getDatum(AlgConst.DATUM_DIJKSTRA_D).set(new Double(0.0));
 		_s.getDatum(AlgConst.DATUM_DIJKSTRA_P).set(_s);
 
-		_cached = true;
+		_cached = false;
 	}
 
 	public void run() {
