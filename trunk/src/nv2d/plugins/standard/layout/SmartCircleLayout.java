@@ -110,13 +110,13 @@ public class SmartCircleLayout extends Layout {
                 while(i.hasNext()) {
                     Datum d = (Datum)i.next();
                     Object o = d.get();
-                    System.out.println("Is " + o.toString() + " a number?");
+                    //System.out.println("Is " + o.toString() + " a number?");
                     if(isNumber(o)) {
-                        System.out.println("  - YES, adding to measures");
+                        //System.out.println("  - YES, adding to measures");
                         measureList.add(d.name());                        
                     }
                     else {
-                        System.out.println("  - NO");
+                        //System.out.println("  - NO");
                     }
                 }
             }
@@ -172,7 +172,7 @@ public class SmartCircleLayout extends Layout {
     
     
     public void setActiveMeasure(String m) {
-        System.out.println("SmartCircleLayout --> setting Active: " + m);
+        //System.out.println("SmartCircleLayout --> setting Active: " + m);
         sortType = m;
     }
     
@@ -180,7 +180,7 @@ public class SmartCircleLayout extends Layout {
      * RUN
      */
     public void run(ItemRegistry registry, double frac) {
-        System.out.println("Running SmartCircleLayout");
+        //System.out.println("Running SmartCircleLayout");
         Graph g = registry.getFilteredGraph();
 
         Rectangle2D r = super.getLayoutBounds(registry);
@@ -203,7 +203,7 @@ public class SmartCircleLayout extends Layout {
 
         // If SortType Alphabetical, do it
         if(sortType.equals(LayoutPlugin.STR_SORT_ALPHABETICAL)) {
-            System.out.println(" - doing Alphabetical");
+            //System.out.println(" - doing Alphabetical");
 			for (int i=0; nodeIter.hasNext(); i++) {
 			    NodeItem n = (NodeItem)nodeIter.next();
 			    PNode pn = (PNode) n.getEntity();
@@ -216,24 +216,24 @@ public class SmartCircleLayout extends Layout {
         else {
 // if SNA is loaded
 //        if (_pluginRef != null) {
-            System.out.println(" - doing " + sortType);
+            //System.out.println(" - doing " + sortType);
             for (int i = 0; nodeIter.hasNext(); i++) {
                 NodeItem n = (NodeItem) nodeIter.next();
                 PElement p = (PElement) n.getEntity();
                 nv2d.graph.GraphElement geData = p.getNV2DGraphElement();
                 Iterator iter = geData.getVisibleDatumSet().iterator();
-                System.out.println("Node: " + geData.displayId());
+                //System.out.println("Node: " + geData.displayId());
                 while(iter.hasNext()) {
                     Datum d = (Datum)iter.next();
                     if(sortType.equals(d.name())) {
                         Double key = (Double)d.get();
                         if(!sm.containsKey(key)) {
-                            System.out.println("Putting: " + key);
+                            //System.out.println("Putting: " + key);
                             sm.put(key, n);
                         }
                         else {
                             Double newkey = new Double(key.doubleValue() + ((double)i) * 10E-8);
-                            System.out.println("Putting:" + newkey);
+                            //System.out.println("Putting:" + newkey);
                             sm.put(newkey, n);
                         }
                     }
@@ -276,7 +276,7 @@ public class SmartCircleLayout extends Layout {
         Iterator nIter = nodes.iterator();
         for (int i = 0; nIter.hasNext(); i++) {
             NodeItem n = (NodeItem) nIter.next();
-            System.out.println("drawNode: " + n.getAttribute("id") + " i:" + i);
+            //System.out.println("drawNode: " + n.getAttribute("id") + " i:" + i);
             // Start on the lefthand side and move around
             double angle = ((2 * Math.PI * i - 1) / nn) + Math.PI;
             double x = Math.cos(angle) * radius + cx;

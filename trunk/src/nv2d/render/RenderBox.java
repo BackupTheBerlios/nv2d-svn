@@ -357,11 +357,12 @@ public class RenderBox extends Display {
 	    if(mode) {
 	        removeControlListener(_controls.getControl(CTL_DRAG_CONTROL));
 	        removeControlListener(_controls.getControl(CTL_PAN_CONTROL));
-	        addControlListener(_controls.getControl(CTL_ROTATION_CONTROL));
+	        // TODO - remove rotation control until stable
+	        //addControlListener(_controls.getControl(CTL_ROTATION_CONTROL));
 	        _isRotateMode = true;
 	    }
 	    else {
-	        removeControlListener(_controls.getControl(CTL_ROTATION_CONTROL));	
+	        //removeControlListener(_controls.getControl(CTL_ROTATION_CONTROL));	
 	        addControlListener(_controls.getControl(CTL_DRAG_CONTROL));
 	        addControlListener(_controls.getControl(CTL_PAN_CONTROL));
 	        _isRotateMode = false;

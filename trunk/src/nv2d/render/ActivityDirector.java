@@ -311,7 +311,7 @@ public class ActivityDirector {
         Object[] ss = _activities.keys();
         //System.out.println("Activities:" + ss.length);
         for(int i=0; i<ss.length; i++) {
-            System.out.println("  - " + (String)ss[i]);
+            //System.out.println("  - " + (String)ss[i]);
         }
     }
     
@@ -326,7 +326,7 @@ public class ActivityDirector {
      * multiple "Run With Layout" Activities.
      */
     public void setRunWithLayout(String name) {
-        System.out.println("Setting RunWithLayout Activity: <" + name + ">");
+        //System.out.println("Setting RunWithLayout Activity: <" + name + ">");
         Activity a = _activities.get(name);
         if(!_runWithLayoutList.contains(a)) {
             // TODO: is this threadsafe here?

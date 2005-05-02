@@ -1170,35 +1170,39 @@ public class LayoutPlugin implements NV2DPlugin {
 	        group.add(_panzoom_button);
 	        this.add(_panzoom_button);
 
+	        /* TODO fix Rotate Origin
 	        _rotate_button = createLayoutButton("Rotate",
 	                LayoutPlugin.VIEW_ROTATE, border);
 	        group.add(_rotate_button);
 	        this.add(_rotate_button);
-
+	        */
+	        
 	        // Action Listener
 	        ActionListener viewActions = new ActionListener() {
 	            public void actionPerformed(ActionEvent e) {
 	                String command = ((JToggleButton) e.getSource()).getActionCommand();
 	                if (command.equals(LayoutPlugin.VIEW_PAN_ZOOM)) {
 	                    _pluginRef.setView(LayoutPlugin.VIEW_PAN_ZOOM);
-	                } else if (command.equals(LayoutPlugin.VIEW_ROTATE)) {
+	                } /*else if (command.equals(LayoutPlugin.VIEW_ROTATE)) {
 	                    _pluginRef.setView(LayoutPlugin.VIEW_ROTATE);
-	                }
+	                }*/
 	            }
 	        };
 
 	        // add action listeners
 	        _panzoom_button.addActionListener(viewActions);
-	        _rotate_button.addActionListener(viewActions);
+//	        _rotate_button.addActionListener(viewActions);
 	    }
 
 	    public void setSelected(String type) {
 	        if(type.equals(LayoutPlugin.VIEW_PAN_ZOOM)) {
 	            _panzoom_button.setSelected(true);
 	        }
+	        /*
 	        else if(type.equals(LayoutPlugin.VIEW_ROTATE)) {
 	            _rotate_button.setSelected(true);
-	        }	        
+	        }
+	        */	        
 	    }
 
 	    // TODO: clean up this method and put in utils
