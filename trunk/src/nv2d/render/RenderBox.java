@@ -100,6 +100,8 @@ public class RenderBox extends Display {
 	
 	private boolean _empty;
 	private boolean _isInitialized;
+	// TODO - handle display view modes in a better manner
+	private boolean _isRotateMode;
 	
 	/**
 	 * Used to keep track of the source for shortest paths calculations and
@@ -117,7 +119,7 @@ public class RenderBox extends Display {
 	private static VisualItem _lastItemClicked;
 	
 	// Activity and Layout String Names
-	public static final String ACT_BACKGROUND = "standard_BackgroundActivity";
+	public static final String ACT_COLORIZER = "standard_ColorizerActivity";
 	public static final String ACT_SEMIRANDOM = "standard_SemiRandomLayout";
 	public static final String ACT_RANDOM = "standard_RandomLayout";
 	public static final String ACT_FORCEDIRECTED = "standard_ForceDirectedLayout";
@@ -160,11 +162,13 @@ public class RenderBox extends Display {
 		addControlListener(_controls.getControl(CTL_PAN_CONTROL));
 		addControlListener(_controls.getControl(CTL_ZOOM_CONTROL));
 		
+		_isRotateMode = false;
+		
 		_empty = true;
 		
 		initialize(null);
 		
-		//_isInitialized = false;
+		_isInitialized = false;
 	}
 	
 	
@@ -172,7 +176,8 @@ public class RenderBox extends Display {
 		_colorizer.setEnabled(false);
 		_legendColorizer.setEnabled(true);
 		
-		_legendColorizer.run(_registry, 0.0);
+		//_legendColorizer.run(_registry, 0.0);
+		_director.runNowInBackground(_legendColorizer, _registry, 0.0);
 	}
 	
 	
@@ -180,19 +185,21 @@ public class RenderBox extends Display {
 		_colorizer.setEnabled(true);
 		_legendColorizer.setEnabled(false);
 		
-		_colorizer.run(_registry, 0.0);
+//		_colorizer.run(_registry, 0.0);
+		_director.runNowInBackground(_colorizer, _registry, 0.0);
+		repaint();
 	}
 	
 	
 	public void clear() {
-		System.out.println("Clearing RenderBox");
+		//System.out.println("Clearing RenderBox");
 		if(_empty) {
 			return;
 		}
 		
 		doSaveVertexLocations();
 		_registry.clear();
-		//_director.clear();
+		_director.clear();
 		_empty = true;
 		repaint();
 	}
@@ -210,52 +217,66 @@ public class RenderBox extends Display {
 		
 		return bi;
 	}
-	
-	// TODO - initialize is called twice.  why does this happen?
-	// necessitates some if statements to tell if it has happened
-	// before, but works for now with bug.
-	//
-	// Also, is it possible to initialize the renderbox before
-	// loading all of the plugins.  If the plugin requires use
-	// of the renderbox or registry, it is difficult to handle
-	// through the plugin constructor or init methods.
-	//
-	// -sp
+
+	/**
+	 * Initialize
+	 */
 	public void initialize(Graph g) {
-		System.out.println("** Initializing Renderbox");
+		//System.out.println("** Initializing Renderbox");
 		_g = g;
 		_registry = getRegistry();
 		
 		if(g != null) {
 			_registry.setGraph(new PGraph(g));
 		}
-		
-		_colorizer = new Colorizer();
-		_legendColorizer = new LegendColorizer(_ctl);
-		
-		_colorizer.setEnabled(true);
-		_legendColorizer.setEnabled(false);
-		
-		// antialias?
-		setHighQuality(_settings.getBoolean(RenderSettings.ANTIALIAS));
-		
-		//if (!_isInitialized) {
-		initStandardLayouts();
-		if (!_director.isRunning()) {
-			_director.setActive(ACT_FORCEDIRECTED);
-		}
-		if (!_director.isBackgroundRunning()) {
-			_director.setBackground(ACT_BACKGROUND);
-			_director.startBackground();
-		}
-		//}
-		
-		_empty = false;
-		
-		// Begin by randomly setting all the items
-		doSemiRandomLayout();
-		
-		//_isInitialized = true;
+
+        // antialias?
+        setHighQuality(_settings.getBoolean(RenderSettings.ANTIALIAS));
+        		
+		// init colorizers
+        _colorizer = new Colorizer();
+        _legendColorizer = new LegendColorizer(_ctl);
+        _colorizer.setEnabled(true);
+        _legendColorizer.setEnabled(false);
+        
+        initStandardLayouts();
+        
+        // check if an active layout has already been set, if not set default
+        if (!_director.isActiveSet()) {
+            //System.out.println("Running Default RenderBox Layout");
+            _director.setActive(ACT_FORCEDIRECTED);
+        }
+
+        // Run Colorizers WITH LAYOUT
+        _director.setRunWithLayout(ACT_COLORIZER);
+        
+        
+		// TODO - Bo, do we want to put the graphReload into the RenderBox
+		// as well to avoid multiple initialize calls?
+		//
+		// Only run on first call to initialize ------------
+        //
+        // TODO - rethink ActivityDirector - do we want it to serve as
+        // a repository for Actions/Activities?  Or should it only
+        // serve as a switch between them to mitigate thread
+        // conflicts.
+        // If we want it to serve as a repository, the underlying objects
+        // placed in it must be persistent and not created "new" for each
+        // new graph.  Although it may make more sense to simply create
+        // all visualizations on the fly with new graph objects, rather
+        // than updating persistent objects for each new graph.
+//        if (!_isInitialized) {
+//            _isInitialized = true;
+//        }
+        
+        //---------------------------------------------------
+
+
+        
+        _empty = false;
+
+        // Begin by randomly setting all the items
+        doSemiRandomLayout();
 	}
 	
 	
@@ -285,12 +306,11 @@ public class RenderBox extends Display {
 		GraphFilter graphFilter = new GraphFilter();
 		RepaintAction repaintAction = new RepaintAction();
 		
-		// Default Background Activity
-		ActionList background = new ActionList(_registry, -1, 20);
-		background.add(_colorizer);
-		background.add(_legendColorizer);
-		//background.add(repaintAction);
-		_director.add(ACT_BACKGROUND, background);
+		// Colorizer Activity
+		ActionList colors = new ActionList(_registry, -1, 20);
+		colors.add(_colorizer);
+		colors.add(_legendColorizer);
+		_director.add(ACT_COLORIZER, colors);
 		
 		
 		// Semi-Random Layout
@@ -334,17 +354,23 @@ public class RenderBox extends Display {
 	
 	// TODO - implement all of this as ControlSchemes in the ControlManager
 	public void setRotateMode(boolean mode) {
-		if(mode) {
-			removeControlListener(_controls.getControl(CTL_DRAG_CONTROL));
-			removeControlListener(_controls.getControl(CTL_PAN_CONTROL));
-			addControlListener(_controls.getControl(CTL_ROTATION_CONTROL));
-		} else {
-			removeControlListener(_controls.getControl(CTL_ROTATION_CONTROL));
-			addControlListener(_controls.getControl(CTL_DRAG_CONTROL));
-			addControlListener(_controls.getControl(CTL_PAN_CONTROL));
-		}
+	    if(mode) {
+	        removeControlListener(_controls.getControl(CTL_DRAG_CONTROL));
+	        removeControlListener(_controls.getControl(CTL_PAN_CONTROL));
+	        addControlListener(_controls.getControl(CTL_ROTATION_CONTROL));
+	        _isRotateMode = true;
+	    }
+	    else {
+	        removeControlListener(_controls.getControl(CTL_ROTATION_CONTROL));	
+	        addControlListener(_controls.getControl(CTL_DRAG_CONTROL));
+	        addControlListener(_controls.getControl(CTL_PAN_CONTROL));
+	        _isRotateMode = false;
+	    }
 	}
 	
+	public boolean getRotateMode() {
+	    return _isRotateMode;
+	}
 	
 	// ---- Layouts ----
 	

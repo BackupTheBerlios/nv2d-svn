@@ -97,6 +97,7 @@ public class SNA implements NV2DPlugin  {
 	}
 
 	public void initialize(Graph g, Container view, NController control) {
+	    System.out.println("Initializing SNA");
 		_graph = g;
 		_view = view;
 		_control = control;
@@ -105,6 +106,7 @@ public class SNA implements NV2DPlugin  {
 	}
 	
 	public void reloadAction(Graph g) {
+	    System.out.println("Reloading SNA");
 		_graph = g;
 	}
         
@@ -194,7 +196,12 @@ public class SNA implements NV2DPlugin  {
 	/* ===================================== *
 	      Visualization Functions
 	 * ===================================== */
-	private void resizeNodes(String measure) {
+	
+	// TODO
+	// changed to public to access for use in layouts, etc.
+	// is this ok?
+	// -sam
+	public void resizeNodes(String measure) {
 		if(_graph == null) {
 			System.err.println("Error: could not resize nodes no graph has been loaded.");
 			return;
@@ -253,7 +260,9 @@ public class SNA implements NV2DPlugin  {
 
 	/** Assign an integer index to every Vertex in the graph.  For display
 	 * convenience, the vertices are indexed alphabetically. */
-	private void indecize() {
+	// TODO - changed to public
+	// -sam
+	public void indecize() {
 		Set v = _graph.getVertices();
 		Iterator i = v.iterator();
 		int index = 0;
@@ -293,7 +302,9 @@ public class SNA implements NV2DPlugin  {
 	}
 
 	/* TODO */
-	private void calculate() {
+	// TODO - changed this to public, is that ok?
+	// -sam
+	public void calculate() {
 		if (_vtx_index_tbl == null || _vtx_index_tbl.length < 1) {
 			System.err.println("[SNA] Warning: no graph loaded or graph contains no vertices.");
 			return;
@@ -380,6 +391,120 @@ public class SNA implements NV2DPlugin  {
 		}
 	}
 
+	
+	/**
+	 * TODO
+	 * 
+	 * Added by Sam to allow calculation on demand of a specific measure
+	 * Is this ok?
+	 * Are there any cases where I could overwrite or create duplicate datums.
+	 * 
+	 * Adapted from calculate above
+	 */
+	public void calculate(String measure) {
+		if (_vtx_index_tbl == null || _vtx_index_tbl.length < 1) {
+			System.err.println("[SNA] Warning: no graph loaded or graph contains no vertices.");
+			return;
+		}
+
+		int v;
+		String [] vtx_names = new String[_vtx_index_tbl.length];
+		for(v = 0; v < _graph.numVertices(); v++) {
+			String name = _vtx_index_tbl[v].id();
+			name = (name.length() > 7 ? new String(name.substring(0, 7)) : name);
+			vtx_names[v] = name;
+		}
+	
+		// calculate the given measure
+		// -- BETWEENESS --
+		if(measure.equals(DATUM_BETWEENNESS) || measure.equals(DATUM_GRP_BETWEENNESS)) {
+			double [] m_betweenness = compute_betweenness();
+			
+			// GROUP
+			if(measure.equals(DATUM_GRP_BETWEENNESS)) {
+				double m_grpBetweenness = grp_betweenness(m_betweenness);
+				_graph.setDatum(new Datum(DATUM_GRP_BETWEENNESS, new Double(m_grpBetweenness)));
+				System.out.println("   Group Betweenness= " + _formatter.format(m_grpBetweenness));
+			}
+			// INDIVIDUAL
+			else {
+			    System.out.println("   Betweenness:");
+			    for(v = 0; v < _graph.numVertices(); v++) {
+			        _vtx_index_tbl[v].setDatum(new Datum(DATUM_BETWEENNESS, new Double(m_betweenness[v])));
+			        System.out.println("      [" + vtx_names[v] + "]\t" + _formatter.format(m_betweenness[v]));
+			    }
+			}
+		}
+		// -- CLOSENESS --
+		else if(measure.equals(DATUM_CLOSENESS) || measure.equals(DATUM_GRP_CLOSENESS)) {
+			double [] m_closeness = compute_closeness();
+			
+			// GROUP
+			if(measure.equals(DATUM_GRP_CLOSENESS)) {
+				double m_grpCloseness = grp_closeness(m_closeness);
+				_graph.setDatum(new Datum(DATUM_GRP_CLOSENESS, new Double(m_grpCloseness)));
+				System.out.println("   Group Closeness= " + _formatter.format(m_grpCloseness));
+			}
+			// INDIVIDUAL
+			else {
+				System.out.println("   Closeness:");
+				for(v = 0; v < _graph.numVertices(); v++) {
+				    _vtx_index_tbl[v].setDatum(new Datum(DATUM_CLOSENESS, new Double(m_closeness[v])));
+				    System.out.println("      [" + vtx_names[v] + "]\t" + _formatter.format(m_closeness[v]));
+				}
+			}
+		} 
+		// -- DEGREE --
+		else if(measure.equals(DATUM_DEGREE) || measure.equals(DATUM_GRP_DEGREE)) {
+			int [] m_degree = compute_totaldegree();
+			
+			if(measure.equals(DATUM_GRP_DEGREE)) {
+				double m_grpDegree = grp_degree(m_degree);
+				_graph.setDatum(new Datum(DATUM_GRP_DEGREE, new Double(m_grpDegree)));
+				System.out.println("   Group Degree = " + _formatter.format(m_grpDegree));
+			}
+			else {
+			    System.out.println("   Degree:");
+			    for(v = 0; v < _graph.numVertices(); v++) {
+			        _vtx_index_tbl[v].setDatum(new Datum(DATUM_DEGREE, new Double(m_degree[v])));
+			        System.out.println("      [" + vtx_names[v] + "]\t" + _formatter.format(m_degree[v]));
+			    }
+			}
+		}
+		// -- INDEGREE --
+		else if(measure.equals(DATUM_INDEGREE)) {
+			int [] m_indegree = compute_indegree();
+			System.out.println("   In-Degree:");
+			for(v = 0; v < _graph.numVertices(); v++) {
+				_vtx_index_tbl[v].setDatum(new Datum(DATUM_INDEGREE, new Double(m_indegree[v])));
+				System.out.println("      [" + vtx_names[v] + "]\t" + _formatter.format(m_indegree[v]));
+			}
+		}
+		// -- OUTDEGREE --
+		else if(measure.equals(DATUM_OUTDEGREE)) {
+			int [] m_outdegree = compute_outdegree();
+			System.out.println("   Out-Degree:");
+			for(v = 0; v < _graph.numVertices(); v++) {
+				_vtx_index_tbl[v].setDatum(new Datum(DATUM_OUTDEGREE, new Double(m_outdegree[v])));
+				System.out.println("      [" + vtx_names[v] + "]\t" + _formatter.format(m_outdegree[v]));
+			}
+		}
+		// -- GROUP DENSITY --
+		else if(measure.equals(DATUM_GRP_DENSITY)) {
+			double m_grpDensity = grp_density();
+			_graph.setDatum(new Datum(DATUM_GRP_DENSITY, new Double(m_grpDensity)));
+			System.out.println("   Group Density = " + _formatter.format(m_grpDensity));		    
+		    
+		}
+		// -- GROUP TRANSITIVITY --
+		else if(measure.equals(DATUM_GRP_TRANSITIVITY)) {
+			double m_grpTransitivity = grp_transitivity();
+			_graph.setDatum(new Datum(DATUM_GRP_TRANSITIVITY, new Double(m_grpTransitivity)));
+			System.out.println("   Group Transitivity = " + _formatter.format(m_grpTransitivity));
+
+		}
+
+	}
 
 	/*===========================================================*/
 	// SNA algorithms
