@@ -105,7 +105,7 @@ public class SmartCircleLayout extends Layout {
                 NodeItem n = (NodeItem) nodeIter.next();
                 PElement p = (PElement) n.getEntity();
                 nv2d.graph.GraphElement geData = p.getNV2DGraphElement();
-                java.util.Set s = geData.getDatumSet();
+                java.util.Set s = geData.getVisibleDatumSet();
                 Iterator i = s.iterator();
                 while(i.hasNext()) {
                     Datum d = (Datum)i.next();
@@ -127,7 +127,7 @@ public class SmartCircleLayout extends Layout {
                 NodeItem nn = (NodeItem) nodeIter.next();
                 PElement p = (PElement) nn.getEntity();
                 nv2d.graph.GraphElement geData = p.getNV2DGraphElement();
-                java.util.Set s = geData.getDatumSet();
+                java.util.Set s = geData.getVisibleDatumSet();
                 Iterator i = s.iterator();
                 ArrayList tempList = new ArrayList(measureList);
                 while(i.hasNext()) {
@@ -221,7 +221,7 @@ public class SmartCircleLayout extends Layout {
                 NodeItem n = (NodeItem) nodeIter.next();
                 PElement p = (PElement) n.getEntity();
                 nv2d.graph.GraphElement geData = p.getNV2DGraphElement();
-                Iterator iter = geData.getDatumSet().iterator();
+                Iterator iter = geData.getVisibleDatumSet().iterator();
                 System.out.println("Node: " + geData.displayId());
                 while(iter.hasNext()) {
                     Datum d = (Datum)iter.next();

@@ -25,6 +25,8 @@ import java.util.Iterator;
 import java.util.Set;
 import java.util.HashSet;
 
+import nv2d.algorithms.APSPInterface;
+import nv2d.algorithms.shortestpaths.Dijkstra;
 import nv2d.graph.Edge;
 import nv2d.graph.Graph;
 import nv2d.graph.GraphElement;
@@ -38,11 +40,20 @@ public class UGraph extends nv2d.graph.Graph {
 
 	private boolean _indecized;
 	private Object [] _vertexIndex;
+
+	/** Keeps track of shortest paths in the graph using an all pairs shortest
+	 * path algorithm.  It is important to make sure that the algorithm is
+	 * re-run after a change to the graph. */
+	private APSPInterface _apsp;
+	private boolean _apspInitialized;
 	
 	public UGraph() {
 		_e = new HashSet();
 		_v = new HashSet();
 		_indecized = false;
+
+		_apsp = new Dijkstra(this);
+		_apspInitialized = false;
 	}
 	
 	public Set getEdges() {
@@ -98,12 +109,22 @@ public class UGraph extends nv2d.graph.Graph {
 		return (Vertex) _vertexIndex[idx];
 	}
 
-	/* TODO */
 	public Path shortestPath(Vertex source, Vertex dest) {
-		return null;
+		if(_apspInitialized == false) {
+			_apsp.init(this, source);
+		}
+		Path p = null;
+		try {
+			p = _apsp.getPath(source, dest);
+		} catch (nv2d.exceptions.NoPathExists exception) {
+			p = null;
+		}
+		return p;
 	}
 
 	public boolean add(GraphElement ge) {
+		_apspInitialized = false;
+		
 		if(_e.contains(ge) || _v.contains(ge)) {
 			return false;
 		}
@@ -126,6 +147,8 @@ public class UGraph extends nv2d.graph.Graph {
 	}
 
 	public boolean remove(GraphElement ge) {
+		_apspInitialized = false;
+		
 		_indecized = false;
 		if(!_v.contains(ge) && !_e.contains(ge)) {
 			return false;
@@ -164,6 +187,8 @@ public class UGraph extends nv2d.graph.Graph {
 
 		_indecized = false;
 		_vertexIndex = null;
+		
+		_apspInitialized = false;
 		
 		System.gc();
 	}

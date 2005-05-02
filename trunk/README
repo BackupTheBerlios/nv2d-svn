@@ -1,3 +1,17 @@
+NV2D Plugin README
+
+Getting Started
+
+* To zoom, hold down the right mouse button and move the mouse up (zoom in) or down (out)
+* Vertices are draggable.
+* To move the whole graph, left click and drag on an area outside any vertex.
+
+
+Importing Graphs
+
+NFileIO Format
+
+
 Testing:
 
 The ANT build file supports Clover (http://www.cenqua.com/clover/) coverage
@@ -13,7 +27,7 @@ following:
 
 
 
-Credits
+Authors:
 Bo Shi
 Sam Prentice
 

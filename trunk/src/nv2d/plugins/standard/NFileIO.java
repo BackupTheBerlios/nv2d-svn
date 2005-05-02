@@ -39,10 +39,15 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 
 import nv2d.graph.Datum;
+import nv2d.graph.Edge;
 import nv2d.graph.Graph;
+import nv2d.graph.Vertex;
 import nv2d.graph.directed.DGraph;
 import nv2d.graph.directed.DEdge;
 import nv2d.graph.directed.DVertex;
+import nv2d.graph.undirected.UGraph;
+import nv2d.graph.undirected.UEdge;
+import nv2d.graph.undirected.UVertex;
 import nv2d.plugins.IOInterface;
 import nv2d.ui.NController;
 
@@ -56,7 +61,11 @@ public class NFileIO implements IOInterface {
 	private String _arg;	// argument for this module supplied from JMenu
 
 	public NFileIO() {
-		_desc = new String("This IO plugins allows you to import graphs from NV2D data files.");
+		_desc = new String("This IO plugins allows you to import graphs from NV2D data files." +
+				"Directed graphs should end with the suffix .dcsv" +
+				"Undirected graphs should end with .ucsv" +
+				"If the suffix is not recognized, the importer will try" +
+				"to create a directed graph.");
 		_name = new String("NFileIO");
 		_author= new String("Bo Shi");
 		_arg = null;
@@ -67,6 +76,8 @@ public class NFileIO implements IOInterface {
 		FileIO fio = new FileIO();
 		Graph g;
 		String loc;
+		boolean directed = true;	// defaults to directed graph
+
 		if(args.length == 0) {
 			if(_arg == null) {
 				System.err.println("Error, no argument provided.");
@@ -90,7 +101,10 @@ public class NFileIO implements IOInterface {
 		}
 
 		System.out.println("[NFileIO] Getting graph");
-		g = fio.buildGraph();
+		if(loc.trim().endsWith(".ucsv")) {
+			directed = false;
+		}
+		g = fio.buildGraph(directed);
 		return g;
 	}
 
@@ -139,13 +153,6 @@ public class NFileIO implements IOInterface {
 	public String author() {
 		return _author;
 	}
-   
-	// Note that the following routine is static and has no name, which
-	// means it will only be run when the class is loaded
-	//static {
-		// put factory in the hashtable for detector factories.
-		//NPluginLoader.reg("NFileIO", new NFileIO());
-	//}
 
 	private class MenuListener implements ActionListener {
 		public void actionPerformed(ActionEvent e) {
@@ -197,7 +204,7 @@ class FileIO {
 			System.out.println("Connection to " + params + " opened.");
 			return;
 		} catch (MalformedURLException e) {
-			System.err.println("BAD URL: " + params);
+			// System.err.println("BAD URL: " + params);
 		} catch (IOException e) {
 			System.err.println("Could not process data as url source, trying to read from local disk...");
 		}
@@ -264,15 +271,19 @@ class FileIO {
 		System.out.println("Read " + line + " lines");
 	}
 
-	/** Create a directed graph. */
-	public DGraph buildGraph() {
+	/**
+	 * Create a graph from file data.
+	 * @param directed true to build a directed graph, false to build an undirected graph.
+	 * @return a {@link nv2d.graph.Graph} object
+	 */
+	public Graph buildGraph(boolean directed) {
 		// create all edges first, then filter out invalid edges then vertices
 		// TODO: filter invalid vertices (those which are not connected to any other one)
 
 		HashMap vertmap = new HashMap();
 		HashMap edgemap = new HashMap();
 		Iterator i;
-		DGraph graph;
+		Graph graph;
 		int j;
 
 		// collect all the edge and graph objects
@@ -286,7 +297,7 @@ class FileIO {
 			int [] lengths = new int[edges.length];
 
 			if(!vertmap.containsKey(source)) {
-				DVertex vtx = new DVertex(source);
+				Vertex vtx = createVertex(directed, source);
 				vertmap.put(source, vtx);
 			}
 
@@ -322,11 +333,12 @@ class FileIO {
 				if(_data.containsKey(dest)) {
 					// create the nodes
 					if(!vertmap.containsKey(dest)) {
-						vertmap.put(dest, new DVertex(dest));
+						Vertex destVertex = createVertex(directed, dest);
+						vertmap.put(dest, destVertex);
 					}
 
 					try {
-						DEdge e = new DEdge((DVertex) vertmap.get(source), (DVertex) vertmap.get(dest), (float) lengths[j]);
+					Edge e = createEdge(directed, (Vertex) vertmap.get(source), (Vertex) vertmap.get(dest), (float) lengths[j]);
 						edgemap.put(source + "->" + dest, e);
 					} catch (IllegalArgumentException e) {
 						System.out.println("source=" + source + "       dest=" + dest);
@@ -343,25 +355,30 @@ class FileIO {
 		i = _data.values().iterator();
 		while(i.hasNext()) {
 			String [] data = (String []) i.next();
-			DVertex vtx = (DVertex) vertmap.get(data[VERTEX_ID]);
+			Vertex vtx = (Vertex) vertmap.get(data[VERTEX_ID]);
 			vtx.setDisplayId(data[VERTEX_FULLID]);
 		}
 
 		// reuse i - construct the graph
-		graph = new DGraph();
+		graph = (directed ? (Graph) (new DGraph()) : (Graph) (new UGraph()));
 		i = vertmap.values().iterator();
 		while(i.hasNext()) {
-			graph.add((DVertex) i.next());
+			graph.add((Vertex) i.next());
 		}
 		i = edgemap.values().iterator();
 		while(i.hasNext()) {
-			graph.add((DEdge) i.next());
+			Edge e = (Edge) i.next();
+			if(!graph.getEdges().contains(e)) {
+				// there is a lot of redundancy in the NFileIO format for undirected
+				// edges, this avoids many error messages
+				graph.add(e);
+			}
 		}
 
 		// enter in extra attributes
 		i = vertmap.values().iterator();
 		while(i.hasNext()) {
-			DVertex v = (DVertex) i.next();
+			Vertex v = (Vertex) i.next();
 			String [] data = (String []) _data.get(v.id());
 			for(j = VERTEX_CUSTOM; j < data.length; j++) {
 				if(j - VERTEX_CUSTOM < _attributes.length) {
@@ -391,9 +408,23 @@ class FileIO {
 
 		return graph;
 	}
-
-	/* Takes a string formated like .".*". 
-	 * Requires at least Java 1.4 to compile (uses regular expressions) */
+	
+	private Vertex createVertex(boolean directed, String id) {
+		if(directed) {
+			return new DVertex(id);
+		} else {
+			return new UVertex(id);
+		}
+	}
+	
+	private Edge createEdge(boolean directed, Vertex source, Vertex target, float l) {
+		if(directed) {
+			return new DEdge((DVertex) source, (DVertex) target, l);
+		} else {
+			return new UEdge((UVertex) source, (UVertex) target, l);
+		}
+	}
+	
 	private String cleanUp(String s) throws IOException {
 		s = s.trim();
 

@@ -50,7 +50,7 @@ public class DEdge extends Edge implements Serializable {
 			return null;
 		}
 		
-		if(destGraph.equals(getParent())) {
+		if(destGraph == getParent()) {
 			System.err.println("You cannot clone an edge into the same graph.");
 			return null;
 		}
