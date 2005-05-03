@@ -97,7 +97,7 @@ public class SNA implements NV2DPlugin  {
 	}
 
 	public void initialize(Graph g, Container view, NController control) {
-	    System.out.println("Initializing SNA");
+	    //System.out.println("Initializing SNA");
 		_graph = g;
 		_view = view;
 		_control = control;
@@ -106,7 +106,7 @@ public class SNA implements NV2DPlugin  {
 	}
 	
 	public void reloadAction(Graph g) {
-	    System.out.println("Reloading SNA");
+	    //System.out.println("Reloading SNA");
 		_graph = g;
 	}
         

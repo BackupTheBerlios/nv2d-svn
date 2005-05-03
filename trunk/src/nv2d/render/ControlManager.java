@@ -21,94 +21,91 @@
 package nv2d.render;
 
 import java.util.HashMap;
+import java.util.Iterator;
 
 import edu.berkeley.guir.prefuse.event.ControlListener;
+import edu.berkeley.guir.prefuse.Display;
 
-
-// TODO - setup ControlSchemes so Renderbox can blindly switch to a scheme
-// without handling the internal details.
-// For now the Control Manager is essentially a HashMap mapping names
-// to ControlListener objects.  Keeping a store of them allows them
-// to be easily added and removed to support different functionality.
 
 /**
- * Does the following:
- * - Stores a ControlListener Repository
+ * Control Manager
  * 
- * - Future: store ControlSchemes
+ * Manages the currently running ControlListeners for a Display.
  *  
  * @author sam
  */
 public class ControlManager {
+    private Display _display;
     private HashMap _controls;
-//    private HashMap _schemes;
-//    private Display _display;
-//    private String _activeScheme;
-//    private boolean _isSchemeSet;
     
     
     /**
      * Constructor
      */
-    public ControlManager() { // (Display d) {
+    public ControlManager(Display d) {
         _controls = new HashMap();
-//        _schemes = new HashMap();
-//        _display = d;
-//        _isSchemeSet = false;
+        _display = d;
     }
     
     
     /**
      * Add Control
+     * 
+     * Adds a ControlListener with a given name, ensuring that no other 
+     * ControlListener with that name is running. 
      */
     public void addControl(String name, ControlListener c) {
+        // if there is a control by this name, remove it
+        if(_controls.containsKey(name)) {
+            _display.removeControlListener((ControlListener)_controls.get(name));
+            _controls.remove(name);
+        }
+        
+        // add new control
         _controls.put(name, c);
+        _display.addControlListener(c);
     }
 
     
     /**
      * Remove Control
+     * 
+     * Removing a control that does not exist produces no result.
      */
     public void removeControl(String name) {
+        _display.removeControlListener((ControlListener)_controls.get(name));
         _controls.remove(name);
     }
+    
     
     /**
      * Get Control
      *
-     */
     public ControlListener getControl(String name) {
         return (ControlListener)_controls.get(name);
     }
-    
-    /*
-    public void addScheme(String name, ControlScheme cs) {
-        
-    }
     */
+    
     
     /**
      * Clear
      */
     public void clear() {
-//        _schemes.clear();
         _controls.clear();
-//        _display = null;
+        _display = null;
     }
     
     
-    /*
-     * Set Scheme
+    /**
+     * Prints the current controls that are running
      *
-    public void setScheme(String name) {
-        System.out.println("Setting Scheme to: <" + name + ">");
-        _activeScheme = name;
-        _isSchemeSet = true;
+     */
+    public void printControls() {
+        Iterator keys = _controls.keySet().iterator();
+        System.out.println("Current Controls: ");
+        while(keys.hasNext()) {
+            System.out.println(" - " + (String)(keys.next()));
+        }
+        
     }
-
-    public String getSchemeName() {
-        return _activeScheme;
-    }
-    */
-    
 }

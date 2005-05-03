@@ -52,6 +52,7 @@ import javax.swing.PopupFactory;
 import javax.swing.Popup;
 
 import edu.berkeley.guir.prefuse.Display;
+import edu.berkeley.guir.prefuse.util.display.DisplayLib;
 import edu.berkeley.guir.prefuse.ItemRegistry;
 import edu.berkeley.guir.prefuse.NodeItem;
 import edu.berkeley.guir.prefuse.EdgeItem;
@@ -82,6 +83,7 @@ import nv2d.graph.Vertex;
 import nv2d.graph.filter.DegreeFilter;
 import nv2d.ui.NController;
 import nv2d.utils.filefilter.*;
+import nv2d.plugins.standard.layout.SmartRotationControl;
 
 /**
  * Creates a new graph and draws it on the screen.
@@ -152,17 +154,23 @@ public class RenderBox extends Display {
 		_lastItemClicked = null;
 		
 		_director = new ActivityDirector();
-		_controls = new ControlManager();
-		initStandardControls();
+		_controls = new ControlManager(this);
+
+		// TODO - remove
+//		initStandardControls();
 		
 		// create a new display component to show the data
 		// setSize(400,400);
 		// pan(350, 350);
 		// lets users drag nodes around on screen (Display class method)
-		addControlListener(_controls.getControl(CTL_MOUSE_ADAPTOR));
-		addControlListener(_controls.getControl(CTL_DRAG_CONTROL));
-		addControlListener(_controls.getControl(CTL_PAN_CONTROL));
-		addControlListener(_controls.getControl(CTL_ZOOM_CONTROL));
+		
+		_controls.addControl(CTL_MOUSE_ADAPTOR, new MouseAdapter(this));
+		_controls.addControl(CTL_DRAG_CONTROL, new DragControl());
+		_controls.addControl(CTL_PAN_CONTROL, new PanControl());
+		_controls.addControl(CTL_ZOOM_CONTROL, new ZoomControl());
+
+//		_controls.addControl(CTL_ROTATION_CONTROL, new SmartRotationControl());
+				
 		
 		_isRotateMode = false;
 		
@@ -220,6 +228,7 @@ public class RenderBox extends Display {
 		return bi;
 	}
 
+	
 	/**
 	 * Initialize
 	 */
@@ -227,10 +236,12 @@ public class RenderBox extends Display {
 		//System.out.println("** Initializing Renderbox");
 		_g = g;
 		_registry = getRegistry();
-		
+				
 		if(g != null) {
 			_registry.setGraph(new PGraph(g));
 		}
+
+        _empty = false;
 
         // antialias?
         setHighQuality(_settings.getBoolean(RenderSettings.ANTIALIAS));
@@ -240,7 +251,9 @@ public class RenderBox extends Display {
         _legendColorizer = new LegendColorizer(_ctl);
         _colorizer.setEnabled(true);
         _legendColorizer.setEnabled(false);
-        
+
+ 
+        // TODO, change this to generate the layouts on the fly?
         initStandardLayouts();
         
         // check if an active layout has already been set, if not set default
@@ -249,50 +262,38 @@ public class RenderBox extends Display {
             _director.setActive(ACT_FORCEDIRECTED);
         }
 
-        // Run Colorizers WITH LAYOUT
+        // Run Colorizers WITH ALL LAYOUTS
         _director.setRunWithLayout(ACT_COLORIZER);
-        
-        
-		// TODO - Bo, do we want to put the graphReload into the RenderBox
-		// as well to avoid multiple initialize calls?
-		//
-		// Only run on first call to initialize ------------
-        //
-        // TODO - rethink ActivityDirector - do we want it to serve as
-        // a repository for Actions/Activities?  Or should it only
-        // serve as a switch between them to mitigate thread
-        // conflicts.
-        // If we want it to serve as a repository, the underlying objects
-        // placed in it must be persistent and not created "new" for each
-        // new graph.  Although it may make more sense to simply create
-        // all visualizations on the fly with new graph objects, rather
-        // than updating persistent objects for each new graph.
-//        if (!_isInitialized) {
-//            _isInitialized = true;
-//        }
-        
-        //---------------------------------------------------
-
-
-        
-        _empty = false;
 
         // Begin by randomly setting all the items
         doSemiRandomLayout();
+        
+        // TODO - taken out for Jonathons DEMO
+        /*
+        Rectangle rect = this.getBounds();
+		DisplayLib.fitViewToBounds(this, rect);
+		
+		if(g != null) {
+		    Point2D p = DisplayLib.getCentroid(_registry, _registry.getFilteredGraph().getNodes(), new Point());
+		    //System.out.println("Centroid: " + p.getX() + ", " + p.getY());
+		}
+		*/
+
 	}
 	
 	
-	/**
-	 * Standard Controls
-	 */
-	private void initStandardControls() {
-		_controls.addControl(CTL_MOUSE_ADAPTOR, new MouseAdapter(this));
-		_controls.addControl(CTL_DRAG_CONTROL, new DragControl());
-		_controls.addControl(CTL_PAN_CONTROL, new PanControl());
-		_controls.addControl(CTL_ZOOM_CONTROL, new ZoomControl());
-		_controls.addControl(CTL_ROTATION_CONTROL, new RotationControl());
-		// TODO - add more
-	}
+//	/**
+//	 * Standard Controls
+//	 */
+//	private void initStandardControls() {
+//	    System.out.println("Initializing Controls");
+//		_controls.addControl(CTL_MOUSE_ADAPTOR, new MouseAdapter(this));
+//		_controls.addControl(CTL_DRAG_CONTROL, new DragControl());
+//		_controls.addControl(CTL_PAN_CONTROL, new PanControl());
+//		_controls.addControl(CTL_ZOOM_CONTROL, new ZoomControl());
+//		_controls.addControl(CTL_ROTATION_CONTROL, new SmartRotationControl());
+//		// TODO - add more
+//	}
 	
 	
 	/**
@@ -356,18 +357,26 @@ public class RenderBox extends Display {
 	
 	// TODO - implement all of this as ControlSchemes in the ControlManager
 	public void setRotateMode(boolean mode) {
+	    //System.out.println("Set Rotate Mode: " + mode);
 	    if(mode) {
-	        removeControlListener(_controls.getControl(CTL_DRAG_CONTROL));
-	        removeControlListener(_controls.getControl(CTL_PAN_CONTROL));
-	        // TODO - remove rotation control until stable
-	        //addControlListener(_controls.getControl(CTL_ROTATION_CONTROL));
+	        //System.out.println("Controls BEFORE");
+	        //_controls.printControls();
+	        _controls.removeControl(CTL_DRAG_CONTROL);
+	        _controls.removeControl(CTL_PAN_CONTROL);
+	        _controls.addControl(CTL_ROTATION_CONTROL, new SmartRotationControl());
 	        _isRotateMode = true;
+	        //System.out.println("Controls AFTER");
+	        //_controls.printControls();
 	    }
 	    else {
-	        //removeControlListener(_controls.getControl(CTL_ROTATION_CONTROL));	
-	        addControlListener(_controls.getControl(CTL_DRAG_CONTROL));
-	        addControlListener(_controls.getControl(CTL_PAN_CONTROL));
+	        //System.out.println("Controls BEFORE");
+	        //_controls.printControls();
+	        _controls.removeControl(CTL_ROTATION_CONTROL);
+	        _controls.addControl(CTL_PAN_CONTROL, new PanControl());
+	        _controls.addControl(CTL_DRAG_CONTROL, new DragControl());
 	        _isRotateMode = false;
+	        //System.out.println("Controls AFTER");
+	        //_controls.printControls();
 	    }
 	}
 	

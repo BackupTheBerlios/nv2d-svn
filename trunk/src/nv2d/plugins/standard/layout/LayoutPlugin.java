@@ -364,7 +364,7 @@ public class LayoutPlugin implements NV2DPlugin {
 
 		    if(_currentLayout != null && !_currentLayout.equals(LAYOUT_WForceDir)) {
 		        _sideBarPanel.remove(_layoutSettingsPanel);
-		        _layoutSettingsPanel = new LayoutSettingsPanel(this, _fsim, true, true, false);
+		        _layoutSettingsPanel = new LayoutSettingsPanel(this, _fsim, true, true, true);
 		        _sideBarPanel.add(_layoutSettingsPanel, BorderLayout.CENTER);
 		        _sideBarPanel.validate();
 		    }
@@ -1147,6 +1147,9 @@ public class LayoutPlugin implements NV2DPlugin {
 	 * LayoutViewPanel
 	 */
 	public class LayoutViewPanel extends JPanel {
+	    // TODO: ***********************
+	    // Taken out for Jonathons Test Run
+	    //
 	    LayoutPlugin _pluginRef;
 	    JToggleButton _panzoom_button;
 	    JToggleButton _rotate_button;
@@ -1158,99 +1161,134 @@ public class LayoutPlugin implements NV2DPlugin {
 	        this.setLayout(new FlowLayout(FlowLayout.LEFT));
 	        this.setMinimumSize(new Dimension(200, 30));
 	        this.setPreferredSize(new Dimension(300, 100));
-	        this.setBorder(BorderFactory.createTitledBorder("View"));
+	        //this.setBorder(BorderFactory.createTitledBorder("View"));
 			this.setAlignmentX(Component.LEFT_ALIGNMENT);
 			this.setMaximumSize(new Dimension(300, 100));
 			
 	        ButtonGroup group = new ButtonGroup();
 	        Border border = BorderFactory.createEmptyBorder(3, 3, 3, 3);
-
-	        _panzoom_button = createLayoutButton("Pan/Zoom",
-	                LayoutPlugin.VIEW_PAN_ZOOM, border);
-	        group.add(_panzoom_button);
-	        this.add(_panzoom_button);
-
-	        /* TODO fix Rotate Origin
-	        _rotate_button = createLayoutButton("Rotate",
-	                LayoutPlugin.VIEW_ROTATE, border);
-	        group.add(_rotate_button);
-	        this.add(_rotate_button);
-	        */
-	        
-	        // Action Listener
-	        ActionListener viewActions = new ActionListener() {
-	            public void actionPerformed(ActionEvent e) {
-	                String command = ((JToggleButton) e.getSource()).getActionCommand();
-	                if (command.equals(LayoutPlugin.VIEW_PAN_ZOOM)) {
-	                    _pluginRef.setView(LayoutPlugin.VIEW_PAN_ZOOM);
-	                } /*else if (command.equals(LayoutPlugin.VIEW_ROTATE)) {
-	                    _pluginRef.setView(LayoutPlugin.VIEW_ROTATE);
-	                }*/
-	            }
-	        };
-
-	        // add action listeners
-	        _panzoom_button.addActionListener(viewActions);
-//	        _rotate_button.addActionListener(viewActions);
+	       
+//
+//	        _panzoom_button = createLayoutButton("Pan/Zoom",
+//	                LayoutPlugin.VIEW_PAN_ZOOM, border);
+//	        group.add(_panzoom_button);
+//	        this.add(_panzoom_button);
+//
+//	        /* TODO fix Rotate Origin */
+//	        _rotate_button = createLayoutButton("Rotate",
+//	                LayoutPlugin.VIEW_ROTATE, border);
+//	        group.add(_rotate_button);
+//	        this.add(_rotate_button);
+//	        /**/
 	    }
-
+	    
 	    public void setSelected(String type) {
-	        if(type.equals(LayoutPlugin.VIEW_PAN_ZOOM)) {
-	            _panzoom_button.setSelected(true);
-	        }
-	        /*
-	        else if(type.equals(LayoutPlugin.VIEW_ROTATE)) {
-	            _rotate_button.setSelected(true);
-	        }
-	        */	        
 	    }
-
-	    // TODO: clean up this method and put in utils
-	    private JToggleButton createLayoutButton(String name, String label,
-	            Border normalBorder) {
-	        JToggleButton button = new JToggleButton();
-	        button.setActionCommand(label);
-
-	        // Set the image or, if that's invalid, equivalent text.
-	        /*ImageIcon icon = createImageIcon("images/" + name + ".gif");
-	        ImageIcon selectedIcon = createImageIcon("images/sel_" + name + ".gif");
-	        if (icon != null) {
-	            System.out.println("Icon is not null" + name);
-	            button.setIcon(icon);
-	            button.setSelectedIcon(selectedIcon);
-	            button.setBorder(normalBorder);
-	        } else {
-	            System.out.println("Icon IS NULL" + name + " " + label);
-	            */
-	            button.setText(label);
-	            button.setFont(button.getFont().deriveFont(Font.ITALIC));
-	            button.setHorizontalAlignment(JButton.HORIZONTAL);
-	            button.setBorder(BorderFactory.createLineBorder(Color.BLACK));
-//	        }
-	        button.setToolTipText(label + " View");
-
-	        return button;
-	    }
-
-		/* Returns an ImageIcon, or null if the path was invalid. */
-		protected ImageIcon createImageIcon(String path) {
-		    java.net.URL imgURL = null;
-		    try {
-		        // TODO: fix image path issue!!!!!!!!!, store locally
-		        imgURL = new java.net.URL("http://web.mit.edu/prentice/www/" + path); //LayoutForceCtlSidePanel.class.getResource(path);
-		        //imgURL = LayoutPlugin.class.getResource(path);
-		    }
-		    catch (Exception e) { System.out.println(e); }
-		    //System.out.println("Looking in: " + imgURL);
-		    if (imgURL != null) {
-		        return new ImageIcon(imgURL);
-		    } else {
-		        System.err.println("Couldn't find file: " + path);
-		        return null;
-		    }
-		}
+	    
 	}
 //	-----------------------------------------
+	
+//    public LayoutViewPanel(LayoutPlugin lp) {
+//        _pluginRef = lp;
+//        
+//        // TODO: may want to handle some of these externally
+//        this.setLayout(new FlowLayout(FlowLayout.LEFT));
+//        this.setMinimumSize(new Dimension(200, 30));
+//        this.setPreferredSize(new Dimension(300, 100));
+//        this.setBorder(BorderFactory.createTitledBorder("View"));
+//		this.setAlignmentX(Component.LEFT_ALIGNMENT);
+//		this.setMaximumSize(new Dimension(300, 100));
+//		
+//        ButtonGroup group = new ButtonGroup();
+//        Border border = BorderFactory.createEmptyBorder(3, 3, 3, 3);
+//
+//        _panzoom_button = createLayoutButton("Pan/Zoom",
+//                LayoutPlugin.VIEW_PAN_ZOOM, border);
+//        group.add(_panzoom_button);
+//        this.add(_panzoom_button);
+//
+//        /* TODO fix Rotate Origin */
+//        _rotate_button = createLayoutButton("Rotate",
+//                LayoutPlugin.VIEW_ROTATE, border);
+//        group.add(_rotate_button);
+//        this.add(_rotate_button);
+//        /**/
+//        
+//        // Action Listener
+//        ActionListener viewActions = new ActionListener() {
+//            public void actionPerformed(ActionEvent e) {
+//                String command = ((JToggleButton) e.getSource()).getActionCommand();
+//                if (command.equals(LayoutPlugin.VIEW_PAN_ZOOM)) {
+//                    _pluginRef.setView(LayoutPlugin.VIEW_PAN_ZOOM);
+//                } else if (command.equals(LayoutPlugin.VIEW_ROTATE)) {
+//                    _pluginRef.setView(LayoutPlugin.VIEW_ROTATE);
+//                }
+//            }
+//        };
+//
+//        // add action listeners
+//        _panzoom_button.addActionListener(viewActions);
+//        _rotate_button.addActionListener(viewActions);
+//    }
+//
+//    public void setSelected(String type) {
+//        if(type.equals(LayoutPlugin.VIEW_PAN_ZOOM)) {
+//            _panzoom_button.setSelected(true);
+//        }
+//        
+//        else if(type.equals(LayoutPlugin.VIEW_ROTATE)) {
+//            _rotate_button.setSelected(true);
+//        }
+//                
+//    }
+//
+//    // TODO: clean up this method and put in utils
+//    private JToggleButton createLayoutButton(String name, String label,
+//            Border normalBorder) {
+//        JToggleButton button = new JToggleButton();
+//        button.setActionCommand(label);
+//
+//        // Set the image or, if that's invalid, equivalent text.
+//        /*ImageIcon icon = createImageIcon("images/" + name + ".gif");
+//        ImageIcon selectedIcon = createImageIcon("images/sel_" + name + ".gif");
+//        if (icon != null) {
+//            System.out.println("Icon is not null" + name);
+//            button.setIcon(icon);
+//            button.setSelectedIcon(selectedIcon);
+//            button.setBorder(normalBorder);
+//        } else {
+//            System.out.println("Icon IS NULL" + name + " " + label);
+//            */
+//            button.setText(label);
+//            button.setFont(button.getFont().deriveFont(Font.ITALIC));
+//            button.setHorizontalAlignment(JButton.HORIZONTAL);
+//            button.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+////        }
+//        button.setToolTipText(label + " View");
+//
+//        return button;
+//    }
+//
+//	/* Returns an ImageIcon, or null if the path was invalid. */
+//	protected ImageIcon createImageIcon(String path) {
+//	    java.net.URL imgURL = null;
+//	    try {
+//	        // TODO: fix image path issue!!!!!!!!!, store locally
+//	        imgURL = new java.net.URL("http://web.mit.edu/prentice/www/" + path); //LayoutForceCtlSidePanel.class.getResource(path);
+//	        //imgURL = LayoutPlugin.class.getResource(path);
+//	    }
+//	    catch (Exception e) { System.out.println(e); }
+//	    //System.out.println("Looking in: " + imgURL);
+//	    if (imgURL != null) {
+//	        return new ImageIcon(imgURL);
+//	    } else {
+//	        System.err.println("Couldn't find file: " + path);
+//	        return null;
+//	    }
+//	}
+//}
+////-----------------------------------------
+
 
 }
 
