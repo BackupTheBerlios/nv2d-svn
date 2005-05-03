@@ -20,6 +20,8 @@
 
 package nv2d.render;
 
+import java.applet.Applet;
+import java.applet.AppletContext;
 import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.AlphaComposite;
@@ -95,8 +97,8 @@ public class RenderBox extends Display {
 	private ActivityDirector _director;
 	private ControlManager _controls;
 	
-	private PopupFactory _pFactory;
-	private Popup _popup = null;
+	// private PopupFactory _pFactory;
+	// private Popup _popup = null;
 	
 	private boolean _empty;
 	private boolean _isInitialized;
@@ -141,7 +143,7 @@ public class RenderBox extends Display {
 		
 		// establish settings controller
 		_settings = new RenderSettings();
-		_pFactory = PopupFactory.getSharedInstance();
+		// _pFactory = PopupFactory.getSharedInstance();
 		
 		_ctl = ctl;
 		
@@ -657,23 +659,31 @@ public class RenderBox extends Display {
 		}
 		
 		public void mouseClicked(java.awt.event.MouseEvent e) {
+			/*
 			if(_popup != null) {
 				// close it
 				_popup.hide();
 				_popup = null;
 				repaint();
 			}
+			*/
+			repaint();
 		}
 		
 		public void itemEntered(VisualItem item, MouseEvent e) {
+			PElement p = (PElement) item.getEntity();
+			nv2d.graph.GraphElement gElement = p.getNV2DGraphElement();
+
 			((Display)e.getSource()).setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 			item.setHighlighted(true);
+			_parent.setToolTipText(PopupProp.createHtml(gElement));	// turn off tooltips
 			repaint();
 		}
 		
 		public void itemPressed(VisualItem item, MouseEvent e) {
 			PElement p = (PElement) item.getEntity();
 			
+			/*
 			// first click selects, second click deselects
 			if(checkMask(e.getModifiers(), MouseEvent.BUTTON1_MASK) && item.getEntity() instanceof PElement) {
 				p.setSelected(!p.isSelected());
@@ -699,18 +709,22 @@ public class RenderBox extends Display {
 				}
 				repaint();
 			}
+			*/
 			
 			_lastItemClicked = item;
 			maybeShowPopup(e);
+			repaint();
 		}
 		
 		public void itemReleased(VisualItem item, MouseEvent e) {
 			maybeShowPopup(e);
+			repaint();
 		}
 		
 		public void itemExited(VisualItem item, MouseEvent e) {
 			((Display)e.getSource()).setCursor(Cursor.getDefaultCursor());
 			item.setHighlighted(false);
+			_parent.setToolTipText(null);	// turn off tooltips
 			repaint();
 		}
 		
@@ -776,6 +790,39 @@ public class RenderBox extends Display {
 		
 		public JPopupMenu getMenu() {
 			JPopupMenu m = new JPopupMenu();
+			JMenu followUrl = new JMenu("Associated URLs");
+			Vertex v;
+			Iterator i;
+			int ct;
+			
+			// find url datums and let the user follow the link
+			v = ((PNode) _lastItemClicked.getEntity()).v();
+			i = v.getVisibleDatumSet().iterator();
+			ct = 0;
+			while(i.hasNext()) {
+				final Datum d = (Datum) i.next();
+				if(d.get() instanceof java.net.URL) {
+					ct++;
+					JMenuItem link = new JMenuItem(d.get().toString());
+					link.addActionListener(new ActionListener() {
+						public void actionPerformed(ActionEvent e) {
+							try {
+								AppletContext act = ((Applet) _ctl.getView().getRootPaneContainer()).getAppletContext();
+								act.showDocument((java.net.URL) d.get(), "nv2dnetshow");
+							} catch (ClassCastException exception) {
+								System.err.println("You must use the applet to follow links.");
+							}
+						}
+					});
+					followUrl.add(link);
+				}
+			}
+			
+			if(ct > 0) {
+				m.add(followUrl);
+				m.add(new JSeparator());
+			}
+			
 			if(_ctl.getFilter() instanceof DegreeFilter) {
 				m.add(_centerDegreeFilter);
 				m.add(new JSeparator());

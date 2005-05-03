@@ -81,7 +81,7 @@ public class PopupProp extends JPanel {
 		 */
 	}
 
-	private String createHtml(GraphElement ge) {
+	public static String createHtml(GraphElement ge) {
 		StringBuffer buf = new StringBuffer();
 		Object [] datums = ge.getVisibleDatumSet().toArray();
 		Arrays.sort(datums);
