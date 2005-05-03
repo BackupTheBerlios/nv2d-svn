@@ -50,6 +50,7 @@ import nv2d.graph.undirected.UEdge;
 import nv2d.graph.undirected.UVertex;
 import nv2d.plugins.IOInterface;
 import nv2d.ui.NController;
+import nv2d.utils.SwingWorker;
 
 public class NFileIO implements IOInterface {
 	String _desc;
@@ -73,39 +74,39 @@ public class NFileIO implements IOInterface {
 
 	/** Construct a new graph from the data. */
 	public Graph getData(String [] args) throws IOException {
-		FileIO fio = new FileIO();
-		Graph g;
-		String loc;
-		boolean directed = true;	// defaults to directed graph
+		final String loc;
 
-		if(args.length == 0) {
-			if(_arg == null) {
-				System.err.println("Error, no argument provided.");
-				return null;
-			}
-			loc = _arg;
-		}
-		else if(args.length == 1) {
+		if(args.length == 1) {
 			loc = args[0];
 		} else {
 			System.err.println("Error, wrong number of arguments");
 			return null;
 		}
 
-		try {
-			fio.setup(loc);
-			fio.read();
-		} catch (IOException e) {
-			System.err.println(e.toString());
-			return null;
-		}
-
-		System.out.println("[NFileIO] Getting graph");
-		if(loc.trim().endsWith(".ucsv")) {
-			directed = false;
-		}
-		g = fio.buildGraph(directed);
-		return g;
+		final SwingWorker worker = new SwingWorker() {
+			public Object construct() {
+				FileIO fio = new FileIO();
+				Graph g;
+				boolean directed = true;	// defaults to directed graph
+				
+				try {
+					fio.setup(loc);
+					fio.read();
+				} catch (IOException e) {
+					System.err.println(e.toString());
+					return null;
+				}
+				
+				System.out.println("[NFileIO] Getting graph");
+				if(loc.trim().endsWith(".ucsv")) {
+					directed = false;
+				}
+				g = fio.buildGraph(directed);
+				return g;
+			}
+		};
+		worker.start();
+		return (Graph) worker.get();
 	}
 
 	/** 
