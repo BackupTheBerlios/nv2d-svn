@@ -409,6 +409,9 @@ public class NMenu extends JMenuBar {
 	}
 	
 	private void _legendDefaultColoringActionPerformed(ActionEvent e) {
+		if(_oldColorLegendUI != null) {
+			_ctl.getView().removeComponent(_oldColorLegendUI);
+		}
 		_oldColorLegendUI = null;
 		_renderbox.useDefaultColoring();
 	}
