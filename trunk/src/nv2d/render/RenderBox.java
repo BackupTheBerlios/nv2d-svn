@@ -52,6 +52,7 @@ import javax.swing.PopupFactory;
 import javax.swing.Popup;
 
 import edu.berkeley.guir.prefuse.Display;
+import edu.berkeley.guir.prefuse.util.display.DisplayLib;
 import edu.berkeley.guir.prefuse.ItemRegistry;
 import edu.berkeley.guir.prefuse.NodeItem;
 import edu.berkeley.guir.prefuse.EdgeItem;
@@ -82,6 +83,7 @@ import nv2d.graph.Vertex;
 import nv2d.graph.filter.DegreeFilter;
 import nv2d.ui.NController;
 import nv2d.utils.filefilter.*;
+import nv2d.plugins.standard.layout.SmartRotationControl;
 
 /**
  * Creates a new graph and draws it on the screen.
@@ -101,9 +103,7 @@ public class RenderBox extends Display {
 	// private Popup _popup = null;
 	
 	private boolean _empty;
-	private boolean _isInitialized;
-	// TODO - handle display view modes in a better manner
-	private boolean _isRotateMode;
+	private String _viewMode;
 	
 	/**
 	 * Used to keep track of the source for shortest paths calculations and
@@ -133,7 +133,16 @@ public class RenderBox extends Display {
 	public static final String CTL_ZOOM_CONTROL = "standard_ZoomControl";
 	public static final String CTL_ROTATION_CONTROL = "standard_RotationControl";
 	
+	// View Mode Names
+	public static final String VIEW_MODE_ROTATE = "standard_ViewModeRotation";
+	public static final String VIEW_MODE_PAN = "standard_ViewModePan";
+	public static final String VIEW_MODE_ZOOM = "standard_ViewModeZoom";
+	public static final String VIEW_MODE_PAN_ZOOM = "standard_ViewModePanZoom";
 	
+	
+	/**
+	 * Constructor
+	 */
 	public RenderBox(NController ctl) {
 		// (1) convert NV2D graph to a data structure usable by Prefuse
 		// (2) create a new item registry
@@ -153,37 +162,24 @@ public class RenderBox extends Display {
 		
 		_director = new ActivityDirector();
 		_controls = new ControlManager(this);
-
-		// TODO - remove
-//		initStandardControls();
 		
 		// create a new display component to show the data
 		// setSize(400,400);
 		// pan(350, 350);
-		// lets users drag nodes around on screen (Display class method)
-		
+
+		// Set Mouse Adaptor and Drag ALWAYS ON
 		_controls.addControl(CTL_MOUSE_ADAPTOR, new MouseAdapter(this));
 		_controls.addControl(CTL_DRAG_CONTROL, new DragControl());
-		_controls.addControl(CTL_PAN_CONTROL, new PanControl());
-		_controls.addControl(CTL_ZOOM_CONTROL, new ZoomControl());
-
-//		_controls.addControl(CTL_ROTATION_CONTROL, new SmartRotationControl());
-				
-		
-		_isRotateMode = false;
+		setViewMode(VIEW_MODE_PAN_ZOOM);
 		
 		_empty = true;
-		
 		initialize(null);
-		
-		_isInitialized = false;
 	}
 	
 	
 	public void useLegendColoring() {
 		_colorizer.setEnabled(false);
 		_legendColorizer.setEnabled(true);
-		
 		//_legendColorizer.run(_registry, 0.0);
 		_director.runNowInBackground(_legendColorizer, _registry, 0.0);
 	}
@@ -192,7 +188,6 @@ public class RenderBox extends Display {
 	public void useDefaultColoring() {
 		_colorizer.setEnabled(true);
 		_legendColorizer.setEnabled(false);
-		
 //		_colorizer.run(_registry, 0.0);
 		_director.runNowInBackground(_colorizer, _registry, 0.0);
 		repaint();
@@ -200,7 +195,6 @@ public class RenderBox extends Display {
 	
 	
 	public void clear() {
-		//System.out.println("Clearing RenderBox");
 		if(_empty) {
 			return;
 		}
@@ -231,7 +225,6 @@ public class RenderBox extends Display {
 	 * Initialize
 	 */
 	public void initialize(Graph g) {
-		//System.out.println("** Initializing Renderbox");
 		_g = g;
 		_registry = getRegistry();
 				
@@ -250,7 +243,6 @@ public class RenderBox extends Display {
         _colorizer.setEnabled(true);
         _legendColorizer.setEnabled(false);
 
- 
         // TODO, change this to generate the layouts on the fly?
         initStandardLayouts();
         
@@ -270,28 +262,9 @@ public class RenderBox extends Display {
         /*
         Rectangle rect = this.getBounds();
 		DisplayLib.fitViewToBounds(this, rect);
-		
-		if(g != null) {
-		    Point2D p = DisplayLib.getCentroid(_registry, _registry.getFilteredGraph().getNodes(), new Point());
-		    //System.out.println("Centroid: " + p.getX() + ", " + p.getY());
-		}
 		*/
 
 	}
-	
-	
-//	/**
-//	 * Standard Controls
-//	 */
-//	private void initStandardControls() {
-//	    System.out.println("Initializing Controls");
-//		_controls.addControl(CTL_MOUSE_ADAPTOR, new MouseAdapter(this));
-//		_controls.addControl(CTL_DRAG_CONTROL, new DragControl());
-//		_controls.addControl(CTL_PAN_CONTROL, new PanControl());
-//		_controls.addControl(CTL_ZOOM_CONTROL, new ZoomControl());
-//		_controls.addControl(CTL_ROTATION_CONTROL, new SmartRotationControl());
-//		// TODO - add more
-//	}
 	
 	
 	/**
@@ -351,39 +324,66 @@ public class RenderBox extends Display {
 	}
 	
 	
-	// ---- Control Listeners ----
-	
-	// TODO - implement all of this as ControlSchemes in the ControlManager
-	public void setRotateMode(boolean mode) {
-/*	    //System.out.println("Set Rotate Mode: " + mode);
-	    if(mode) {
-	        //System.out.println("Controls BEFORE");
-	        //_controls.printControls();
-	        _controls.removeControl(CTL_DRAG_CONTROL);
+	// ------- View Modes / Control Listeners -------
+
+	/**
+	 * setViewMode
+	 * 
+	 * Sets the mouse action in the RenderBox to Pan, Zoom, Rotate, or PanZoom.
+	 */
+	public void setViewMode(String mode) {
+//	    System.out.println("Set View Tool Mode: " + mode);
+	    
+	    // PAN only
+	    if(mode.equals(VIEW_MODE_PAN)) {
+	        _controls.removeControl(CTL_ROTATION_CONTROL);
+	        _controls.removeControl(CTL_ZOOM_CONTROL);
+	        _controls.addControl(CTL_PAN_CONTROL, new PanControl());
+	        _viewMode = VIEW_MODE_PAN;
+	    }
+	    // ZOOM only
+	    else if(mode.equals(VIEW_MODE_ZOOM)) {
+	        _controls.removeControl(CTL_ROTATION_CONTROL);
+	        _controls.removeControl(CTL_PAN_CONTROL);
+	        _controls.addControl(CTL_ZOOM_CONTROL, new ZoomControl());
+	        _viewMode = VIEW_MODE_ZOOM;
+	    }
+	    // ROTATE only
+	    else if(mode.equals(VIEW_MODE_ROTATE)) {
+	        _controls.removeControl(CTL_ZOOM_CONTROL);
 	        _controls.removeControl(CTL_PAN_CONTROL);
 	        _controls.addControl(CTL_ROTATION_CONTROL, new SmartRotationControl());
-	        _isRotateMode = true;
-	        //System.out.println("Controls AFTER");
-	        //_controls.printControls();
-	    }
+	        _viewMode = VIEW_MODE_ROTATE;
+	    }	    
+	    // PAN & ZOOM, by default
 	    else {
-	        //System.out.println("Controls BEFORE");
-	        //_controls.printControls();
+	        //if(mode.equals(VIEW_MODE_PAN_ZOOM)) {
 	        _controls.removeControl(CTL_ROTATION_CONTROL);
+	        _controls.addControl(CTL_ZOOM_CONTROL, new ZoomControl());
 	        _controls.addControl(CTL_PAN_CONTROL, new PanControl());
-	        _controls.addControl(CTL_DRAG_CONTROL, new DragControl());
-	        _isRotateMode = false;
-	        //System.out.println("Controls AFTER");
-	        //_controls.printControls();
-	    }*/
+	        _viewMode = VIEW_MODE_PAN_ZOOM;
+	    }
+	}
+
+
+	/**
+	 * getViewMode
+	 * 
+	 * @return the name of the current view mode.
+	 */
+	public String getViewMode() {
+	    return _viewMode;
 	}
 	
-	public boolean getRotateMode() {
-	    return _isRotateMode;
-	}
+
+	// ------- Layout Managemet -------
 	
-	// ---- Layouts ----
-	
+	/**
+	 * SetActiveLayout
+	 * 
+	 * Sets the current selected layout that is controlled by
+	 * startLayout and stopLayout.
+	 */
 	public void setActiveLayout(String name) {
 		_director.setActive(name);
 	}

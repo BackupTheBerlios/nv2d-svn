@@ -23,8 +23,7 @@ import edu.berkeley.guir.prefusex.force.SpringForce;
  * simulation of interacting forces (e.g., anti-gravity, spring forces,
  * drag forces, etc).
  * 
- * @version 1.0
- * @author <a href="http://jheer.org">Jeffrey Heer</a> prefuse(AT)jheer.org</a>
+ * Adapted from Jeffrey Heer's Force-Directed Layout in Prefuse.
  */
 public class WeightedForceDirectedLayout extends Layout {
 

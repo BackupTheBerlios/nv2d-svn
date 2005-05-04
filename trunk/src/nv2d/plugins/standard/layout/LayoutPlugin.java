@@ -142,44 +142,32 @@ public class LayoutPlugin implements NV2DPlugin {
 	static RenderBox _renderbox;
 	
 	// --- GUI Components ---
-	JMenu _layoutMenu;
-	
-	JPanel _sideBarPanel;
-	LayoutChooserPanel _layoutChooserPanel;
-	JPanel _layoutSettingsPanel;
-	LayoutViewPanel _layoutViewPanel;
-	JComponent _c;
+	private JMenu _layoutMenu;
+	private JPanel _sideBarPanel;
+	private LayoutChooserPanel _layoutChooserPanel;
+	private JPanel _layoutSettingsPanel;
+	private LayoutViewPanel _layoutViewPanel;
+	private JComponent _c;
 
-	//static LayoutForceCtlSidePanel _forceCtlPanel;
-	
-	boolean hasBeenInitialized;
+	private boolean hasBeenInitialized;
 	private String _currentLayout;
 	
 	// --- FORCE SIMULATOR ---
-	static private ForceSimulator _fsim;
-	static private boolean _boundariesSet;
-	static private boolean _enforceBoundaries;
+	private ForceSimulator _fsim;
+	private boolean _boundariesSet;
+	private boolean _enforceBoundaries;
 	static final int BOUNDARY_FORCE_VALUE = -100;
-	static private SmartWallForce _boundary_left;
-	static private SmartWallForce _boundary_right;
-	static private SmartWallForce _boundary_top;
-	static private SmartWallForce _boundary_bottom;
-    static NBodyForce _nBodyForce;
-	static boolean forceDirSet;
-	static boolean wForceDirSet;
+	private SmartWallForce _boundary_left;
+	private SmartWallForce _boundary_right;
+	private SmartWallForce _boundary_top;
+	private SmartWallForce _boundary_bottom;
+    private NBodyForce _nBodyForce;
+	private boolean forceDirSet;
+	private boolean wForceDirSet;
 	
 	// --- ACTION LISTS ---
-	static private SmartCircleLayout _smartCircleLayout;
-	static private ActionList _fd_actions;
-	static private ActionList _wd_actions;
-	static private ActionList _fr_actions;
-	static private ActionList _ci_actions;
-	static private ActionList _gr_actions;
-	static private ActionList _ra_actions;
-	static private RandomLayout _randomLayout;
-	static private SemiRandomLayout _semiRandomLayout;
+	private SmartCircleLayout _smartCircleLayout;
 
-	
 	public static final String LAYOUT_ForceDir = "Force Directed";
 	public static final String LAYOUT_WForceDir = "Weighted Force Directed";
 	public static final String LAYOUT_FruchRein = "Fruchterman Reingold";
@@ -194,11 +182,26 @@ public class LayoutPlugin implements NV2DPlugin {
 	public static final String ACT_FRUCHTERMAN_REINGOLD = "layout_FruchtermanReingoldLayout";
 	public static final String ACT_CIRCLE = "layout_CircleLayout";
 
-	public static final String VIEW_PAN_ZOOM = "Pan/Zoom";
-	public static final String VIEW_ROTATE = "Rotate";
+	public static final String STR_LABEL_VIEWPANEL = "View";
+	public static final String STR_LABEL_SETTINGSPANEL = "Layout Settings";
+	public static final String STR_LABEL_FORCEDIR_SETTINGS = "Force-Directed Layout Settings";
+	public static final String STR_LABEL_WFORCEDIR_SETTINGS = "Force-Directed Layout Settings";
+	public static final String STR_LABEL_CIRCLE_SETTINGS = "Circle Layout Settings";
+	public static final String STR_LABEL_FRUCHREIN_SETTINGS = "Fruchterman Layout Settings";
+	public static final String STR_LABEL_CHOOSERPANEL = "Layout";
+	public static final String STR_LABEL_PAN_ZOOM = "Pan/Zoom";
+	public static final String STR_LABEL_ROTATE = "Rotate";
+	
+	public static final String IMG_NAME_ROTATE = "rotate";
+	public static final String IMG_NAME_PAN_ZOOM = "panzoom";
+	public static final String IMG_NAME_CIRCLE = "circle";
+	public static final String IMG_NAME_FORCEDIR = "forcedir";
+	public static final String IMG_NAME_WFORCEDIR = "wforcedir";
+	public static final String IMG_NAME_FRUCHREIN = "fruchrein";
 	
 	public static final String STR_SORT_ALPHABETICAL = "Alphabetize";
 
+	
 	/**
 	 * Constructor
 	 */
@@ -217,15 +220,12 @@ public class LayoutPlugin implements NV2DPlugin {
 	 * Called each time the graph is changed.
 	 */
 	public void reloadAction(Graph g) {
-	    //System.out.println("** Reloading Layout Plugin");
-	    
 	    // set new initial settings
-	    //_layoutViewPanel.setSelected(VIEW_PAN_ZOOM);
-	    //setView(VIEW_PAN_ZOOM);
+	    _layoutViewPanel.setSelected(RenderBox.VIEW_MODE_PAN_ZOOM);
+	    setView(RenderBox.VIEW_MODE_PAN_ZOOM);
 
 	    _layoutChooserPanel.setSelected(LAYOUT_ForceDir);
 	    setLayout(LAYOUT_ForceDir, false);
-	    //_renderbox.setInitialLayout(LAYOUT_ForceDir);
 	}
 	
 	/**
@@ -233,14 +233,9 @@ public class LayoutPlugin implements NV2DPlugin {
 	 * 
 	 * Called by main program to initialize plugin.
 	 */
-	// TODO: initialize is still called each time reloadAction is called.
-	// Temporary fix is the hasBeenInitialized boolean.
 	public void initialize(Graph g, Container view, NController control) {
-	    //System.out.println("** Initializing LayoutPlugin");
-	    
-		if(!hasBeenInitialized) {
-			//System.out.println("** FIRST LayoutPlugin Initialization");
-			
+	    // TODO: can probably remove this boolean now, as initialize should be called only once
+	    if(!hasBeenInitialized) {
 		    _control = control;
 			_view = view;
 			_renderbox = control.getRenderBox();
@@ -429,13 +424,9 @@ public class LayoutPlugin implements NV2DPlugin {
 	 * SetView
 	 */
 	public void setView(String view) {
-	    if(view.equals(VIEW_PAN_ZOOM)) {
-	        _renderbox.setRotateMode(false);
-	    }
-	    else if(view.equals(VIEW_ROTATE)) {
-	        _renderbox.setRotateMode(true);
-	    }
+	    _renderbox.setViewMode(view);
 	}
+	
 	
 	/**
 	 * InitializeForceSimulator
@@ -443,7 +434,6 @@ public class LayoutPlugin implements NV2DPlugin {
 	 * Initializes the global force simulator.
 	 */
 	public void initForceSimulator() {
-	    //System.out.println("Initializing Force Simulator");
 	    _fsim = new ForceSimulator();
 	    _nBodyForce = new NBodyForce(-0.4f, -1f, 0.9f);
 		_fsim.addForce(_nBodyForce);
@@ -452,25 +442,25 @@ public class LayoutPlugin implements NV2DPlugin {
 		_fsim.addForce(new CircularWallForce(0.1f, 0.1f, 0.1f));
 		
 		if(_enforceBoundaries) {
-		if(_renderbox != null) {
-		    Rectangle r = _renderbox.getBounds();
-			_boundary_left = new SmartWallForce(BOUNDARY_FORCE_VALUE, 0, 0, 0, r.height);
-			_boundary_top = new SmartWallForce(BOUNDARY_FORCE_VALUE, 0, 0, r.width, 0);
-			_boundary_bottom = new SmartWallForce(BOUNDARY_FORCE_VALUE, 0, r.height, r.width, r.height);
-			_boundary_right = new SmartWallForce(BOUNDARY_FORCE_VALUE, r.width, 0, r.width, r.height);	    
-		}
-		else { 
-			_boundary_left = new SmartWallForce(BOUNDARY_FORCE_VALUE, 0, 0, 0, 0);
-			_boundary_top = new SmartWallForce(BOUNDARY_FORCE_VALUE, 0, 0, 0, 0);
-			_boundary_bottom = new SmartWallForce(BOUNDARY_FORCE_VALUE, 0, 0, 0, 0);
-			_boundary_right = new SmartWallForce(BOUNDARY_FORCE_VALUE, 0, 0, 0, 0);	    
-		}
-		
-		_fsim.addForce(_boundary_left);
-		_fsim.addForce(_boundary_right);
-		_fsim.addForce(_boundary_bottom);
-		_fsim.addForce(_boundary_top);
-		_boundariesSet = true;
+			if(_renderbox != null) {
+			    Rectangle r = _renderbox.getBounds();
+				_boundary_left = new SmartWallForce(BOUNDARY_FORCE_VALUE, 0, 0, 0, r.height);
+				_boundary_top = new SmartWallForce(BOUNDARY_FORCE_VALUE, 0, 0, r.width, 0);
+				_boundary_bottom = new SmartWallForce(BOUNDARY_FORCE_VALUE, 0, r.height, r.width, r.height);
+				_boundary_right = new SmartWallForce(BOUNDARY_FORCE_VALUE, r.width, 0, r.width, r.height);	    
+			}
+			else { 
+				_boundary_left = new SmartWallForce(BOUNDARY_FORCE_VALUE, 0, 0, 0, 0);
+				_boundary_top = new SmartWallForce(BOUNDARY_FORCE_VALUE, 0, 0, 0, 0);
+				_boundary_bottom = new SmartWallForce(BOUNDARY_FORCE_VALUE, 0, 0, 0, 0);
+				_boundary_right = new SmartWallForce(BOUNDARY_FORCE_VALUE, 0, 0, 0, 0);	    
+			}
+			
+			_fsim.addForce(_boundary_left);
+			_fsim.addForce(_boundary_right);
+			_fsim.addForce(_boundary_bottom);
+			_fsim.addForce(_boundary_top);
+			_boundariesSet = true;
 		}
 	}
 	
@@ -482,7 +472,7 @@ public class LayoutPlugin implements NV2DPlugin {
 	 * 
 	 * Use this when the RenderBox is resized. 
 	 */
-	static public void updateBoundaryForces(Rectangle r) {
+	public void updateBoundaryForces(Rectangle r) {
 		if(_enforceBoundaries && _boundariesSet) {
 		    //System.out.println("Updating Boundary Forces");	    
 		    _boundary_left.setY2(r.height);
@@ -507,22 +497,22 @@ public class LayoutPlugin implements NV2DPlugin {
 	/**
 	 * Force Directed Action List
 	 */
-	static public ActionList newActionList_ForceDir() {
-		_fd_actions = new ActionList(_renderbox.getItemRegistry(), -1, 20);
+	public ActionList newActionList_ForceDir() {
+		ActionList _fd_actions = new ActionList(_renderbox.getItemRegistry(), -1, 20);
 		_fd_actions.add(new GraphFilter());
 		_fd_actions.add(new RepaintAction());
 
 		
 		Layout l;
 		if(_enforceBoundaries) {
-		// Enforce bounds and add a force to repel away from walls
-		Rectangle r = _renderbox.getBounds();
-		r.grow(-20, -20);
-		updateBoundaryForces(r);
-		_fsim.clear();
-		
-		l = new ForceDirectedLayout(_fsim, true, false);
-		l.setLayoutBounds(r);
+			// Enforce bounds and add a force to repel away from walls
+			Rectangle r = _renderbox.getBounds();
+			r.grow(-20, -20);
+			updateBoundaryForces(r);
+			_fsim.clear();
+			
+			l = new ForceDirectedLayout(_fsim, true, false);
+			l.setLayoutBounds(r);
 		}
 		else {
 		    l = new ForceDirectedLayout(_fsim, false, false);
@@ -538,24 +528,24 @@ public class LayoutPlugin implements NV2DPlugin {
 	 * Weighted Force Directed Action List
 	 * @return
 	 */
-	static public ActionList newActionList_WForceDir() {
-		_wd_actions = new ActionList(_renderbox.getItemRegistry(), -1, 20);
+	public ActionList newActionList_WForceDir() {
+		ActionList _wd_actions = new ActionList(_renderbox.getItemRegistry(), -1, 20);
 		_wd_actions.add(new GraphFilter());
 		_wd_actions.add(new RepaintAction());
 		
 		Layout l;
 		if(_enforceBoundaries) {
-		// handle staying within bounds
-		// Enforce bounds and add a force to repel away from walls
-		Rectangle r = _renderbox.getBounds();
-		r.grow(-20, -20);
-
-		updateBoundaryForces(r);
-		_fsim.clear();
-		//updateForceSimulator();
-		
-		l = new WeightedForceDirectedLayout(_fsim, true, 10, false);
-		l.setLayoutBounds(r);
+			// handle staying within bounds
+			// Enforce bounds and add a force to repel away from walls
+			Rectangle r = _renderbox.getBounds();
+			r.grow(-20, -20);
+	
+			updateBoundaryForces(r);
+			_fsim.clear();
+			//updateForceSimulator();
+			
+			l = new WeightedForceDirectedLayout(_fsim, true, 10, false);
+			l.setLayoutBounds(r);
 		}
 		else {
 		    l = new WeightedForceDirectedLayout(_fsim, false, 10, false);
@@ -570,11 +560,10 @@ public class LayoutPlugin implements NV2DPlugin {
 	 * Fruchterman Reingold Layout
 	 * @return
 	 */
-	static public ActionList newActionList_FruchRein() {
+	public ActionList newActionList_FruchRein() {
 	    ActionList a;
 		a = new ActionList(_renderbox.getItemRegistry(), 500, 20);
 		a.add(new GraphFilter());
-		//a.add(new Colorizer()); 		// colors nodes & edges
 		a.add(new RepaintAction());
 		a.add(new FruchtermanReingoldLayout(100));
 		return a;
@@ -588,7 +577,6 @@ public class LayoutPlugin implements NV2DPlugin {
 	    ActionList a;
 		a = new ActionList(_renderbox.getItemRegistry());
 		a.add(new GraphFilter());
-		//a.add(new Colorizer()); 		// colors nodes & edges
 		a.add(new RepaintAction());
 		a.add(new RandomLayout());	    
 	    return a;
@@ -598,13 +586,13 @@ public class LayoutPlugin implements NV2DPlugin {
 	 * Circle Graph ActionList
 	 * @return
 	 */
-	static public ActionList newActionList_Circle() {
+	public ActionList newActionList_Circle() {
 	    ActionList a;
 		// init circle layout
 		a = new ActionList(_renderbox.getItemRegistry()); //-1, 20);
 		a.add(new GraphFilter());
-		//a.add(new Colorizer()); 		// colors nodes & edges
 		a.add(new RepaintAction());
+		
 		// if SNA plugin is present, inform SmartCircleLayout of the available
 		// measures
 		NPluginManager npm = _control.getPluginManager();
@@ -1153,139 +1141,102 @@ public class LayoutPlugin implements NV2DPlugin {
 	    JToggleButton _panzoom_button;
 	    JToggleButton _rotate_button;
 	    
-	    public LayoutViewPanel(LayoutPlugin lp) {
-	        _pluginRef = lp;
-	        
-	        // TODO: may want to handle some of these externally
-	        this.setLayout(new FlowLayout(FlowLayout.LEFT));
-	        this.setMinimumSize(new Dimension(200, 30));
-	        this.setPreferredSize(new Dimension(300, 100));
-	        //this.setBorder(BorderFactory.createTitledBorder("View"));
-			this.setAlignmentX(Component.LEFT_ALIGNMENT);
-			this.setMaximumSize(new Dimension(300, 100));
-			
-	        ButtonGroup group = new ButtonGroup();
-	        Border border = BorderFactory.createEmptyBorder(3, 3, 3, 3);
-	       
-//
-//	        _panzoom_button = createLayoutButton("Pan/Zoom",
-//	                LayoutPlugin.VIEW_PAN_ZOOM, border);
-//	        group.add(_panzoom_button);
-//	        this.add(_panzoom_button);
-//
-//	        /* TODO fix Rotate Origin */
-//	        _rotate_button = createLayoutButton("Rotate",
-//	                LayoutPlugin.VIEW_ROTATE, border);
-//	        group.add(_rotate_button);
-//	        this.add(_rotate_button);
-//	        /**/
+
+    public LayoutViewPanel(LayoutPlugin lp) {
+        _pluginRef = lp;
+        
+        // TODO: may want to handle some of these externally
+        this.setLayout(new FlowLayout(FlowLayout.LEFT));
+        this.setMinimumSize(new Dimension(200, 30));
+        this.setPreferredSize(new Dimension(300, 100));
+        this.setBorder(BorderFactory.createTitledBorder(STR_LABEL_VIEWPANEL));
+		this.setAlignmentX(Component.LEFT_ALIGNMENT);
+		this.setMaximumSize(new Dimension(300, 100));
+		
+        ButtonGroup group = new ButtonGroup();
+        Border border = BorderFactory.createEmptyBorder(3, 3, 3, 3);
+
+        _panzoom_button = createLayoutButton(RenderBox.VIEW_MODE_PAN_ZOOM, STR_LABEL_PAN_ZOOM, IMG_NAME_PAN_ZOOM, border);
+        group.add(_panzoom_button);
+        this.add(_panzoom_button);
+
+        _rotate_button = createLayoutButton(RenderBox.VIEW_MODE_ROTATE, STR_LABEL_ROTATE, IMG_NAME_ROTATE, border);
+        group.add(_rotate_button);
+        this.add(_rotate_button);
+        
+        // Action Listener
+        ActionListener viewActions = new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                String command = ((JToggleButton) e.getSource()).getActionCommand();
+                if (command.equals(RenderBox.VIEW_MODE_PAN_ZOOM)) {
+                    _pluginRef.setView(RenderBox.VIEW_MODE_PAN_ZOOM);
+                } else if (command.equals(RenderBox.VIEW_MODE_ROTATE)) {
+                    _pluginRef.setView(RenderBox.VIEW_MODE_ROTATE);
+                }
+            }
+        };
+
+        // add action listeners
+        _panzoom_button.addActionListener(viewActions);
+        _rotate_button.addActionListener(viewActions);
+    }
+
+    public void setSelected(String type) {
+        if(type.equals(RenderBox.VIEW_MODE_PAN_ZOOM)) {
+            _panzoom_button.setSelected(true);
+        }
+        
+        else if(type.equals(RenderBox.VIEW_MODE_ROTATE)) {
+            _rotate_button.setSelected(true);
+        }
+                
+    }
+
+    // TODO: clean up this method and put in utils
+    private JToggleButton createLayoutButton(String command, String label, String imgname, 
+            Border normalBorder) {
+        JToggleButton button = new JToggleButton();
+        button.setActionCommand(command);
+
+        // Set the image or, if that's invalid, equivalent text.
+        /*ImageIcon icon = createImageIcon("images/" + name + ".gif");
+        ImageIcon selectedIcon = createImageIcon("images/sel_" + name + ".gif");
+        if (icon != null) {
+            System.out.println("Icon is not null" + name);
+            button.setIcon(icon);
+            button.setSelectedIcon(selectedIcon);
+            button.setBorder(normalBorder);
+        } else {
+            System.out.println("Icon IS NULL" + name + " " + label);
+            */
+            button.setText(label);
+            button.setFont(button.getFont().deriveFont(Font.ITALIC));
+            button.setHorizontalAlignment(JButton.HORIZONTAL);
+            button.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+//        }
+        button.setToolTipText(label + " View");
+
+        return button;
+    }
+
+	/* Returns an ImageIcon, or null if the path was invalid. */
+	protected ImageIcon createImageIcon(String path) {
+	    java.net.URL imgURL = null;
+	    try {
+	        // TODO: fix image path issue!!!!!!!!!, store locally
+	        imgURL = new java.net.URL("http://web.mit.edu/prentice/www/" + path); //LayoutForceCtlSidePanel.class.getResource(path);
+	        //imgURL = LayoutPlugin.class.getResource(path);
 	    }
-	    
-	    public void setSelected(String type) {
+	    catch (Exception e) { System.out.println(e); }
+	    //System.out.println("Looking in: " + imgURL);
+	    if (imgURL != null) {
+	        return new ImageIcon(imgURL);
+	    } else {
+	        System.err.println("Couldn't find file: " + path);
+	        return null;
 	    }
-	    
 	}
-//	-----------------------------------------
-	
-//    public LayoutViewPanel(LayoutPlugin lp) {
-//        _pluginRef = lp;
-//        
-//        // TODO: may want to handle some of these externally
-//        this.setLayout(new FlowLayout(FlowLayout.LEFT));
-//        this.setMinimumSize(new Dimension(200, 30));
-//        this.setPreferredSize(new Dimension(300, 100));
-//        this.setBorder(BorderFactory.createTitledBorder("View"));
-//		this.setAlignmentX(Component.LEFT_ALIGNMENT);
-//		this.setMaximumSize(new Dimension(300, 100));
-//		
-//        ButtonGroup group = new ButtonGroup();
-//        Border border = BorderFactory.createEmptyBorder(3, 3, 3, 3);
-//
-//        _panzoom_button = createLayoutButton("Pan/Zoom",
-//                LayoutPlugin.VIEW_PAN_ZOOM, border);
-//        group.add(_panzoom_button);
-//        this.add(_panzoom_button);
-//
-//        /* TODO fix Rotate Origin */
-//        _rotate_button = createLayoutButton("Rotate",
-//                LayoutPlugin.VIEW_ROTATE, border);
-//        group.add(_rotate_button);
-//        this.add(_rotate_button);
-//        /**/
-//        
-//        // Action Listener
-//        ActionListener viewActions = new ActionListener() {
-//            public void actionPerformed(ActionEvent e) {
-//                String command = ((JToggleButton) e.getSource()).getActionCommand();
-//                if (command.equals(LayoutPlugin.VIEW_PAN_ZOOM)) {
-//                    _pluginRef.setView(LayoutPlugin.VIEW_PAN_ZOOM);
-//                } else if (command.equals(LayoutPlugin.VIEW_ROTATE)) {
-//                    _pluginRef.setView(LayoutPlugin.VIEW_ROTATE);
-//                }
-//            }
-//        };
-//
-//        // add action listeners
-//        _panzoom_button.addActionListener(viewActions);
-//        _rotate_button.addActionListener(viewActions);
-//    }
-//
-//    public void setSelected(String type) {
-//        if(type.equals(LayoutPlugin.VIEW_PAN_ZOOM)) {
-//            _panzoom_button.setSelected(true);
-//        }
-//        
-//        else if(type.equals(LayoutPlugin.VIEW_ROTATE)) {
-//            _rotate_button.setSelected(true);
-//        }
-//                
-//    }
-//
-//    // TODO: clean up this method and put in utils
-//    private JToggleButton createLayoutButton(String name, String label,
-//            Border normalBorder) {
-//        JToggleButton button = new JToggleButton();
-//        button.setActionCommand(label);
-//
-//        // Set the image or, if that's invalid, equivalent text.
-//        /*ImageIcon icon = createImageIcon("images/" + name + ".gif");
-//        ImageIcon selectedIcon = createImageIcon("images/sel_" + name + ".gif");
-//        if (icon != null) {
-//            System.out.println("Icon is not null" + name);
-//            button.setIcon(icon);
-//            button.setSelectedIcon(selectedIcon);
-//            button.setBorder(normalBorder);
-//        } else {
-//            System.out.println("Icon IS NULL" + name + " " + label);
-//            */
-//            button.setText(label);
-//            button.setFont(button.getFont().deriveFont(Font.ITALIC));
-//            button.setHorizontalAlignment(JButton.HORIZONTAL);
-//            button.setBorder(BorderFactory.createLineBorder(Color.BLACK));
-////        }
-//        button.setToolTipText(label + " View");
-//
-//        return button;
-//    }
-//
-//	/* Returns an ImageIcon, or null if the path was invalid. */
-//	protected ImageIcon createImageIcon(String path) {
-//	    java.net.URL imgURL = null;
-//	    try {
-//	        // TODO: fix image path issue!!!!!!!!!, store locally
-//	        imgURL = new java.net.URL("http://web.mit.edu/prentice/www/" + path); //LayoutForceCtlSidePanel.class.getResource(path);
-//	        //imgURL = LayoutPlugin.class.getResource(path);
-//	    }
-//	    catch (Exception e) { System.out.println(e); }
-//	    //System.out.println("Looking in: " + imgURL);
-//	    if (imgURL != null) {
-//	        return new ImageIcon(imgURL);
-//	    } else {
-//	        System.err.println("Couldn't find file: " + path);
-//	        return null;
-//	    }
-//	}
-//}
+}
 ////-----------------------------------------
 
 

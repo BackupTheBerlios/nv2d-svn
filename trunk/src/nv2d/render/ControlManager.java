@@ -79,6 +79,18 @@ public class ControlManager {
     
     
     /**
+     * Remove All Controls
+     */
+    public void removeAllControls() {
+        Iterator keys = _controls.keySet().iterator();
+        while(keys.hasNext()) {
+            String keyName = (String)keys.next();
+            _display.removeControlListener((ControlListener)_controls.get(keyName));
+            _controls.remove(keyName);            
+        }
+    }
+    
+    /**
      * Get Control
      *
     public ControlListener getControl(String name) {

@@ -6,7 +6,6 @@ import edu.berkeley.guir.prefusex.force.ForceItem;
 
 /**
  * Extends WallForce to allow dynamically setting the line points.
- * 
  */
 public class SmartWallForce extends AbstractForce {
     
