@@ -1063,8 +1063,7 @@ public class LayoutPlugin implements NV2DPlugin {
 	        optionList.addActionListener(new ActionListener() {
 	            public void actionPerformed(ActionEvent e) {
 	                String chosen = (String)((JComboBox)e.getSource()).getSelectedItem();
-	                //System.out.println("OPTIONBOX: " + chosen);
-	                if(resizeBox.isSelected() && !chosen.equals(LayoutPlugin.STR_SORT_ALPHABETICAL)) {
+	                if(!(chosen == null) && resizeBox.isSelected() && !chosen.equals(LayoutPlugin.STR_SORT_ALPHABETICAL)) {
 	                    _snaPluginRef.resizeNodes(chosen);
 	                }
 	                myLayout.setActiveMeasure(chosen);
