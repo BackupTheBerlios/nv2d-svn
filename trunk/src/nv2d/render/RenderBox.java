@@ -52,7 +52,6 @@ import javax.swing.PopupFactory;
 import javax.swing.Popup;
 
 import edu.berkeley.guir.prefuse.Display;
-import edu.berkeley.guir.prefuse.util.display.DisplayLib;
 import edu.berkeley.guir.prefuse.ItemRegistry;
 import edu.berkeley.guir.prefuse.NodeItem;
 import edu.berkeley.guir.prefuse.EdgeItem;
@@ -83,7 +82,6 @@ import nv2d.graph.Vertex;
 import nv2d.graph.filter.DegreeFilter;
 import nv2d.ui.NController;
 import nv2d.utils.filefilter.*;
-import nv2d.plugins.standard.layout.SmartRotationControl;
 
 /**
  * Creates a new graph and draws it on the screen.
@@ -357,7 +355,7 @@ public class RenderBox extends Display {
 	
 	// TODO - implement all of this as ControlSchemes in the ControlManager
 	public void setRotateMode(boolean mode) {
-	    //System.out.println("Set Rotate Mode: " + mode);
+/*	    //System.out.println("Set Rotate Mode: " + mode);
 	    if(mode) {
 	        //System.out.println("Controls BEFORE");
 	        //_controls.printControls();
@@ -377,7 +375,7 @@ public class RenderBox extends Display {
 	        _isRotateMode = false;
 	        //System.out.println("Controls AFTER");
 	        //_controls.printControls();
-	    }
+	    }*/
 	}
 	
 	public boolean getRotateMode() {

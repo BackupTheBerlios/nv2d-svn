@@ -220,8 +220,8 @@ public class LayoutPlugin implements NV2DPlugin {
 	    //System.out.println("** Reloading Layout Plugin");
 	    
 	    // set new initial settings
-	    _layoutViewPanel.setSelected(VIEW_PAN_ZOOM);
-	    setView(VIEW_PAN_ZOOM);
+	    //_layoutViewPanel.setSelected(VIEW_PAN_ZOOM);
+	    //setView(VIEW_PAN_ZOOM);
 
 	    _layoutChooserPanel.setSelected(LAYOUT_ForceDir);
 	    setLayout(LAYOUT_ForceDir, false);
