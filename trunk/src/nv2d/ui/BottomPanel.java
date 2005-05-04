@@ -149,8 +149,8 @@ public class BottomPanel extends javax.swing.JPanel {
 
         add(_reset);
 
-        jSeparator1.setPreferredSize(new java.awt.Dimension(40, 1));
-        jSeparator1.setVerifyInputWhenFocusTarget(false);
+        jSeparator1.setOrientation(javax.swing.SwingConstants.VERTICAL);
+        jSeparator1.setPreferredSize(new java.awt.Dimension(2, 17));
         add(jSeparator1);
 
         _dfVertices.setToolTipText("Select a vertex to center around.");

@@ -38,7 +38,7 @@ import nv2d.graph.Vertex;
 
 public class DegreeFilterUI {
 	// if the number of vertices is over this, the filter automatically kick in
-	public static final int THRESHHOLD = 100;
+	public static final int THRESHHOLD = 1000;
 	
 	public static JDialog getJDialog(NController nctl) {
 		final Graph g = nctl.getModel();
