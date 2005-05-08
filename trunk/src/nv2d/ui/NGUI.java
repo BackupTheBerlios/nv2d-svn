@@ -338,7 +338,8 @@ public class NGUI implements ViewInterface {
 		
 		public boolean closeTab(int tabIndexToClose, Component componentToClose) {
 			if(componentToClose.equals(_c)) {
-				removeComponentNoUpdate((Container) _c);
+				// removeComponentNoUpdate((Container) _c);
+				removeComponent((Container) _c);
 			}
 			return true;
 		}

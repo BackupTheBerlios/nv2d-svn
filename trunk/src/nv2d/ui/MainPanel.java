@@ -74,10 +74,6 @@ public class MainPanel implements NController {
 		loadModules();
 	}
 	
-	public RootPaneContainer getWindow() {
-		return _view.getRootPaneContainer();
-	}
-	
 	public ListModel getHistory() {
 		return _history;
 	}
@@ -127,7 +123,7 @@ public class MainPanel implements NController {
 				try {
 					_g = (Graph) io.getData(ioArgs);
 				} catch (IOException ioe) {
-					errorPopup("Error Loading Graph", "There was an error importing data.  New graph not loaded", null);
+					_view.errorPopup("Error Loading Graph", "There was an error importing data.  New graph not loaded", null);
 					_g = _originalGraph;
 				}
 			}
@@ -145,7 +141,7 @@ public class MainPanel implements NController {
 			// if clause tests for existence of vertices in graph, so next() can be used
 			runFilter(new Object[] {_g.getVertices().iterator().next(), new Integer(1)}, true);
 			// notify user
-			errorPopup("Too Many Vertices",
+			_view.errorPopup("Too Many Vertices",
 					"We don't recommend showing over " + DegreeFilterUI.THRESHHOLD + " vertices at one time.\nYour graph has been filtered using the degree filter.\nChange the settings to show all vertices at the same time.",
 					null);
 			// runFilter() runs reinitModules()
@@ -164,19 +160,6 @@ public class MainPanel implements NController {
 		return _legendMap;
 	}
 	
-	public void errorPopup(String title, String msg, String extra) {
-		_view.errorPopup(title, msg, extra);
-	}
-	
-	public void displayOutTextBox(boolean b) {
-	}
-	
-	public void displayErrTextBox(boolean b) {
-	}
-	
-	public void displayBottomPane(boolean b) {
-	}
-	
 	public void setFilter(FilterInterface filter) {
 		if(filter != null) {
 			_filter = filter;
@@ -187,13 +170,9 @@ public class MainPanel implements NController {
 		return _filter;
 	}
 	
-	public JMenuBar getMenu() {
-		return _view.getMenu();
-	}
-	
 	public void runFilter(Object [] args, boolean wholeSet) {
 		if(_originalGraph == null) {
-			errorPopup("No Graph Loaded", "You must load a graph before using a filter.", null);
+			_view.errorPopup("No Graph Loaded", "You must load a graph before using a filter.", null);
 		}
 		// save vertex locations
 		_r.doSaveVertexLocations();
@@ -210,7 +189,7 @@ public class MainPanel implements NController {
 			_g = _filter.filter();
 			
 			// notify user
-			errorPopup("Too Many Vertices",
+			_view.errorPopup("Too Many Vertices",
 					"We don't recommend showing over " + DegreeFilterUI.THRESHHOLD + " vertices at onetime.\nYour graph has been filtered using the degree filter.\nChange the settings to show all vertices at the same time.",
 					null);
 		}
@@ -231,7 +210,7 @@ public class MainPanel implements NController {
 		try {
 			_pm.loadFromJar(getClass().getClassLoader(), url);
 		} catch (JARAccessException exception) {
-			errorPopup("Could not load plugins", exception.toString(), null);
+			_view.errorPopup("Could not load plugins", exception.toString(), null);
 		}
 
 		modulesPostLoad();

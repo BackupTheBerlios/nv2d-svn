@@ -72,6 +72,8 @@ public class LegendMap {
 	 * Get the legend that maps to a certain <code>Datum</code> name.  TODO:
 	 * perhaps a Legend interface should be created here so that we are not
 	 * restricted to color legends (i.e. icon legends).
+	 *
+	 * TODO: generalize this to LegendInterface
 	 */
 	public ColorLegend getLegend(String attribute) {
 		if(_datums.contains(new Datum(attribute, ""))) {

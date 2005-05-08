@@ -36,7 +36,7 @@ import nv2d.utils.Pair;
 /** Assigns a color to each attribute in a particular Datum category.
  * @author bshi
  */
-public class ColorLegend {
+public class ColorLegend implements LegendInterface {
 	private String _datumName;
 	private Graph _g;
 	
@@ -47,7 +47,18 @@ public class ColorLegend {
 	
 	private DefaultListModel _legendListModel;
 	
+	public ColorLegend() {
+		_g = null;
+		_datumName = null;
+		_table = null;
+		_legendListModel = null;
+	}
+	
 	public ColorLegend(Graph g, String datumName) {
+		initialize(g, datumName);
+	}
+
+	public void initialize(Graph g, String datumName) {
 		_datumName = datumName;
 		_g = g;
 		_table = new Hashtable();
@@ -82,8 +93,12 @@ public class ColorLegend {
 		}
 	}
 	
-	/** Assign colors to each node */
-	public void assignColors() {
+	public void updateRendererObjects() {
+		assignColors();
+	}
+	
+	/** Assign colors to each PNode so that the renderer knows color values. */
+	private void assignColors() {
 		Iterator i = _g.getVertices().iterator();
 		while(i.hasNext()) {
 			Vertex v = (Vertex) i.next();
@@ -137,7 +152,7 @@ public class ColorLegend {
 		return filteredModel;
 	}
 	
-	public Color getColor(Object value) {
+	private Color getColor(Object value) {
 		return (Color) _table.get(value);
 	}
 }

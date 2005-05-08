@@ -32,7 +32,7 @@ public class NV2DMain extends JApplet {
 		JFrame frame = new JFrame("NV2D");
 		panel = new MainPanel(frame);
 		panel.initialize(null);
-		frame.setJMenuBar(panel.getMenu());
+		frame.setJMenuBar(panel.getView().getMenu());
 		
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.pack();
@@ -41,7 +41,7 @@ public class NV2DMain extends JApplet {
 	
 	public void init() {
 		panel = new MainPanel(this);
-		setJMenuBar(panel.getMenu());
+		setJMenuBar(panel.getView().getMenu());
 		setVisible(true);
 	}
 	
