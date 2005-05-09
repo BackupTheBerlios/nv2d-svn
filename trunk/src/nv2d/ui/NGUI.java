@@ -324,6 +324,8 @@ public class NGUI implements ViewInterface {
 	private void initComponents() {
 		registerComponent(_ctl.getRenderBox(), "Main", ViewInterface.MAIN_PANEL);
 
+		registerComponent(_ctl.getViewFactory().getHelpPane(), "Help", ViewInterface.MAIN_PANEL);
+
 		update();
 	}
 	

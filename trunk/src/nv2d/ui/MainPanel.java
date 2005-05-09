@@ -62,9 +62,9 @@ public class MainPanel implements NController {
 		_pm = new NPluginManager();
 		_filter = new DefaultFilter();
 		_r = new RenderBox(this);
+		_viewFactory = new ViewFactory(this);
 
 		_view = new NGUI(this, rootPaneContainer);
-		_viewFactory = new ViewFactory(this);
 		
 		_view.addComponent(_viewFactory.getHistoryPane(), "History", ViewInterface.SIDE_PANEL);
 		_view.addComponent(_viewFactory.getLayoutPane(), "Layout", ViewInterface.BOTTOM_PANEL);

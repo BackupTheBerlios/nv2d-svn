@@ -34,7 +34,7 @@ public class NApplet extends JApplet {
 
 		panel = new MainPanel(this);
 		setContentPane(panel.getView().gui());
-		setJMenuBar(panel.getMenu());
+		setJMenuBar(panel.getView().getMenu());
 		setVisible(true);
 	}
 	

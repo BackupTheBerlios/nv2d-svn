@@ -35,6 +35,7 @@ public class ViewFactory {
 	
 	private Container _historyPane;
 	private Container _layoutPane;
+	private Container _helpPane;
 	
 	/** Creates a new instance of ViewFactory */
 	public ViewFactory(NController ctl) {
@@ -61,6 +62,10 @@ public class ViewFactory {
 		return _historyPane;
 	}
 	
+	public Container getHelpPane() {
+		return _helpPane;
+	}
+	
 	public Container getLayoutPane() {
 		return _layoutPane;
 	}
@@ -80,5 +85,21 @@ public class ViewFactory {
 		
 		_layoutPane = new BottomPanel(_ctl);
 		_historyPane = new HistoryUI(_ctl.getHistory());
+
+		JEditorPane editorPane = null;
+		try {
+			String url = "http://web.mit.edu/bshi/Public/nv2d/";
+			editorPane = new JEditorPane(url);
+			editorPane.setEditable(false);
+		} catch (java.io.IOException e) {
+		}
+		
+		if(null != editorPane) {
+			JScrollPane scrollPane = new JScrollPane(editorPane);
+			scrollPane.setPreferredSize(new Dimension(600,400));
+			_helpPane = scrollPane;
+		} else {
+			_helpPane = null;
+		}
 	}
 }
