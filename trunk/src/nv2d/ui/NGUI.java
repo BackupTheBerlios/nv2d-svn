@@ -35,6 +35,10 @@ public class NGUI implements ViewInterface {
 	private Container _side;
 	private Container _center;
 	private Container _bottom;
+
+	private Component _bottomOld;
+	private Component _sideOld;
+	private Component _centerOld;
 	
 	private Container _gui;
 	
@@ -58,6 +62,10 @@ public class NGUI implements ViewInterface {
 		
 		_sideVis = false;
 		_bottomVis = true;
+
+		_bottomOld = null;
+		_sideOld = null;
+		_centerOld = null;
 		
 		_ctl = ctl;
 		_window = window;
@@ -164,8 +172,6 @@ public class NGUI implements ViewInterface {
 	}
 	
 	public boolean setComponentVisible(Container c) {
-		update();
-		
 		if(_bottomSet.contains(c)) {
 			toggleBottomPane(true);
 			if(_side instanceof JTabbedPane) {
@@ -186,26 +192,40 @@ public class NGUI implements ViewInterface {
 		}
 		return false;
 	}
+
+	private void setTopTab(Component c) {
+		if(c == null) {
+			return;
+		}
+
+		if(_bottomSet.contains(c) && _side instanceof JTabbedPane) {
+			((JTabbedPane) _bottom).setSelectedIndex(((JTabbedPane) _bottom).indexOfComponent(c));
+		} else if (_centerSet.contains(c) && _center instanceof JTabbedPane) {
+			((JTabbedPane) _center).setSelectedIndex(((JTabbedPane) _center).indexOfComponent(c));
+		} else if (_sideSet.contains(c) && _side instanceof JTabbedPane) {
+			((JTabbedPane) _side).setSelectedIndex(((JTabbedPane) _side).indexOfComponent(c));
+		}
+	}
+	
+	private void noteSelectedComponents() {
+		/* find out which views are displayed and note them */
+		if(_bottom instanceof CloseableTabbedPane) {
+			_bottomOld = ((CloseableTabbedPane) _bottom).getSelectedComponent();
+		}
+		if(_side instanceof CloseableTabbedPane) {
+			_sideOld = ((CloseableTabbedPane) _side).getSelectedComponent();
+		}
+		if(_center instanceof CloseableTabbedPane) {
+			_centerOld = ((CloseableTabbedPane) _center).getSelectedComponent();
+		}
+	}
 	
 	/** Rebuild the layout */
 	private void update() {
 		Iterator j;
 		Container major, minor;
 
-		Component bottomOld = null;
-		Component sideOld = null;
-		Component centerOld = null;
-
-		/* find out which views are displayed and note them */
-		if(_bottom instanceof CloseableTabbedPane) {
-			bottomOld = ((CloseableTabbedPane) _bottom).getSelectedComponent();
-		}
-		if(_side instanceof CloseableTabbedPane) {
-			sideOld = ((CloseableTabbedPane) _side).getSelectedComponent();
-		}
-		if(_center instanceof CloseableTabbedPane) {
-			centerOld = ((CloseableTabbedPane) _center).getSelectedComponent();
-		}
+		noteSelectedComponents();
 		
 		// TODO: these two if blocks are still buggy & don't save sizing parameters correctly
 		// save the split-pane resize weights (if there are any) for restoration
@@ -229,24 +249,10 @@ public class NGUI implements ViewInterface {
 		_center = makePane(_centerSet);
 
 		/* restore whichever views were open before the update */
-		if(_bottom instanceof CloseableTabbedPane) {
-			CloseableTabbedPane tmpPane = (CloseableTabbedPane) _bottom;
-			tmpPane.setTabPlacement(CloseableTabbedPane.BOTTOM);
-			if(tmpPane.indexOfComponent(bottomOld) >= 0) {
-				tmpPane.setSelectedIndex(tmpPane.indexOfComponent(bottomOld));
-			}
-		}
+		setTopTab((Container) _sideOld);
+		setTopTab((Container) _bottomOld);
+		setTopTab((Container) _centerOld);
 
-		if(_side instanceof CloseableTabbedPane && ((CloseableTabbedPane) _side).indexOfComponent(sideOld) >= 0) { 
-			CloseableTabbedPane tmpPane = (CloseableTabbedPane) _side;
-			tmpPane.setSelectedIndex(tmpPane.indexOfComponent(bottomOld));
-		}
-
-		if(_center instanceof CloseableTabbedPane && ((CloseableTabbedPane) _center).indexOfComponent(centerOld) >= 0) { 
-			CloseableTabbedPane tmpPane = (CloseableTabbedPane) _center;
-			tmpPane.setSelectedIndex(tmpPane.indexOfComponent(centerOld));
-		}
-		
 		// Looks like
 		// |----------|
 		// |        | |
