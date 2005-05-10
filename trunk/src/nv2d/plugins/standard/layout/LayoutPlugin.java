@@ -843,7 +843,7 @@ public class LayoutPlugin implements NV2DPlugin {
 	                    if(showGravity && f.getParameterName(j).equals("GravitationalConstant")) {
 	                        // set slider equivalent to current value
 	                        param_val = f.getParameter(j);
-	                        slider_val = 6 + (int) (3 * (Math.log10(-1 * param_val)));
+	                        slider_val = 6 + (int) (3 * (Math.log(-1 * param_val)/Math.log(10)));
 	                        if(slider_val < CONST_GRAV_MIN || slider_val > CONST_GRAV_MAX) {
 	                            slider_val = CONST_GRAV_DEF;
 	                        }
@@ -868,7 +868,7 @@ public class LayoutPlugin implements NV2DPlugin {
 	                    if(f.getParameterName(j).equals("SpringCoefficient")) {
 	                        // set slider equivalent to current value
 	                        param_val = f.getParameter(j);
-	                        slider_val = -1 * (int) (Math.log10(param_val/4));
+	                        slider_val = -1 * (int) (Math.log(param_val/4)/Math.log(10));
 	                        if(slider_val < CONST_BOUNCE_MIN || slider_val > CONST_BOUNCE_MAX) {
 	                            slider_val = CONST_BOUNCE_DEF;
 	                        }	                        

@@ -75,7 +75,7 @@ public class MainPanel implements NController {
 		_view.addComponent(_viewFactory.getHistoryPane(), "History", ViewInterface.SIDE_PANEL);
 		_view.addComponent(_viewFactory.getLayoutPane(), "Layout", ViewInterface.BOTTOM_PANEL);
 		
-		_view.gui().setPreferredSize(new Dimension(700, 500));
+		((JComponent) _view.gui()).setPreferredSize(new Dimension(700, 500));
 		
 		loadModules();
 	}

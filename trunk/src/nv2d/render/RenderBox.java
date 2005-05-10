@@ -539,7 +539,9 @@ public class RenderBox extends Display {
 			// TODO: should we use AbsolutePath or CanonicalPath???
 			// TODO: all of the logic here should probably be moved to NMenu
 			// check if they already typed file extension
-			if(!file.getName().toLowerCase().contains("." + outputExt)) {
+			String fileName = file.getName().toLowerCase();
+			// if(!file.getName().toLowerCase().contains("." + outputExt)) { // 1.5 only apparently
+			if(fileName.indexOf("." + outputExt) < 0) {
 				file = new File(file.getAbsolutePath() + "." + outputExt);
 			}
 			

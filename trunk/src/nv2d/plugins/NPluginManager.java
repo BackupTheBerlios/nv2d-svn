@@ -84,7 +84,7 @@ public class NPluginManager {
 		Iterator i = _securityList.iterator();
 		while(i.hasNext()) {
 			String s = (String) i.next();
-			if(loc.matches("jar:\\w+://" + s.replace(".", "\\.") + ".*")) {
+			if(loc.matches("jar:\\w+://" + s.replaceAll(".", "\\.") + ".*")) {
 				return true;
 			}
 		}
