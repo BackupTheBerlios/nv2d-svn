@@ -55,6 +55,12 @@ public class MainPanel implements NController {
 	private DegreeFilter _degreeFilter = new DegreeFilter();
 	
 	public MainPanel(RootPaneContainer rootPaneContainer) {
+		/* setDefaultFont() sets the system-wide font to size 10 which is smaller
+		 * than the Java default.  This must be the first thing done before GUI
+		 * objects are instantiated for the changes to go into effect.
+		 */
+		NGUI.setDefaultFont();
+
 		/* initialize the history mechanism */
 		_history = new DefaultListModel();
 		

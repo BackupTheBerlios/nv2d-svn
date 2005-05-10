@@ -49,6 +49,9 @@
 			debug="on"
 			deprecation="on">
 		</javac>
+		<copy todir="${build.dir}">
+			<fileset dir="${src.dir}" includes="**/images/*"/>
+		</copy>
 	</target>
 	
 	<target name="buildtests" depends="build">

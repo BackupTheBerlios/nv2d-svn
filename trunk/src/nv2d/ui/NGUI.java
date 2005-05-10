@@ -47,21 +47,6 @@ public class NGUI implements ViewInterface {
 	private NPrintStream _err, _out;
 
 	public NGUI(NController ctl, RootPaneContainer window) {
-		/* The following font bit is taken from
-		 * http://forum.java.sun.com/thread.jsp?thread=125315&forum=57&message=330309
-		 * Thanks to 'urmasoft' for the post
-		 */
-		Hashtable oUIDefault = UIManager.getDefaults();
-		Enumeration oKey = oUIDefault.keys();
-		String oStringKey = null;
-		
-		while (oKey.hasMoreElements()) {
-			oStringKey = oKey.nextElement().toString();
-			if (oStringKey.endsWith("font") || oStringKey.endsWith("acceleratorFont")) {
-				UIManager.put(oStringKey, new Font("Dialog", Font.PLAIN, 10));
-			}
-		}
-		
 		_verticalResizeWeight = 1.0;
 		_horizontalResizeWeight = 0.75;
 		
@@ -80,6 +65,23 @@ public class NGUI implements ViewInterface {
 		_menu = new NMenu(_ctl, _ctl.getRenderBox());
 
 		initComponents();
+	}
+	
+	public static void setDefaultFont() {
+		/* The following font bit is taken from
+		 * http://forum.java.sun.com/thread.jsp?thread=125315&forum=57&message=330309
+		 * Thanks to 'urmasoft' for the post
+		 */
+		Hashtable oUIDefault = UIManager.getDefaults();
+		Enumeration oKey = oUIDefault.keys();
+		String oStringKey = null;
+		
+		while (oKey.hasMoreElements()) {
+			oStringKey = oKey.nextElement().toString();
+			if (oStringKey.endsWith("font") || oStringKey.endsWith("acceleratorFont")) {
+				UIManager.put(oStringKey, new Font("Dialog", Font.PLAIN, 10));
+			}
+		}
 	}
 	
 	public void toggleSidePane(boolean b) {
