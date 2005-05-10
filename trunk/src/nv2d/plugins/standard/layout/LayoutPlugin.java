@@ -651,17 +651,6 @@ public class LayoutPlugin implements NV2DPlugin {
 	    return a;
 	}
 
-	/**
-	 * Simulated Annealing ActionList
-	 * @return
-	 */
-	public ActionList newActionList_SimAnneal() {
-	    ActionList a = new ActionList(_renderbox.getItemRegistry());
-
-	    return a;
-	}
-	
-	
 	
 	public String author() {
 	    return "Sam";
@@ -780,8 +769,8 @@ public class LayoutPlugin implements NV2DPlugin {
 	        button.setActionCommand(label);
 
 	        // Set the image or, if that's invalid, equivalent text.
-	        ImageIcon icon = createImageIcon("images/" + name + ".gif");
-	        ImageIcon selectedIcon = createImageIcon("images/sel_" + name + ".gif");
+	        ImageIcon icon = LayoutUtil.createImageIcon("images/" + name + ".gif");
+	        ImageIcon selectedIcon = LayoutUtil.createImageIcon("images/sel_" + name + ".gif");
 	        if (icon != null) {
 	            button.setIcon(icon);
 	            button.setSelectedIcon(selectedIcon);
@@ -797,23 +786,6 @@ public class LayoutPlugin implements NV2DPlugin {
 	        return button;
 	    }
 
-		/* Returns an ImageIcon, or null if the path was invalid. */
-		protected ImageIcon createImageIcon(String path) {
-		    java.net.URL imgURL = null;
-		    try {
-		        // TODO: fix image path issue!!!!!!!!!, store locally
-		        imgURL = new java.net.URL("http://web.mit.edu/prentice/www/" + path); //LayoutForceCtlSidePanel.class.getResource(path);
-		        //imgURL = LayoutPlugin.class.getResource(path);
-		    }
-		    catch (Exception e) { System.out.println(e); }
-		    //System.out.println("Looking in: " + imgURL);
-		    if (imgURL != null) {
-		        return new ImageIcon(imgURL);
-		    } else {
-		        System.err.println("Couldn't find file: " + path);
-		        return null;
-		    }
-		}
 	}
 	
 //	-----------------------------------------
@@ -1047,6 +1019,8 @@ public class LayoutPlugin implements NV2DPlugin {
 	        String[] options = myLayout.measuresOffered(_pluginRef.getRegistry());
 	        // display a pulldown with all the measures we can sort by
 	        optionList = new JComboBox(options);
+	        optionList.setPreferredSize(new Dimension(150, 20));
+	        optionList.setMaximumSize(new Dimension(150, 20));
 	        //optionList.setSelectedIndex(4);
 	        optionList.addActionListener(new ActionListener() {
 	            public void actionPerformed(ActionEvent e) {
@@ -1061,7 +1035,8 @@ public class LayoutPlugin implements NV2DPlugin {
 	        
 	        snaButton = new JButton("Add SNA Measures");
 	        snaButton.setPreferredSize(new Dimension(30, 10));
-	        snaButton.setMaximumSize(new Dimension(150, 30));
+	        snaButton.setMaximumSize(new Dimension(150, 20));
+	        snaButton.setAlignmentX(Component.CENTER_ALIGNMENT);
 	        snaButton.addActionListener(new ActionListener() {
 	            public void actionPerformed(ActionEvent e) {
 	                    // Run SNA Calculations
@@ -1080,7 +1055,7 @@ public class LayoutPlugin implements NV2DPlugin {
 	        });
 	        
 	        resizeBox = new JCheckBox("Scale Node Size");
-	        
+	        resizeBox.setAlignmentX(Component.CENTER_ALIGNMENT);
 	        Container container = new Container();
 	        container.setLayout(new BoxLayout(container, BoxLayout.X_AXIS));
 	        JLabel sortLabel = new JLabel("Sort By: ", JLabel.CENTER);
@@ -1089,21 +1064,16 @@ public class LayoutPlugin implements NV2DPlugin {
 	        container.add(optionList);
 	        
 	        this.add(container); //, BorderLayout.NORTH);
-	        this.add(new Box.Filler(new Dimension(200, 15), new Dimension(200, 15), new Dimension(800, 30)));
+	        this.add(new Box.Filler(new Dimension(5, 5), new Dimension(5, 5), new Dimension(5, 5)));
             if(_snaPluginRef != null) {
                 this.add(snaButton); //, BorderLayout.CENTER);            
-    	        this.add(new Box.Filler(new Dimension(200, 15), new Dimension(200, 15), new Dimension(800, 30)));
+    	        this.add(new Box.Filler(new Dimension(5, 5), new Dimension(5, 5), new Dimension(5, 5)));
                 this.add(resizeBox); //, BorderLayout.SOUTH);
             }
             
             
 	    }
 	    
-	    // TODO: add Radius size slider
-	    // TODO: add Sort-By pulldown
-	    //     - alphabetize
-	    //     - measures
-	    //        - in order, or spread
 	}
 
 //	-----------------------------------------
@@ -1114,12 +1084,12 @@ public class LayoutPlugin implements NV2DPlugin {
 	public class FRSettingsPanel extends JPanel {
 	    LayoutPlugin _pluginRef;
 	    
-	    
+	   
 	    public FRSettingsPanel(LayoutPlugin lp) {
 	        _pluginRef = lp;
 	        
 	        this.setPreferredSize(new Dimension(300, 200));
-	        this.setBorder(BorderFactory.createTitledBorder("Fruchterman Layout Settings"));
+	        this.setBorder(BorderFactory.createEmptyBorder());// createTitledBorder());// "Fruchterman Layout Settings"));
 			this.setAlignmentX(Component.LEFT_ALIGNMENT);
 	        
 	        this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
@@ -1199,43 +1169,26 @@ public class LayoutPlugin implements NV2DPlugin {
         button.setActionCommand(command);
 
         // Set the image or, if that's invalid, equivalent text.
-        /*ImageIcon icon = createImageIcon("images/" + name + ".gif");
-        ImageIcon selectedIcon = createImageIcon("images/sel_" + name + ".gif");
+        ImageIcon icon = LayoutUtil.createImageIcon("images/" + imgname + ".gif");
+        ImageIcon selectedIcon = LayoutUtil.createImageIcon("images/sel_" + imgname + ".gif");
         if (icon != null) {
-            System.out.println("Icon is not null" + name);
+            //System.out.println("Icon is not null" + name);
             button.setIcon(icon);
             button.setSelectedIcon(selectedIcon);
             button.setBorder(normalBorder);
-        } else {
-            System.out.println("Icon IS NULL" + name + " " + label);
-            */
+        } 
+        else {
+            //System.out.println("Icon IS NULL" + name + " " + label);
             button.setText(label);
             button.setFont(button.getFont().deriveFont(Font.ITALIC));
             button.setHorizontalAlignment(JButton.HORIZONTAL);
             button.setBorder(BorderFactory.createLineBorder(Color.BLACK));
-//        }
+        }
         button.setToolTipText(label + " View");
 
         return button;
     }
 
-	/* Returns an ImageIcon, or null if the path was invalid. */
-	protected ImageIcon createImageIcon(String path) {
-	    java.net.URL imgURL = null;
-	    try {
-	        // TODO: fix image path issue!!!!!!!!!, store locally
-	        imgURL = new java.net.URL("http://web.mit.edu/prentice/www/" + path); //LayoutForceCtlSidePanel.class.getResource(path);
-	        //imgURL = LayoutPlugin.class.getResource(path);
-	    }
-	    catch (Exception e) { System.out.println(e); }
-	    //System.out.println("Looking in: " + imgURL);
-	    if (imgURL != null) {
-	        return new ImageIcon(imgURL);
-	    } else {
-	        System.err.println("Couldn't find file: " + path);
-	        return null;
-	    }
-	}
 }
 ////-----------------------------------------
 
