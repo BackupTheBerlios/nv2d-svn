@@ -25,14 +25,39 @@ import javax.swing.*;
 public class NApplet extends JApplet {
 	public static final String PARAM_DATAFILE = "NFileIO";
 	public static final String PARAM_DEGREEFILTER = "DegreeFilter";
+	public static final String PARAM_SIDEVIS = "SidePanel";
+	public static final String PARAM_BOTTOMVIS = "BottomPanel";
+
 	MainPanel panel;
 
 	String _dataFile;
 
 	public void init() {
 		_dataFile = getParameter(PARAM_DATAFILE);
+		String sideVis = getParameter(PARAM_SIDEVIS);
+		String bottomVis = getParameter(PARAM_BOTTOMVIS);
 
-		panel = new MainPanel(this);
+		// build command line arguments
+		java.util.Vector vargs = new java.util.Vector();
+		if(sideVis != null) {
+			vargs.add("-sidebar");
+			vargs.add(sideVis);
+		}
+		if(bottomVis != null) {
+			vargs.add("-bottombar");
+			vargs.add(bottomVis);
+		}
+		
+		String [] args = null;
+		if(vargs.size() > 0) {
+			Object [] objs = vargs.toArray();
+			args = new String[objs.length];
+			for(int i = 0; i < objs.length; i++) {
+				args[i] = (String) objs[i];
+			}
+		}
+		
+		panel = new MainPanel(this, args);
 		setContentPane(panel.getView().gui());
 		setJMenuBar(panel.getView().getMenu());
 		setVisible(true);

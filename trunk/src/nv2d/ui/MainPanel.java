@@ -53,7 +53,39 @@ public class MainPanel implements NController {
 	private LegendMap _legendMap;
 	
 	private DegreeFilter _degreeFilter = new DegreeFilter();
-	
+
+	/* command line argument values */
+	private boolean _argSideVisible;
+	private boolean _argBottomVisible;
+	private String [] _argDataArguments;
+
+	public MainPanel(RootPaneContainer rootPaneContainer, String [] args) {
+		/* setDefaultFont() sets the system-wide font to size 10 which is smaller
+		 * than the Java default.  This must be the first thing done before GUI
+		 * objects are instantiated for the changes to go into effect.
+		 */
+		NGUI.setDefaultFont();
+		
+		/* parse the arguments */
+		if(args != null) {
+			parseCommandLine(args);
+		}
+
+		/* initialize the history mechanism */
+		_history = new DefaultListModel();
+		
+		/* Important: this must be the order (loadmodules then renderbox as last two) */
+		_pm = new NPluginManager();
+		_filter = new DefaultFilter();
+		_r = new RenderBox(this);
+		_viewFactory = new ViewFactory(this);
+
+		_view = new NGUI(this, rootPaneContainer, _argSideVisible, _argBottomVisible);
+		_view.setPreferredSize(700, 500);
+
+		loadModules();
+	}
+
 	public MainPanel(RootPaneContainer rootPaneContainer) {
 		/* setDefaultFont() sets the system-wide font to size 10 which is smaller
 		 * than the Java default.  This must be the first thing done before GUI
@@ -71,12 +103,8 @@ public class MainPanel implements NController {
 		_viewFactory = new ViewFactory(this);
 
 		_view = new NGUI(this, rootPaneContainer);
-		
-		_view.addComponent(_viewFactory.getHistoryPane(), "History", ViewInterface.SIDE_PANEL);
-		_view.addComponent(_viewFactory.getLayoutPane(), "Layout", ViewInterface.BOTTOM_PANEL);
-		
-		((JComponent) _view.gui()).setPreferredSize(new Dimension(700, 500));
-		
+		_view.setPreferredSize(700, 500);
+
 		loadModules();
 	}
 	
@@ -295,6 +323,43 @@ public class MainPanel implements NController {
 			if(io.menu() != null) {
 				_view.getMenu().addImporterMenu(io.menu());
 			}
+		}
+	}
+
+	private void parseCommandLine(String [] args) {
+		if(args.length < 2) {
+			return;
+		}
+		
+		_argDataArguments = null;
+		_argSideVisible = false;
+		_argBottomVisible = true;
+
+		int j = 0;
+		while(j < args.length) {
+			if(args[j].equals("-sidebar")) {
+				if(args[j + 1].equals("1")) {
+					_argSideVisible = true;
+				} else {
+					_argSideVisible = false;
+				}
+			} else if (args[j].equals("-bottombar")) {
+				if(args[j + 1].equals("1")) {
+					_argBottomVisible = true;
+				} else {
+					_argBottomVisible = false;
+				}
+			} else if (args[j].equals("-data")) {
+				// -data should be the last keyword, all arguments following should
+				// be sent to initialize.
+				_argDataArguments = new String[args.length - j];
+				for(int i = 0; i < _argDataArguments.length; i++) {
+					_argDataArguments[i] = args[j + 1 + i];
+				}
+			} else {
+				// System.err.println("Argument [" + args[j] + "] not recognized.");
+			}
+			j++;
 		}
 	}
 }

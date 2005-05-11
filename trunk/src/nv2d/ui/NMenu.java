@@ -132,8 +132,8 @@ public class NMenu extends JMenuBar {
 	private JMenu _viewVis;
 	private JMenu _viewFilter;
 	private JMenuItem _viewFilterDegree;
-	private JCheckBoxMenuItem _viewSouthPanel;
-	private JCheckBoxMenuItem _viewSidePanel;
+	private JMenuItem _viewSouthPanel;
+	private JMenuItem _viewSidePanel;
 	private JMenuItem _viewRenderBox;
 	private JMenuItem _viewErrTxt;
 	private JMenuItem _viewOutTxt;
@@ -222,8 +222,8 @@ public class NMenu extends JMenuBar {
 		_viewVis = new JMenu("Visualization");
 		_viewFilter = new JMenu("Graph Filters");
 		_viewFilterDegree = new JMenuItem("Degree Filter");
-		_viewSidePanel = new JCheckBoxMenuItem("Side Panel", false);
-		_viewSouthPanel = new JCheckBoxMenuItem("Bottom Panel", true);
+		_viewSidePanel = new JMenuItem("Side Panel");
+		_viewSouthPanel = new JMenuItem("Bottom Panel");
 		_viewErrTxt = new JMenuItem("Error Messages");
 		_viewOutTxt = new JMenuItem("Program Output");
 		_viewRenderBox = new JMenuItem("Graph Visualization");
@@ -239,7 +239,7 @@ public class NMenu extends JMenuBar {
 		_view.add(_viewFilter);
 		// visualization submenu
 		_viewVis.add(_viewVLabel);
-		_viewVis.add(_viewStress);
+		// _viewVis.add(_viewStress); // TODO: not added b/c it doesn't do anything now
 		_viewVis.add(_viewLength);
 		// filter submenu
 		_viewFilter.add(_viewFilterDegree);
@@ -348,11 +348,11 @@ public class NMenu extends JMenuBar {
 	}
 
 	private void _viewSidePanelActionPerformed(ActionEvent e) {
-		_ctl.getView().toggleSidePane(_viewSidePanel.getState());
+		_ctl.getView().toggleSidePane(!_ctl.getView().sidePaneState());
 	}
 
 	private void _viewBottomPanelActionPerformed(ActionEvent e) {
-		_ctl.getView().toggleBottomPane(_viewSouthPanel.getState());
+		_ctl.getView().toggleBottomPane(!_ctl.getView().bottomPaneState());
 	}
 
 	private void _viewVLabelItemStateChanged(ItemEvent e) {

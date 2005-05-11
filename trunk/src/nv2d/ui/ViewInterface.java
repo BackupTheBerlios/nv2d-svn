@@ -44,6 +44,8 @@ public interface ViewInterface {
 	 * @return a {@link NMenu} object.
 	 */
 	public NMenu getMenu();
+	
+	public void setPreferredSize(int x, int y);
 
 	/**
 	 * Validates all of the components included in this view.

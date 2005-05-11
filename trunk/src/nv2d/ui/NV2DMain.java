@@ -24,13 +24,15 @@ import javax.swing.*;
 
 public class NV2DMain extends JApplet {
 	public static final String PARAM_DATAFILE = "NFileIO";
+	public static final String PARAM_SIDEVIS = "SidePanel";
+	public static final String PARAM_BOTTOMVIS = "BottomPanel";
 	public static final String PARAM_DEGREEFILTER = "DegreeFilter";
 	
 	private static MainPanel panel;
 	
-	public NV2DMain() {
+	public NV2DMain(String [] args) {
 		JFrame frame = new JFrame("NV2D");
-		panel = new MainPanel(frame);
+		panel = new MainPanel(frame, args);
 		panel.initialize(null);
 		frame.setJMenuBar(panel.getView().getMenu());
 		
@@ -40,7 +42,27 @@ public class NV2DMain extends JApplet {
 	}
 	
 	public void init() {
-		panel = new MainPanel(this);
+		String sideVis = getParameter(PARAM_SIDEVIS);
+		String bottomVis = getParameter(PARAM_BOTTOMVIS);
+
+		// build command line arguments
+		java.util.Vector vargs = new java.util.Vector();
+		if(sideVis != null) {
+			vargs.add("-sidebar");
+			vargs.add(sideVis);
+		}
+		if(bottomVis != null) {
+			vargs.add("-bottombar");
+			vargs.add(bottomVis);
+		}
+		
+		String [] args = null;
+		if(vargs.size() > 0) {
+			args = (String []) vargs.toArray();
+		}
+		
+		panel = new MainPanel(this, args);
+		setContentPane(panel.getView().gui());
 		setJMenuBar(panel.getView().getMenu());
 		setVisible(true);
 	}
@@ -48,6 +70,7 @@ public class NV2DMain extends JApplet {
 	/* TODO: figure out a scheme for command line arguments which are passed in*/
 	public void start() {
 		String dataFile = getParameter(PARAM_DATAFILE);
+
 		if(dataFile == null) {
 			panel.initialize(null);
 		} else {
@@ -56,6 +79,6 @@ public class NV2DMain extends JApplet {
 	}
 	
 	public static void main(String [] args) {
-		new NV2DMain();
+		new NV2DMain(args);
 	}
 }

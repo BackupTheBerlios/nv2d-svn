@@ -263,25 +263,11 @@ public class UGraphTest extends TestCase {
 
 		// edges should not be added back in (make sure they were removed correctly)
 		_g.add(_n01);
-		try {
-			_g.edgeLen(_n01, _n02);
-			fail("edge not removed correctly in response to vertex removal");
-		} catch (IllegalArgumentException exception) {
-			// correct bahavior
-		}
-		try {
-			_g.edgeLen(_n01, _n03);
-			fail("edge not removed correctly in response to vertex removal");
-		} catch (IllegalArgumentException exception) {
-			// correct bahavior
-		}
-		try {
-			_g.edgeLen(_n01, _n04);
-			fail("edge not removed correctly in response to vertex removal");
-		} catch (IllegalArgumentException exception) {
-			// correct bahavior
-		}
 		
+		assertTrue(_g.edgeLen(_n01, _n02) == 0);
+		assertTrue(_g.edgeLen(_n01, _n03) == 0);
+		assertTrue(_g.edgeLen(_n01, _n04) == 0);
+
 		// these were removed from the node removal
 		_g.add(_e01);
 		_g.add(_e02);
@@ -292,12 +278,8 @@ public class UGraphTest extends TestCase {
 		assertTrue(_g.edgeLen(_n01, _n04) == 3.0);
 		
 		_g.remove(_e01);
-		try {
-			_g.edgeLen(_n01, _n02);
-			fail("edge not removed correctly in response to vertex removal");
-		} catch (IllegalArgumentException exception) {
-			// correct bahavior
-		}
+
+		assertTrue(_g.edgeLen(_n01, _n02) == 0);
 	}
 
 	/**

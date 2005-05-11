@@ -23,6 +23,8 @@ package nv2d.ui;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Set;
@@ -63,8 +65,6 @@ public class ColorLegend implements LegendInterface {
 		_g = g;
 		_table = new Hashtable();
 
-		_legendListModel = new DefaultListModel();
-		
 		// figure out how many unique entries there are
 		Set keys = new HashSet();
 		Iterator i = g.getVertices().iterator();
@@ -76,23 +76,31 @@ public class ColorLegend implements LegendInterface {
 			keys.add(v.getDatum(_datumName).get());
 		}
 
+		_legendListModel = createListModel(keys);
+	}
+
+	private DefaultListModel createListModel(Set keys) {
 		// automatically assign colors to everything
 		float h;
-		i = keys.iterator();
-		int size = keys.size();
-		for (int j = 0; j < size; j++) {
+		DefaultListModel listModel = new DefaultListModel();
+		Object [] keysArray = keys.toArray();
+		Arrays.sort(keysArray, new StringComparator());
+		int size = keysArray.length;
+
+		for (int j = 0; j < keysArray.length; j++) {
 			h = (float) j / (float) size;
-			Object key = i.next();
+			Object key = keysArray[j];
 			Object color = Color.getHSBColor(h, 1.0f, 1.0f);
 			_table.put(key, color);
 						
 			/* add the new legend element to the legend list.  The
 			 * legend list takes a Pair object, the car() is the key
 			 * and the color is the cdr(). */
-			_legendListModel.addElement(new Pair(key, color));
+			listModel.addElement(new Pair(key, color));
 		}
+		return listModel;
 	}
-	
+
 	public void updateRendererObjects() {
 		assignColors();
 	}
@@ -145,14 +153,32 @@ public class ColorLegend implements LegendInterface {
 		while(i.hasNext()) {
 			Datum d = ((Vertex) i.next()).getDatum(_datumName);
 			if(d != null && !uniqueVals.contains(d.get())) {
-				filteredModel.addElement(new Pair(d.get(), _table.get(d.get())));
 				uniqueVals.add(d.get());
 			}
 		}
+
+		Object [] vals = uniqueVals.toArray();
+		Arrays.sort(vals, new StringComparator());
+		for (int j = 0; j < vals.length; j++) {
+			filteredModel.addElement(new Pair(vals[j], _table.get(vals[j])));
+		}
+
 		return filteredModel;
 	}
 	
 	private Color getColor(Object value) {
 		return (Color) _table.get(value);
+	}
+}
+
+class StringComparator implements Comparator {
+	public int compare(Object o1, Object o2) {
+		String s1 = o1.toString();
+		String s2 = o2.toString();
+		return s1.compareTo(s2);
+	}
+
+	public boolean	equals(Object obj) {
+		return (obj instanceof StringComparator);
 	}
 }

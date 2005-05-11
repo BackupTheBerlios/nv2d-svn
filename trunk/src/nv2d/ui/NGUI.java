@@ -29,6 +29,8 @@ public class NGUI implements ViewInterface {
 	private NMenu _menu;
 	private RootPaneContainer _window;
 	
+	private Dimension _dimension;
+	
 	private Vector _bottomSet, _centerSet, _sideSet;
 	private Hashtable _containerNames;
 
@@ -51,6 +53,22 @@ public class NGUI implements ViewInterface {
 	private NPrintStream _err, _out;
 
 	public NGUI(NController ctl, RootPaneContainer window) {
+		_sideVis = false;
+		_bottomVis = true;
+		_ctl = ctl;
+		_window = window;
+		constructorHelper();
+	}
+
+	public NGUI(NController ctl, RootPaneContainer window, boolean sideVis, boolean bottomVis) {
+		_sideVis = sideVis;
+		_bottomVis = bottomVis;
+		_ctl = ctl;
+		_window = window;
+		constructorHelper();
+	}
+	
+	private void constructorHelper() {
 		_verticalResizeWeight = 1.0;
 		_horizontalResizeWeight = 0.75;
 		
@@ -60,19 +78,17 @@ public class NGUI implements ViewInterface {
 		_centerSet = new Vector(5);
 		_sideSet = new Vector(5);
 		
-		_sideVis = false;
-		_bottomVis = true;
-
 		_bottomOld = null;
 		_sideOld = null;
 		_centerOld = null;
-		
-		_ctl = ctl;
-		_window = window;
-		
+
 		_menu = new NMenu(_ctl, _ctl.getRenderBox());
 
 		initComponents();
+	}
+	
+	public void setPreferredSize(int x, int y) {
+		_dimension = new Dimension(x, y);
 	}
 	
 	public static void setDefaultFont() {
@@ -174,19 +190,22 @@ public class NGUI implements ViewInterface {
 	public boolean setComponentVisible(Container c) {
 		if(_bottomSet.contains(c)) {
 			toggleBottomPane(true);
-			if(_side instanceof JTabbedPane) {
+			if(_bottom instanceof JTabbedPane) {
 				((JTabbedPane) _bottom).setSelectedIndex(((JTabbedPane) _bottom).indexOfComponent(c));
+				update();
 			}
 			return true;
 		} else if (_centerSet.contains(c)) {
 			if(_center instanceof JTabbedPane) {
 				((JTabbedPane) _center).setSelectedIndex(((JTabbedPane) _center).indexOfComponent(c));
+				update();
 			}
 			return true;
 		} else if (_sideSet.contains(c)) {
 			toggleSidePane(true);
 			if(_side instanceof JTabbedPane) {
 				((JTabbedPane) _side).setSelectedIndex(((JTabbedPane) _side).indexOfComponent(c));
+				update();
 			}
 			return true;
 		}
@@ -198,7 +217,7 @@ public class NGUI implements ViewInterface {
 			return;
 		}
 
-		if(_bottomSet.contains(c) && _side instanceof JTabbedPane) {
+		if(_bottomSet.contains(c) && _bottom instanceof JTabbedPane) {
 			((JTabbedPane) _bottom).setSelectedIndex(((JTabbedPane) _bottom).indexOfComponent(c));
 		} else if (_centerSet.contains(c) && _center instanceof JTabbedPane) {
 			((JTabbedPane) _center).setSelectedIndex(((JTabbedPane) _center).indexOfComponent(c));
@@ -206,7 +225,11 @@ public class NGUI implements ViewInterface {
 			((JTabbedPane) _side).setSelectedIndex(((JTabbedPane) _side).indexOfComponent(c));
 		}
 	}
-	
+
+	/** TODO: if the ViewCloseListener uses no-update remove, then this works fine
+	 * but if it doesn't then exceptions are thrown because the component is removed
+	 * before the getSelectedComponent() index is updated.
+	 */
 	private void noteSelectedComponents() {
 		/* find out which views are displayed and note them */
 		if(_bottom instanceof CloseableTabbedPane) {
@@ -283,6 +306,9 @@ public class NGUI implements ViewInterface {
 		} else {
 			_gui = new JPanel();
 		}
+		
+		((JComponent) _gui).setPreferredSize(_dimension);
+		
 		_window.setContentPane(_gui);
 		validate();
 		_window.getRootPane().validate();
@@ -331,9 +357,9 @@ public class NGUI implements ViewInterface {
 
 	private void initComponents() {
 		registerComponent(_ctl.getRenderBox(), "Main", ViewInterface.MAIN_PANEL);
-
 		registerComponent(_ctl.getViewFactory().getHelpPane(), "Help", ViewInterface.MAIN_PANEL);
-
+		registerComponent(_ctl.getViewFactory().getHistoryPane(), "History", ViewInterface.SIDE_PANEL);
+		registerComponent(_ctl.getViewFactory().getLayoutPane(), "Layout", ViewInterface.BOTTOM_PANEL);
 		update();
 	}
 	
@@ -349,7 +375,7 @@ public class NGUI implements ViewInterface {
 		public boolean closeTab(int tabIndexToClose, Component componentToClose) {
 			if(componentToClose.equals(_c)) {
 				// removeComponentNoUpdate((Container) _c);
-				removeComponent((Container) _c);
+				removeComponentNoUpdate((Container) _c);
 			}
 			return true;
 		}
