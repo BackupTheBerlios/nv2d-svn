@@ -1,0 +1,133 @@
+<?xml version="1.0"?>
+
+<project name="NV2D" default="build" basedir=".">
+	<!-- project wide settings -->
+	<!-- property name="build.compiler" value="jikes"/ -->
+	
+	<!-- directories and files -->
+	<property name="build.dir" value="./build"/>
+	<property name="src.dir" value="./src"/>
+	<property name="test.dir" value="./test"/>
+	<property name="dist.dir" value="./dist"/>
+
+	<target name="javadoc">
+            <javadoc packagenames="nv2d.*"
+                sourcepath="${src.dir}"
+                destdir="${dist.dir}/api"
+                author="true"
+                version="true"
+                windowtitle="NV2D API"
+                doctitle="NV2D"
+                bottom="NV2D is a part of the NetVis project"
+            />
+	</target>
+
+	<target name="help">
+		<echo message="ANT Targets"/>
+		<echo message="   build - build the project (class files are in ${build.dir})"/>
+		<echo message="   buildtests - build the JUnit tests (class files are in ${build.dir})"/>
+		<echo message="   clean - clean up class files"/>
+		<echo message="   help - display this message"/>
+		<echo message="   nv2d - build and run the standalone application"/>
+		<echo message="   prepare - prepare the necesasry directories and files necessary for build"/>
+		<echo message="   test - run unit tests"/>
+	</target>
+
+	<target name="prepare">
+		<mkdir dir="${build.dir}"/>
+		<mkdir dir="${dist.dir}"/>
+		<tstamp/>
+		<echo message="${TSTAMP}"/>
+	</target>
+
+	<target name="build" depends="prepare">
+		<javac srcdir="${src.dir}"
+			classpath="./lib/prefuse.jar"
+			destdir="${build.dir}"
+			target="1.4"
+			source="1.4"
+			debug="on"
+			deprecation="on">
+		</javac>
+		<copy todir="${build.dir}">
+			<fileset dir="${src.dir}" includes="**/images/*"/>
+		</copy>
+	</target>
+	
+	<target name="buildtests" depends="build">
+		<javac srcdir="${test.dir}"
+			classpath="./lib/junit.jar:./lib/prefuse.jar:${build.dir}"
+			destdir="${build.dir}"
+			target="1.4"
+			source="1.4"
+			debug="on">
+		</javac>
+	</target>
+
+	<target name="jar"
+		depends="build"
+		description="Jar Classes">
+		<jar jarfile="${dist.dir}/N2.jar"
+			basedir="${build.dir}">
+			<manifest>
+				<attribute name="Main-Class" value="nv2d.ui.NV2DMain"/>
+			</manifest>
+		</jar>
+	</target>
+
+	<target name="clean">
+		<delete>
+			<fileset dir="${build.dir}" includes="**/*.class"/>
+			<fileset dir="${dist.dir}" includes="**/*"/>
+		</delete>
+		<delete dir="${build.dir}"/>
+		<delete dir="${dist.dir}"/>
+	</target>
+
+	<target name="nv2d" depends="build">
+		<java fork="yes" classname="nv2d.ui.NV2DMain">
+            <classpath>
+                <pathelement location="./build" />
+				<pathelement location="./lib/prefuse.jar" />
+            </classpath>
+		</java>
+	</target>
+
+	<taskdef resource="clovertasks"/>
+
+	<target name="with.clover">
+		<clover-setup initString="mycoverage.db"/>
+	</target>
+
+	<target name="clover.html" depends="with.clover">
+		<clover-report>
+			<current outfile="clover_html">
+				<format type="html"/>
+			</current>
+		</clover-report>
+	</target>
+
+	<target name="coverage" depends="build">
+		<java fork="yes" classname="nv2d.ui.NV2DMain">
+			<classpath>
+				<pathelement path="./build"/>
+				<pathelement path="./lib/clover.jar"/>
+				<pathelement path="./lib/prefuse.jar"/>
+			</classpath>
+		</java>
+	</target>
+	
+	<target name='test' depends='buildtests'
+		description='Run unit tests in non-graphical mode'>
+	    <junit printsummary='true' haltonfailure='true'>
+		<formatter type='brief' usefile='false'/>
+		<classpath>
+		    <pathelement path='${build.dir}'/>
+		    <fileset dir='./lib'/>
+		</classpath>
+		<batchtest>
+		    <fileset dir='${build.dir}' includes='**/*Test.class'/>
+		</batchtest>
+	    </junit>
+	</target>
+</project>
