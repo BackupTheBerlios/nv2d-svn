@@ -184,13 +184,7 @@ public class UGraphTest extends TestCase {
 			// correct bahavior
 		}
 		
-		try {
-			_g.edgeLen(_n08, _n07);
-			fail("Invalid input must throw an IllegalArgumentException");
-		} catch (IllegalArgumentException exception) {
-			// correct bahavior
-		}
-		
+		assertTrue(_g.edgeLen(_n08, _n07) == 0);
 	}
 
 	/**

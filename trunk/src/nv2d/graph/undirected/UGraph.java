@@ -81,7 +81,7 @@ public class UGraph extends nv2d.graph.Graph {
 			throw new IllegalArgumentException("UGraph.edgeLen(): source or target does not exist in this graph");
 		}
 		if (!source.neighbors().contains(dest)) {
-			throw new IllegalArgumentException("UGraph.edgeLen(): invalid source or target vertex");
+			return 0.0;
 		}
 		Set edges = source.outEdges();
 		Iterator i = edges.iterator();
