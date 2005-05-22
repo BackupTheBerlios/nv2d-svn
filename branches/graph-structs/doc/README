@@ -1,0 +1,4 @@
+Directory:
+
+./distfiles
+	- files needed for the distribution (such as JAR manifest files)
