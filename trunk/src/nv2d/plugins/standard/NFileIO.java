@@ -83,6 +83,7 @@ public class NFileIO implements IOInterface {
 			return null;
 		}
 
+		/*
 		final SwingWorker worker = new SwingWorker() {
 			public Object construct() {
 				FileIO fio = new FileIO();
@@ -107,6 +108,24 @@ public class NFileIO implements IOInterface {
 		};
 		worker.start();
 		return (Graph) worker.get();
+		*/
+		
+		FileIO fio = new FileIO();
+		boolean directed = true;	// defaults to directed graph
+		
+		try {
+			fio.setup(loc);
+			fio.read();
+		} catch (IOException e) {
+			System.err.println(e.toString());
+			return null;
+		}
+		
+		System.out.println("[NFileIO] Getting graph");
+		if(loc.trim().endsWith(".ucsv")) {
+			directed = false;
+		}
+		return fio.buildGraph(directed);
 	}
 
 	/** 
