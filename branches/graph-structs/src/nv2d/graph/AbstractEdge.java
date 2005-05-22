@@ -1,7 +1,7 @@
 /**
  * NV2D - Social Network Visualization
  * Copyright (C) 2005 Bo Shi
- * $Id$
+ * $Id: Edge.java 212 2005-05-01 01:21:40Z bshi $
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -22,24 +22,30 @@ package nv2d.graph;
 
 import nv2d.utils.Pair;
 
-public interface Edge extends GraphElement {
+public abstract class AbstractEdge
+		extends AbstractGraphElement
+		implements Edge {
+	public AbstractEdge(String id) {
+		super(id);
+	}
+
 	// Accessors
 
 	/** Get the length of this edge. */
-	public double length();
+	public abstract double length();
 
 	/** Get the two ends of this edge.  This method returns a Pair containing
 	 * two unique Edge objects. */
-	public Pair getEnds();
+	public abstract Pair getEnds();
 
 	/** Returns the Vertex opposite of the parameter Vertex on this edge. This
 	 * method throws an exception if the parameter Vertex is not incident to
 	 * this Edge. */
-	public Vertex getOpposite(Vertex v);
+	public abstract Vertex getOpposite(Vertex v);
 
 	// Modifiers
 
 	/** Change the length of this edge.  The interface does not define a
 	 * starting edge length. */
-	public void setLength(double l);
+	public abstract void setLength(double l);
 }

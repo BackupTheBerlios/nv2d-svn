@@ -1,7 +1,7 @@
 /**
  * NV2D - Social Network Visualization
  * Copyright (C) 2005 Bo Shi
- * $Id$
+ * $Id: Graph.java 212 2005-05-01 01:21:40Z bshi $
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -24,34 +24,90 @@ import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Set;
 
-public interface Graph extends DataStore {
+public abstract class AbstractGraph
+		extends DefaultDataStore
+		implements Graph {
 	/* Accessors */
 	/** Get a set of the edges in the graph. */
-	public Set getEdges();
+	public abstract Set getEdges();
 
 	/** Get a set of the vertices in the graph. */
-	public Set getVertices();
+	public abstract Set getVertices();
 	
 	/** Returns the number of unique vertices in the graph. */
-	public int numVertices();
+	public abstract int numVertices();
 
 	/** Returns the number of unique edges in the graph. */
-	public int numEdges();
+	public abstract int numEdges();
 	
-	public boolean isDirected();
+	public abstract boolean isDirected();
 
 	/** Returns a subset of the graph containing only the vertices and edges
 	 * in the parameter Set.  Edges whose vertices are not also in the
 	 * parameter Set will have them added.  */
-	public Graph subset(Set graphelements);
+	public Graph subset(Set graphelements) {
+		// filter for those edges which contain only the vertices we want
+		Graph g = newInstance();
+		Hashtable edges = new Hashtable(); // originals
+		Iterator i = graphelements.iterator();
+
+		// collect all the graph elements and catalog them
+		while(i.hasNext()) {
+			Object o = i.next();
+			String id = ((GraphElement) o).id();
+			if(getVertices().contains(o) || getEdges().contains(o)) {
+				if(o instanceof Vertex && null == g.findVertex(id)) {
+					g.add(((Vertex) o).clone(g));
+				} else if(o instanceof Edge) {
+					// add the endpoints of the edges if necessary
+					Vertex tsource = (Vertex) ((Edge) o).getEnds().car();
+					Vertex tdest = (Vertex) ((Edge) o).getEnds().cdr();
+					if(null == g.findVertex(tsource.id())) {
+						g.add(tsource.clone(g));
+					}
+					if(null == g.findVertex(tdest.id())) {
+						g.add(tdest.clone(g));
+					}
+					// clone the edge
+					edges.put(id, ((Edge) o).clone(g));
+				}
+				// should never reach this point
+				assert(false);
+			} else {
+				// was not part of the edge
+				assert(false);
+			}
+		}
+
+		// collect any additional edges for the vertices which were not included
+		i = getEdges().iterator();
+		while(i.hasNext()) {
+			Edge e = (Edge) i.next();
+			if(
+				!edges.containsKey(e.id()) &&
+				null != g.findVertex(((Vertex) e.getEnds().car()).id()) &&
+				null != g.findVertex(((Vertex) e.getEnds().cdr()).id())
+			) {
+				edges.put(e.id(), e.clone(g));
+			}
+		}
+
+		// insert cloned edges into graph
+		i = edges.values().iterator();
+		while(i.hasNext()) {
+			g.add((Edge) i.next());
+		}
+
+		return g;
+	}
 
 	/** Find the edge length between two vertices.  If they are not
 	 * adjacent, return 0. */
-	public double edgeLen(Vertex source, Vertex dest)
+	public abstract double edgeLen(Vertex source, Vertex dest)
 			throws IllegalArgumentException;
 
 	/** Create a new graph of this type (mainly for filters). */
-	public Graph newInstance();
+	public abstract Graph newInstance();
 
 	/** Find a vertex by it's <code>id()</code>.  Returns a null pointer if
 	 * the object does not exist.
@@ -59,7 +115,7 @@ public interface Graph extends DataStore {
 	 * @return {@link nv2d.graph.Vertex} with the same id.  <code>null</code> if
 	 * 	the vertex does not exist.
 	 */
-	public Vertex findVertex(String id);
+	public abstract Vertex findVertex(String id);
 
 	/* Modifiers */
 
@@ -72,17 +128,17 @@ public interface Graph extends DataStore {
 	 * @return a {@link nv2d.graph.Path} object containing the shortest path.
 	 *  <code>null</code> if no path exists between the two vertices.
 	 */
-	public Path shortestPath(Vertex source, Vertex dest);
+	public abstract Path shortestPath(Vertex source, Vertex dest);
 
 	/** Add a <code>GraphElement</code> to the graph.  Note that unless there
 	 * is a class which knows how to render the graph element, it will not be
 	 * shown. */
-	public boolean add(GraphElement ge);
+	public abstract boolean add(GraphElement ge);
 
 	/** Remove a <code>GraphElement</code> from the graph. */
-	public boolean remove(GraphElement ge);
+	public abstract boolean remove(GraphElement ge);
 
 	/** Clear all the data contained in this graph.  This includes objects of
 	 * the type <code>Datum</code> and <code>GraphElement</code>. */
-	public void clear();
+	public abstract void clear();
 }

@@ -29,13 +29,14 @@ import java.util.Set;
 import nv2d.algorithms.APSPInterface;
 import nv2d.algorithms.shortestpaths.Dijkstra;
 import nv2d.exceptions.NoPathExists;
+import nv2d.graph.AbstractGraph;
 import nv2d.graph.Edge;
 import nv2d.graph.Graph;
 import nv2d.graph.GraphElement;
 import nv2d.graph.Path;
 import nv2d.graph.Vertex;
 
-public class DGraph extends Graph implements Serializable {
+public class DGraph extends AbstractGraph implements Serializable {
 	protected Set _e;	// edges
 	protected Set _v;	// vertices
 

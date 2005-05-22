@@ -22,23 +22,17 @@ package nv2d.graph;
 
 import java.util.Set;
 
-public abstract class Vertex extends GraphElement {
-	public Vertex(String id) {
-		super(id);
-	}
-
+public interface Vertex extends GraphElement {
 	/** This should return all edges for undirected graphs */
-	public abstract Set inEdges();
+	public Set inEdges();
 
 	/** This should return all edges for undirected graphs.  For undirected
 	 * graphs, this method should return the same object as
 	 * <code>inEdges()</code>. */
-	public abstract Set outEdges();
+	public Set outEdges();
 
 	/** Return all nodes which share an edge with this node. */
-	public abstract Set neighbors();
+	public Set neighbors();
 
-	public String toString() {
-		return id();
-	}
+	public String toString();
 }

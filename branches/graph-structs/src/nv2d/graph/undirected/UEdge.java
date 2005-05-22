@@ -23,6 +23,7 @@ package nv2d.graph.undirected;
 import java.util.Iterator;
 import java.util.Set;
 
+import nv2d.graph.AbstractEdge;
 import nv2d.graph.Datum;
 import nv2d.graph.Edge;
 import nv2d.graph.Graph;
@@ -30,7 +31,7 @@ import nv2d.graph.GraphElement;
 import nv2d.graph.Vertex;
 import nv2d.utils.Pair;
 
-public class UEdge extends Edge {
+public class UEdge extends AbstractEdge {
 	private double _len;
 	private Pair _v;
 	

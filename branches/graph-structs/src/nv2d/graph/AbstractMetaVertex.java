@@ -1,7 +1,7 @@
 /**
  * NV2D - Social Network Visualization
  * Copyright (C) 2005 Bo Shi
- * $Id$
+ * $Id: Vertex.java 212 2005-05-01 01:21:40Z bshi $
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,38 +20,56 @@
 
 package nv2d.graph;
 
-import java.util.Hashtable;
-import java.util.Iterator;
 import java.util.Set;
 
-public interface Graph extends DataStore {
-	/* Accessors */
-	/** Get a set of the edges in the graph. */
-	public Set getEdges();
+public abstract class AbstractVertex
+		extends AbstractGraphElement
+		implements Vertex, Graph {
+	public AbstractVertex(String id) {
+		super(id);
+	}
+
+	/** This should return all edges for undirected graphs */
+	public abstract Set inEdges();
+
+	/** This should return all edges for undirected graphs.  For undirected
+	 * graphs, this method should return the same object as
+	 * <code>inEdges()</code>. */
+	public abstract Set outEdges();
+
+	/** Return all nodes which share an edge with this node. */
+	public abstract Set neighbors();
+
+	public String toString() {
+		return id();
+	}
+
+	/** Get a set of the edges in the internal graph. */
+	public abstract Set getEdges();
 
 	/** Get a set of the vertices in the graph. */
-	public Set getVertices();
+	public abstract Set getVertices();
 	
 	/** Returns the number of unique vertices in the graph. */
-	public int numVertices();
+	public abstract int numVertices();
 
 	/** Returns the number of unique edges in the graph. */
-	public int numEdges();
+	public abstract int numEdges();
 	
-	public boolean isDirected();
+	public abstract boolean isDirected();
 
 	/** Returns a subset of the graph containing only the vertices and edges
 	 * in the parameter Set.  Edges whose vertices are not also in the
 	 * parameter Set will have them added.  */
-	public Graph subset(Set graphelements);
+	public abstract Graph subset(Set graphelements);
 
 	/** Find the edge length between two vertices.  If they are not
 	 * adjacent, return 0. */
-	public double edgeLen(Vertex source, Vertex dest)
+	public abstract double edgeLen(Vertex source, Vertex dest)
 			throws IllegalArgumentException;
 
 	/** Create a new graph of this type (mainly for filters). */
-	public Graph newInstance();
+	public abstract Graph newInstance();
 
 	/** Find a vertex by it's <code>id()</code>.  Returns a null pointer if
 	 * the object does not exist.
@@ -59,7 +77,7 @@ public interface Graph extends DataStore {
 	 * @return {@link nv2d.graph.Vertex} with the same id.  <code>null</code> if
 	 * 	the vertex does not exist.
 	 */
-	public Vertex findVertex(String id);
+	public abstract Vertex findVertex(String id);
 
 	/* Modifiers */
 
@@ -72,17 +90,17 @@ public interface Graph extends DataStore {
 	 * @return a {@link nv2d.graph.Path} object containing the shortest path.
 	 *  <code>null</code> if no path exists between the two vertices.
 	 */
-	public Path shortestPath(Vertex source, Vertex dest);
+	public abstract Path shortestPath(Vertex source, Vertex dest);
 
 	/** Add a <code>GraphElement</code> to the graph.  Note that unless there
 	 * is a class which knows how to render the graph element, it will not be
 	 * shown. */
-	public boolean add(GraphElement ge);
+	public abstract boolean add(GraphElement ge);
 
 	/** Remove a <code>GraphElement</code> from the graph. */
-	public boolean remove(GraphElement ge);
+	public abstract boolean remove(GraphElement ge);
 
 	/** Clear all the data contained in this graph.  This includes objects of
 	 * the type <code>Datum</code> and <code>GraphElement</code>. */
-	public void clear();
+	public abstract void clear();
 }

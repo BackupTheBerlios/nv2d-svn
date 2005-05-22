@@ -20,73 +20,30 @@
 
 package nv2d.graph;
 
-public abstract class GraphElement extends DataStore implements Comparable {
-	private String _id = null;
-	private String _displayId = null;
-	private DataStore _parent = null;
+public interface GraphElement extends Comparable, DataStore {
+	public void setId(String id);
 
-	public GraphElement(String id) {
-		_id = id;
-		_parent = null;
-	}
+	public String id();
 
-	final public void setId(String id) {
-		_id = new String(id);
-	}
-
-	final public String id() {
-		return _id;
-	}
+	public void setDisplayId(String displayId);
 	
-	public void setDisplayId(String displayId) {
-		_displayId = displayId;
-	}
-	
-	public String displayId() {
-		if(_displayId == null) {
-			return id();
-		}
-		return _displayId;
-	}
+	public String displayId();
 
-	/** Creates a duplicate GraphElement with the same <code>id</code> and
-	 * the same non-system datums (those whose datum names do not follow the
-	 * format of the string '__[owner]:[name]'.
-	 * @param destGraph Each graph element must have a parent graph to go
-	 *    into. */
-	public abstract GraphElement clone(Graph destGraph);
+	/** Creates a duplicate GraphElement with the same <code>id</code> and the
+	 * same non-system datums (those whose datum names do not follow the format
+	 * of the string '__[owner]:[name]'.
+	 * @param destGraph Each graph element must have a parent graph to go into.
+	 */
+	public GraphElement clone(Graph destGraph);
 
-	final public DataStore getParent() {
-		return _parent;
-	}
+	public DataStore getParent();
 
-	final public void setParent(DataStore p) {
-		_parent = p;
-	}
+	public void setParent(DataStore p);
 
 	/** The default behavior for comparison is the <code>id()</code> method. */
-	public boolean equals(Object o) {
-		if(null == o) {
-			return false;
-		}
-		
-		try {
-			if(((GraphElement) o).id().equals(id())) {
-				return true;
-			}
-		} finally {
-			// do nothing; false
-		}
-
-		return false;
-	}
+	public boolean equals(Object o);
 	
-	public int hashCode() {
-		return id().hashCode();
-	}
+	public int hashCode();
 
-	final public int compareTo(Object o) {
-		GraphElement ge = (GraphElement) o;
-		return id().compareTo(ge.id());
-	}
+	public int compareTo(Object o);
 }

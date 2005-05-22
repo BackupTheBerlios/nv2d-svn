@@ -28,13 +28,14 @@ import java.util.HashSet;
 import nv2d.algorithms.APSPInterface;
 import nv2d.algorithms.shortestpaths.Dijkstra;
 import nv2d.graph.Edge;
+import nv2d.graph.AbstractGraph;
 import nv2d.graph.Graph;
 import nv2d.graph.GraphElement;
-import nv2d.graph.Vertex;
 import nv2d.graph.Path;
+import nv2d.graph.Vertex;
 import nv2d.utils.Pair;
 
-public class UGraph extends nv2d.graph.Graph {
+public class UGraph extends AbstractGraph {
 	private Set _e;
 	private Set _v;
 

@@ -26,13 +26,14 @@ import java.util.Iterator;
 import java.util.Set;
 import java.util.HashSet;
 
+import nv2d.graph.AbstractVertex;
 import nv2d.graph.Vertex;
 import nv2d.graph.Datum;
 import nv2d.graph.Edge;
 import nv2d.graph.Graph;
 import nv2d.graph.GraphElement;
 
-public class UVertex extends Vertex implements Serializable {
+public class UVertex extends AbstractVertex implements Serializable {
 	// the intersection of the following two sets should be null
 	transient private Set _edges;
 

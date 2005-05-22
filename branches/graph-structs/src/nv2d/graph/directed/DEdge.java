@@ -25,6 +25,7 @@ import java.lang.IllegalArgumentException;
 import java.util.Set;
 import java.util.Iterator;
 
+import nv2d.graph.AbstractEdge;
 import nv2d.graph.Datum;
 import nv2d.graph.Edge;
 import nv2d.graph.Vertex;
@@ -32,7 +33,7 @@ import nv2d.graph.Graph;
 import nv2d.graph.GraphElement;
 import nv2d.utils.Pair;
 
-public class DEdge extends Edge implements Serializable {
+public class DEdge extends AbstractEdge implements Serializable {
 	transient private Pair _v;
 	private double _len;
 
