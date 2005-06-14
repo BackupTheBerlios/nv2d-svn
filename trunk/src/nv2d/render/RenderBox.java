@@ -88,7 +88,8 @@ import nv2d.plugins.standard.layout.SmartRotationControl;
 /**
  * Creates a new graph and draws it on the screen.
  */
-public class RenderBox extends Display {
+//public class RenderBox extends Display {
+public class RenderBox extends ActiveDisplay {
 	public static final float TRANSPARENCY = 0.7f;
 	public static final String DATUM_LASTLOCATION = "__renderbox:lastloc";
 	
@@ -174,7 +175,16 @@ public class RenderBox extends Display {
 		
 		_empty = true;
 		initialize(null);
-	}
+		
+		
+		// TODO - EXAMPLE Listener
+		this.addDisplayTransformListener(new DisplayTransformListener() {
+		    public void displayTransformed(DisplayTransformEvent e) {
+		        System.out.println("Display Event: " + e.getEventType());
+		    }
+		});
+		
+		}
 	
 	
 	public void useLegendColoring() {
