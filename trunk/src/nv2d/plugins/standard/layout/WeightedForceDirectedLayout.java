@@ -26,8 +26,7 @@ import edu.berkeley.guir.prefusex.force.SpringForce;
  * Adapted from Jeffrey Heer's Force-Directed Layout in Prefuse.
  */
 public class WeightedForceDirectedLayout extends Layout {
-
-    protected ItemRegistry registry; // temp member variable
+    protected ItemRegistry registry;
     
     private ForceSimulator m_fsim;
     private long m_lasttime = -1L;
@@ -35,15 +34,13 @@ public class WeightedForceDirectedLayout extends Layout {
     private boolean m_runonce;
     private int m_iterations = 100;
     private boolean m_enforceBounds;
-    private int m_bounds_cushion;
     
-    public WeightedForceDirectedLayout(boolean enforceBounds, int cushion) {
-        this(enforceBounds, cushion, false);
+    public WeightedForceDirectedLayout(boolean enforceBounds) {
+        this(enforceBounds, false);
     } //
     
-    public WeightedForceDirectedLayout(boolean enforceBounds, int cushion, boolean runonce) {
+    public WeightedForceDirectedLayout(boolean enforceBounds, boolean runonce) {
         m_enforceBounds = enforceBounds;
-        m_bounds_cushion = cushion;
         m_runonce = runonce;
         m_fsim = new ForceSimulator();
         m_fsim.addForce(new NBodyForce());
@@ -51,15 +48,14 @@ public class WeightedForceDirectedLayout extends Layout {
         m_fsim.addForce(new DragForce());
     } //
     
-    public WeightedForceDirectedLayout(ForceSimulator fsim, boolean enforceBounds, int cushion) {
-        this(fsim, enforceBounds, cushion, false);
+    public WeightedForceDirectedLayout(ForceSimulator fsim, boolean enforceBounds) {
+        this(fsim, enforceBounds, false);
     } //
     
     public WeightedForceDirectedLayout(ForceSimulator fsim, 
-            boolean enforceBounds, int cushion, boolean runonce)
+            boolean enforceBounds, boolean runonce)
     {
         m_enforceBounds = enforceBounds;
-        m_bounds_cushion = cushion;
         m_runonce = runonce;
         m_fsim = fsim;
     } //
@@ -197,7 +193,6 @@ public class WeightedForceDirectedLayout extends Layout {
     
     protected float getSpringLength(EdgeItem e) {
 		double length = ((PEdge) e.getEntity()).e().length();
-		//System.out.println("Get Spring Length : " + (float)length);
         return (float)length; //-1.f;
     } //
     

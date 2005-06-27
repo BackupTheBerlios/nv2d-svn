@@ -23,4 +23,16 @@ public class LayoutUtil {
 	    }
 	}
 	
+	static public String[] concat(String[] a, String[] b) {
+	    String[] c = new String[a.length+b.length];
+	    int i;
+	    for(i=0; i<a.length; i++) {
+	        c[i] = a[i];
+	    }
+	    for(int j=0; j<b.length; j++) {
+	        c[i+j] = b[j];
+	    }
+	    
+	    return c;
+	}
 }

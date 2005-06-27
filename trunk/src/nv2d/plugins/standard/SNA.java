@@ -141,6 +141,24 @@ public class SNA implements NV2DPlugin  {
 		return _author;
 	}
 	
+	public String[] nodeMeasuresOffered() {
+	    return new String[] {DATUM_BETWEENNESS,
+	            DATUM_CLOSENESS,
+	            DATUM_DEGREE,
+	            DATUM_INDEGREE,
+	            DATUM_OUTDEGREE};
+	}
+	
+	public String[] groupMeasuresOffered() {
+	    return new String[] {DATUM_GRP_BETWEENNESS,
+	            DATUM_GRP_CLOSENESS,
+	            DATUM_GRP_DEGREE,
+	            DATUM_GRP_TRANSITIVITY,
+	            DATUM_GRP_DENSITY};
+	}
+
+	
+	
 	private JMenu createMenu() {
 		JMenu m = new JMenu("Social Network Analysis");
 		JMenuItem recalc = new JMenuItem("(re)Calculate Measures");
@@ -197,10 +215,6 @@ public class SNA implements NV2DPlugin  {
 	      Visualization Functions
 	 * ===================================== */
 	
-	// TODO
-	// changed to public to access for use in layouts, etc.
-	// is this ok?
-	// -sam
 	public void resizeNodes(String measure) {
 		if(_graph == null) {
 			System.err.println("Error: could not resize nodes no graph has been loaded.");
@@ -246,6 +260,8 @@ public class SNA implements NV2DPlugin  {
 				size = MIN_VERTEX_RADIUS + (MAX_VERTEX_RADIUS - MIN_VERTEX_RADIUS) * (value - min) / (max - min);
 			}
 
+			// TODO - move a resize Node function into the renderbox
+			r.getRegistry().getNodeItem(pn).updateSize(size);
 			r.getRegistry().getNodeItem(pn).setSize(size);
 		}
 	}
@@ -395,11 +411,7 @@ public class SNA implements NV2DPlugin  {
 	/**
 	 * TODO
 	 * 
-	 * Added by Sam to allow calculation on demand of a specific measure
-	 * Is this ok?
-	 * Are there any cases where I could overwrite or create duplicate datums.
-	 * 
-	 * Adapted from calculate above
+	 * Allow calculation on demand of a specific measure
 	 */
 	public void calculate(String measure) {
 		if (_vtx_index_tbl == null || _vtx_index_tbl.length < 1) {
@@ -503,9 +515,9 @@ public class SNA implements NV2DPlugin  {
 			System.out.println("   Group Transitivity = " + _formatter.format(m_grpTransitivity));
 
 		}
-
 	}
 
+	
 	/*===========================================================*/
 	// SNA algorithms
 	/*===========================================================*/
