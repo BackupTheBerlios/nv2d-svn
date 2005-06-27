@@ -32,6 +32,7 @@ import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -40,6 +41,8 @@ import java.awt.image.BufferedImage;
 import java.awt.image.RenderedImage;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.awt.Point;
 import java.util.Iterator;
 import javax.imageio.ImageIO;
@@ -53,18 +56,26 @@ import javax.swing.Popup;
 
 import edu.berkeley.guir.prefuse.Display;
 import edu.berkeley.guir.prefuse.util.display.DisplayLib;
+import edu.berkeley.guir.prefuse.FocusManager;
 import edu.berkeley.guir.prefuse.ItemRegistry;
 import edu.berkeley.guir.prefuse.NodeItem;
 import edu.berkeley.guir.prefuse.EdgeItem;
 import edu.berkeley.guir.prefuse.VisualItem;
 import edu.berkeley.guir.prefuse.action.RepaintAction;
+import edu.berkeley.guir.prefuse.action.animate.SizeAnimator;
 import edu.berkeley.guir.prefuse.action.assignment.ColorFunction;
+import edu.berkeley.guir.prefuse.action.assignment.Layout;
 import edu.berkeley.guir.prefuse.action.filter.GraphFilter;
 import edu.berkeley.guir.prefuse.activity.ActionList;
 import edu.berkeley.guir.prefuse.activity.Activity;
+import edu.berkeley.guir.prefuse.activity.SlowInSlowOutPacer;
 import edu.berkeley.guir.prefuse.event.ControlAdapter;
+import edu.berkeley.guir.prefuse.focus.DefaultFocusSet;
 import edu.berkeley.guir.prefuse.graph.DefaultGraph;
+import edu.berkeley.guir.prefuse.graph.Node;
 import edu.berkeley.guir.prefusex.controls.DragControl;
+import edu.berkeley.guir.prefusex.controls.FocusControl;
+import edu.berkeley.guir.prefusex.controls.NeighborHighlightControl;
 import edu.berkeley.guir.prefusex.controls.PanControl;
 import edu.berkeley.guir.prefusex.controls.ZoomControl;
 import edu.berkeley.guir.prefusex.controls.RotationControl;
@@ -83,13 +94,17 @@ import nv2d.graph.Vertex;
 import nv2d.graph.filter.DegreeFilter;
 import nv2d.ui.NController;
 import nv2d.utils.filefilter.*;
-import nv2d.plugins.standard.layout.SmartRotationControl;
+import nv2d.plugins.standard.layout.LayoutActionList;
+import nv2d.plugins.standard.layout.SmartWallForce;
 
 /**
  * Creates a new graph and draws it on the screen.
  */
+
+// TODO - clean this up
 //public class RenderBox extends Display {
 public class RenderBox extends ActiveDisplay {
+
 	public static final float TRANSPARENCY = 0.7f;
 	public static final String DATUM_LASTLOCATION = "__renderbox:lastloc";
 	
@@ -100,11 +115,25 @@ public class RenderBox extends ActiveDisplay {
 	private ActivityDirector _director;
 	private ControlManager _controls;
 	
-	// private PopupFactory _pFactory;
-	// private Popup _popup = null;
-	
 	private boolean _empty;
 	private String _viewMode;
+	private boolean _animateLayout;
+	
+	/**
+	 * Used to handle enforcing layouts to window bounds
+	 */
+	private boolean _boundariesSet;
+	private boolean _enforceBounds;
+	private SmartWallForce _boundary_left;
+	private SmartWallForce _boundary_right;
+	private SmartWallForce _boundary_top;
+	private SmartWallForce _boundary_bottom;
+	static final int BOUNDARY_FORCE_VALUE = -100;
+
+	// --- Cushion between Layout & Display Borders (in Pixels) ---
+	public static final int DISPLAY_BOUNDARY_CUSHION = 20;
+
+
 	
 	/**
 	 * Used to keep track of the source for shortest paths calculations and
@@ -133,6 +162,8 @@ public class RenderBox extends ActiveDisplay {
 	public static final String CTL_PAN_CONTROL = "standard_PanControl";
 	public static final String CTL_ZOOM_CONTROL = "standard_ZoomControl";
 	public static final String CTL_ROTATION_CONTROL = "standard_RotationControl";
+	public static final String CTL_FOCUS_ACTIONS_CONTROL = "focusActionsControl";
+	public static final String CTL_FOCUS_HOVER_CONTROL = "focusHoverControl";
 	
 	// View Mode Names
 	public static final String VIEW_MODE_ROTATE = "standard_ViewModeRotation";
@@ -140,6 +171,9 @@ public class RenderBox extends ActiveDisplay {
 	public static final String VIEW_MODE_ZOOM = "standard_ViewModeZoom";
 	public static final String VIEW_MODE_PAN_ZOOM = "standard_ViewModePanZoom";
 	
+	private static boolean DEBUG = false;
+	
+	private ActionList updateDisplay;
 	
 	/**
 	 * Constructor
@@ -168,23 +202,67 @@ public class RenderBox extends ActiveDisplay {
 		// setSize(400,400);
 		// pan(350, 350);
 
+		// TODO - handle REPAINT problem by placing repaint activity between layouts
 		// Set Mouse Adaptor and Drag ALWAYS ON
 		_controls.addControl(CTL_MOUSE_ADAPTOR, new MouseAdapter(this));
-		_controls.addControl(CTL_DRAG_CONTROL, new DragControl());
+		_controls.addControl(CTL_DRAG_CONTROL, new NoFixDragControl(true));
+//		_controls.addControl(CTL_DRAG_CONTROL, new DragControl(true, false));
+//		_controls.addControl(CTL_DRAG_CONTROL, new MouseDragControl(this));
+		// TODO - add selection control for filtering Nodes by selected mouse region
+		//_controls.addControl("select", new nv2d.plugins.standard.layout.SelectionControl());
+
 		setViewMode(VIEW_MODE_PAN_ZOOM);
 		
-		_empty = true;
-		initialize(null);
-		
-		
-		// TODO - EXAMPLE Listener
-		this.addDisplayTransformListener(new DisplayTransformListener() {
-		    public void displayTransformed(DisplayTransformEvent e) {
-		        System.out.println("Display Event: " + e.getEventType());
+		// initialize boundary forces
+	    initBoundaryForces();
+	    setEnforceBounds(true);
+	 
+	    setAnimateLayout(true);
+	         
+	    // --- update bounds and layout on renderbox resize ---
+		this.addComponentListener(new ComponentAdapter() {
+		    public void componentResized(ComponentEvent e) {
+		        // if enforcing bounds, update
+		        if(_enforceBounds) {
+		            updateCurrentLayoutBounds(getBounds(), false);
+		        }
+		        
+		        // TODO - perhaps center the current layout
+		        // within the newly updated window
 		    }
 		});
-		
-		}
+
+		/*
+		// TODO - EXAMPLE Listeners for Bo
+		this.addDisplayTransformListener(new DisplayTransformListener() {
+		   public void displayTransformed(DisplayTransformEvent e) {
+		       if(DEBUG) {System.out.println("RENDERBOX: DisplayTransformed");}
+		       if(e.getEventType() == DisplayTransformEvent.PAN_TRANSFORM_EVENT) {
+		           if(DEBUG) {System.out.println("RENDERBOX: Pan Occured");}	           
+		       }
+		       else if(e.getEventType() == DisplayTransformEvent.ZOOM_TRANSFORM_EVENT) {
+		           if(DEBUG) {System.out.println("RENDERBOX: Zoom Occured");}		           
+		       }
+		       else if(e.getEventType() == DisplayTransformEvent.PAN_ZOOM_TRANSFORM_EVENT) {
+		           if(DEBUG) {System.out.println("RENDERBOX: Pan Zoom Occured");}
+		       }
+		       
+		        if(_enforceBounds) {
+		            updateCurrentLayoutBounds(getBounds(), true);
+		        }
+
+		   }
+		});
+		this.addDisplayTransformListener(new DisplayTransformListener() {
+		    public void displayTransformed(DisplayTransformEvent e) {
+		        if(DEBUG) {System.out.println("Display Event: " + e.getEventType());}
+		    }
+		});
+		*/
+	    
+		_empty = true;
+		initialize(null);
+	}
 	
 	
 	public void useLegendColoring() {
@@ -253,12 +331,10 @@ public class RenderBox extends ActiveDisplay {
         _colorizer.setEnabled(true);
         _legendColorizer.setEnabled(false);
 
-        // TODO, change this to generate the layouts on the fly?
         initStandardLayouts();
         
         // check if an active layout has already been set, if not set default
         if (!_director.isActiveSet()) {
-            //System.out.println("Running Default RenderBox Layout");
             _director.setActive(ACT_FORCEDIRECTED);
         }
 
@@ -268,12 +344,18 @@ public class RenderBox extends ActiveDisplay {
         // Begin by randomly setting all the items
         doSemiRandomLayout();
         
-        // TODO - taken out for Jonathons DEMO
-        /*
-        Rectangle rect = this.getBounds();
-		DisplayLib.fitViewToBounds(this, rect);
-		*/
+//        // TODO - Add RepaintAction to the Activity Director
+//        ActionList al = new ActionList(_registry, -1, 50);
+//        al.add(new RepaintAction());
+//        al.runNow();
+        
+	    // update ActionList
+        updateDisplay = new ActionList(_registry);
+        updateDisplay.add(new Colorizer());
+        updateDisplay.add(new LegendColorizer(_ctl));
+        updateDisplay.add(new RepaintAction());
 
+        
 	}
 	
 	
@@ -281,10 +363,10 @@ public class RenderBox extends ActiveDisplay {
 	 * Standard Layouts
 	 */
 	private void initStandardLayouts() {
-		ForceSimulator _fsim;
-		ForceDirectedLayout _flayout;
-		RandomLayout _randomLayout;
-		SemiRandomLayout _semiRandomLayout;
+		ForceSimulator fsim;
+		ForceDirectedLayout flayout;
+		RandomLayout randomLayout;
+		SemiRandomLayout semiRandomLayout;
 		ActionList s, r, f;
 		
 		GraphFilter graphFilter = new GraphFilter();
@@ -296,66 +378,238 @@ public class RenderBox extends ActiveDisplay {
 		colors.add(_legendColorizer);
 		_director.add(ACT_COLORIZER, colors);
 		
-		
 		// Semi-Random Layout
-		_semiRandomLayout = new SemiRandomLayout(_ctl);
+		semiRandomLayout = new SemiRandomLayout(_ctl);
 		s = new ActionList(_registry);
 		s.add(graphFilter);
-		//s.add(_colorizer);
-		//s.add(_legendColorizer);
 		s.add(repaintAction);
-		s.add(_semiRandomLayout);
+		s.add(semiRandomLayout);
 		_director.add(ACT_SEMIRANDOM, s);
 		
 		// init random layout
-		_randomLayout = new RandomLayout();
+		randomLayout = new RandomLayout();
 		r = new ActionList(_registry);
 		r.add(graphFilter);
-		//r.add(_colorizer);
-		//r.add(_legendColorizer);
 		r.add(repaintAction);
-		r.add(_randomLayout);
+		r.add(randomLayout);
 		_director.add(ACT_RANDOM, r);
 		
-		// init fd layout
-		_fsim = new ForceSimulator();
-		_fsim.addForce(new NBodyForce(-0.4f, -1f, 0.9f));
-		_fsim.addForce(new SpringForce(4E-5f, 75f));
-		_fsim.addForce(new DragForce(-0.005f));
-		_flayout = new ForceDirectedLayout(_fsim, false, false);
-		
+		// init FD layout
+		fsim = new ForceSimulator();
+		fsim.addForce(new NBodyForce(-0.4f, -1f, 0.9f));
+		fsim.addForce(new SpringForce(4E-5f, 75f));
+		fsim.addForce(new DragForce(-0.005f));
+		flayout = new ForceDirectedLayout(fsim, false, false);
 		f = new ActionList(_registry, -1, 20);
 		f.add(graphFilter);
-		//f.add(_colorizer);
-		//f.add(_legendColorizer);
 		f.add(repaintAction);
-		f.add(_flayout);
+		f.add(flayout);
 		_director.add(ACT_FORCEDIRECTED, f);
 	}
 	
 	
+	// ----- Radial Tree - Focus ------
+	
+	public void addFocusControl(ActionList actions) {
+	    //        addControlListener(new FocusControl(actions));
+	    //        addControlListener(new FocusControl(0,FocusManager.HOVER_KEY));
+        _controls.addControl(CTL_FOCUS_ACTIONS_CONTROL, new FocusControl(actions));
+        _controls.addControl(CTL_FOCUS_HOVER_CONTROL, new FocusControl(0,FocusManager.HOVER_KEY));
+        _registry.getFocusManager().putFocusSet(FocusManager.HOVER_KEY, new DefaultFocusSet());
+	}
+	
+	public void removeFocusControl() {
+	    _controls.removeControl(CTL_FOCUS_ACTIONS_CONTROL);
+	    _controls.removeControl(CTL_FOCUS_HOVER_CONTROL);
+	}
+	
+	// ------- Boundaries --------
+	
+	/**
+	 */
+	public void initBoundaryForces() {
+		if(_enforceBounds) {
+		    Rectangle r = getBounds();
+			_boundary_left = new SmartWallForce(BOUNDARY_FORCE_VALUE, 0, 0, 0, r.height);
+			_boundary_top = new SmartWallForce(BOUNDARY_FORCE_VALUE, 0, 0, r.width, 0);
+			_boundary_bottom = new SmartWallForce(BOUNDARY_FORCE_VALUE, 0, r.height, r.width, r.height);
+			_boundary_right = new SmartWallForce(BOUNDARY_FORCE_VALUE, r.width, 0, r.width, r.height);
+		}
+		else { 
+			_boundary_left = new SmartWallForce(0, 0, 0, 0, 0);
+			_boundary_top = new SmartWallForce(0, 0, 0, 0, 0);
+			_boundary_bottom = new SmartWallForce(0, 0, 0, 0, 0);
+			_boundary_right = new SmartWallForce(0, 0, 0, 0, 0);
+		}
+		_boundariesSet = true;
+	}
+	
+	
+	/**
+	 * UpdateBoundaryForces - updates the boundary wall forces in 
+	 * the global force simulator to the contours of the specified 
+	 * Rectangle.
+	 * 
+	 * Use this when the RenderBox is resized. 
+	 */
+	public void updateBoundaryForces(Rectangle r) {
+		if(_enforceBounds && _boundariesSet) {
+		    if(DEBUG) {System.out.println("Updating Boundaries");}
+		    _boundary_left.setY2(r.height);
+		    _boundary_top.setX2(r.width);
+		    _boundary_bottom.setY1(r.height);
+		    _boundary_bottom.setX2(r.width);
+		    _boundary_bottom.setY2(r.height);
+		    _boundary_right.setX1(r.width);
+		    _boundary_right.setX2(r.width);
+		    _boundary_right.setY2(r.height); 
+		}
+	} // -- end updateBoundaryForces
+	
+	
+	/**
+	 * updatesCurrentLayoutBounds - updates the layout bounds of the 
+	 * current Layout in the RenderBox. If the RenderBox is running the 
+	 * Layout, if first stops the Activity, then manipulates the Layout,
+	 * then restarts (to avoid concurrent manipulations by threads).
+	 */
+	public void updateCurrentLayoutBounds(Rectangle new_r, boolean soft_bounds) {
+	    if(DEBUG) {System.out.println("Updating Layout Bounds");}
+	    boolean needToRestart = false;
+	    // --- stop layout to prevent thread conflicts --- 
+	    if(isRunningActivity()) {
+	        if(DEBUG) {System.out.println("Layout is Running, so Stop");}
+	        stopLayout();
+	        needToRestart = true;
+	    }
+
+        // --- update layout bounds --- 
+	    Activity a = getCurrentActivity();
+        if (a instanceof LayoutActionList) {
+            Layout l = ((LayoutActionList)a).getLayout();
+            new_r = getAbsRectangle(getBounds());
+            new_r.grow(-1 * DISPLAY_BOUNDARY_CUSHION, -1* DISPLAY_BOUNDARY_CUSHION);
+
+            // SOFT bounds = maximal area coverage of old and new bounds
+            if(soft_bounds) {
+	            Rectangle2D old_r = l.getLayoutBounds();
+	            double maxX = Math.max(new_r.getX() + new_r.getWidth(), old_r.getX() + old_r.getWidth());
+	            double maxY = Math.max(new_r.getY() + new_r.getHeight(), old_r.getY() + old_r.getHeight());
+	            double minX = Math.min(old_r.getX(), new_r.getX());
+	            double minY = Math.min(old_r.getY(), new_r.getY());
+	            new_r.setBounds((int)minX, (int)minY, (int)(maxX - minX), (int)(maxY - minY));
+	        }
+
+            updateBoundaryForces(new_r);
+            l.setLayoutBounds(new_r);
+        }
+	        
+        // --- restart --- 
+        if(needToRestart) {
+            startLayout();
+        }
+	} // end updateCurrentLayoutBounds
+
+//    double oldX = old_r.getX();
+//    double oldY = old_r.getY();
+//    double oldH = old_r.getHeight();
+//    double oldW = old_r.getWidth();
+//    double newX = new_r.getX();
+//    double newY = new_r.getY();
+//    double newH = new_r.getHeight();
+//    double newW = new_r.getWidth();
+//    if(DEBUG) {System.out.println("OLD: x:" + oldX + " y:" + oldY + " h:" + oldH + " w:" + oldW);
+//    System.out.println("NEW: x:" + newX + " y:" + newY + " h:" + newH + " w:" + newW);}
+//    newW = maxX - minX;
+//    newH = maxY - minY;
+//    if(DEBUG) {System.out.println("FIN: x:" + newX + " y:" + newY + " h:" + newH + " w:" + newW);}
+    
+
+	
+	/**
+	 * GetAbsRectangle - takes a Rectangle in display coordinates and
+	 * returns a Rectangle in absolute coordinates.
+	 */
+	public Rectangle getAbsRectangle(Rectangle r) {
+	    if(DEBUG) {System.out.println("Getting Abs Rect");}
+		Point p1 = new Point((int)r.getX(), (int)r.getY());
+		Point p2 = new Point((int)(r.getX()+r.getWidth()), (int)(r.getY()+r.getHeight()));
+        Point2D p1abs = getAbsoluteCoordinate(p1, new Point());
+        Point2D p2abs = getAbsoluteCoordinate(p2, new Point());
+        if(DEBUG) {System.out.println(" - disp: x1: " + p1.x + " y1:" + p1.y + " x2:" + p2.x + " y2:" + p2.y);}
+        if(DEBUG) {System.out.println(" - absc: x1: " + p1abs.getX() + " y1:" + p1abs.getY() + " x2:" + p2abs.getX() + " y2:" + p2abs.getY());}
+        r = new Rectangle((int)p1abs.getX(), (int)p1abs.getY(), (int)(p2abs.getX()-p1abs.getX()), (int)(p2abs.getY()-p1abs.getY()));
+        if(DEBUG) {System.out.println(" - center: " + r.getCenterX() + ", " + r.getCenterY());}
+        return r;
+	} // -- end getAbsRectangle
+	
+	/**
+	 * SetEnforceBoundaries - sets layout boundary enforcement on/off.
+	 */
+	public void setEnforceBounds(boolean b) {
+	    _enforceBounds = b;
+	} //
+	
+	
+	/**
+	 * GetEnforceBounds - returns true is layout bounds are enforced.
+	 */
+	public boolean getEnforceBounds() {
+	    return _enforceBounds;
+	} //
+	
+	public SmartWallForce getLeftBoundaryForce() {
+	    return _boundary_left;
+	}
+	
+	public SmartWallForce getRightBoundaryForce() {
+	    return _boundary_right;
+	}
+	
+	public SmartWallForce getTopBoundaryForce() {
+	    return _boundary_top;
+	}
+	
+	public SmartWallForce getBottomBoundaryForce() {
+	    return _boundary_bottom;
+	}
+	
 	// ------- View Modes / Control Listeners -------
 
+	/**
+	 * SetAnimateLayout - sets animation on/off.
+	 */
+	// TODO - should have listener interface to notify LayoutPlugin
+	// if this is called from some other external force, so layout
+	// can adjust accordingly.
+	public void setAnimateLayout(boolean b) {
+	    _animateLayout = b;
+	}
+	
+	public boolean getAnimateLayout() {
+	    return _animateLayout;
+	}
+	
 	/**
 	 * setViewMode
 	 * 
 	 * Sets the mouse action in the RenderBox to Pan, Zoom, Rotate, or PanZoom.
 	 */
 	public void setViewMode(String mode) {
-//	    System.out.println("Set View Tool Mode: " + mode);
+//	    if(DEBUG) {System.out.println("Set View Tool Mode: " + mode);}
 	    
 	    // PAN only
 	    if(mode.equals(VIEW_MODE_PAN)) {
 	        _controls.removeControl(CTL_ROTATION_CONTROL);
 	        _controls.removeControl(CTL_ZOOM_CONTROL);
-	        _controls.addControl(CTL_PAN_CONTROL, new PanControl());
+	        _controls.addControl(CTL_PAN_CONTROL, new ActivePanControl(this));
 	        _viewMode = VIEW_MODE_PAN;
 	    }
 	    // ZOOM only
 	    else if(mode.equals(VIEW_MODE_ZOOM)) {
 	        _controls.removeControl(CTL_ROTATION_CONTROL);
 	        _controls.removeControl(CTL_PAN_CONTROL);
-	        _controls.addControl(CTL_ZOOM_CONTROL, new ZoomControl());
+	        _controls.addControl(CTL_ZOOM_CONTROL, new ActiveZoomControl(this));
 	        _viewMode = VIEW_MODE_ZOOM;
 	    }
 	    // ROTATE only
@@ -369,8 +623,8 @@ public class RenderBox extends ActiveDisplay {
 	    else {
 	        //if(mode.equals(VIEW_MODE_PAN_ZOOM)) {
 	        _controls.removeControl(CTL_ROTATION_CONTROL);
-	        _controls.addControl(CTL_ZOOM_CONTROL, new ZoomControl());
-	        _controls.addControl(CTL_PAN_CONTROL, new PanControl());
+	        _controls.addControl(CTL_ZOOM_CONTROL, new ActiveZoomControl(this));
+	        _controls.addControl(CTL_PAN_CONTROL, new ActivePanControl(this));
 	        _viewMode = VIEW_MODE_PAN_ZOOM;
 	    }
 	}
@@ -386,7 +640,130 @@ public class RenderBox extends ActiveDisplay {
 	}
 	
 
-	// ------- Layout Managemet -------
+	/**
+	 * FitGraphToWindow
+	 * 
+	 * Finds the smallest enclosing rectangle of the graph
+	 * and expands this rectangle to the full window size.
+	 */
+	public void fitGraphToWindow() {
+	    Iterator i = _registry.getNodeItems();
+	    double x, y;
+	    double maxX = Double.MIN_VALUE;
+	    double maxY = Double.MIN_VALUE;
+	    double minX = Double.MAX_VALUE;
+	    double minY = Double.MAX_VALUE;
+		while(i.hasNext()) {
+		    NodeItem nitem = (NodeItem)i.next();
+		    x = nitem.getX();
+		    y = nitem.getY();
+		    maxX = Math.max(maxX, x);
+		    maxY = Math.max(maxY, y);
+		    minX = Math.min(minX, x);
+		    minY = Math.min(minY, y);
+		}
+		Rectangle rect = new Rectangle((int)minX, (int)minY, (int)(maxX-minX), (int)(maxY-minY));
+        rect.grow(DISPLAY_BOUNDARY_CUSHION, DISPLAY_BOUNDARY_CUSHION);
+        
+	    DisplayLibExt.fitViewToBounds(this, rect, _animateLayout);
+
+        if(_enforceBounds) {
+            updateCurrentLayoutBounds(getBounds(), false);
+        }
+	}
+	
+	
+	public void zoomGraph(double scale) {
+	    // get center point
+		Point p = new Point((int)(getWidth()/2), (int)(getHeight()/2));
+//        Point2D pabs = getAbsoluteCoordinate(p, new Point());
+        if(_animateLayout) {
+//            this.animateZoomAbs(pabs, scale/this.getScale(), 1000);
+            this.animateZoom(p, scale/this.getScale(), 1000);
+        }
+        else {
+//            this.zoomAbs(pabs, scale/this.getScale());
+            this.zoom(p, scale/this.getScale());
+            this.repaint();
+        }
+
+        
+	}
+	
+	/**
+	 * ResizeNodes
+	 */
+	public void resizeNodes(double new_size) {
+	    if(DEBUG) {System.out.println("Resizing Nodes to: " + new_size);}
+
+//	    Iterator node_iter = _registry.getFilteredGraph().getNodes();
+//	    while(node_iter.hasNext()) {
+//	        Node n = (Node)node_iter.next();
+//	        NodeItem nitem = _registry.getNodeItem(n);
+//	        if(nitem != null) {
+//	            nitem.updateSize(new_size);
+//	        }
+//	    }
+
+	    Iterator i = _registry.getNodeItems();
+
+		if(_animateLayout) {
+			while(i.hasNext()) {
+			    NodeItem nitem = (NodeItem)i.next();
+			    nitem.updateSize(new_size);
+			}
+			
+			ActionList animate = new ActionList(_registry, 500, 20);
+			animate.add(new SizeAnimator());
+			animate.add(new RepaintAction());
+			// TODO - make this use the director
+			animate.runNow();
+			//_director.runNow();		
+			//animate.cancel();
+		}
+		else {
+			while(i.hasNext()) {
+			    NodeItem nitem = (NodeItem)i.next();
+			    nitem.setSize(new_size);
+			}
+
+		    repaint();
+		}
+	}
+
+	
+	
+	/**
+	 */
+	public void unfixNodes() {
+	    Iterator i = _registry.getNodeItems();
+
+		while(i.hasNext()) {
+		    NodeItem nitem = (NodeItem)i.next();
+		    if(nitem.isFixed()) {
+		        if(DEBUG) {System.out.println("FIXED NODE");}
+		        nitem.setFixed(false);
+		    }
+		}
+	}
+	
+	// ------- Controls Management -----
+	
+	public void panPerformed() {
+	    if(DEBUG) {System.out.println("RenderBox Pan Performed");}
+        if(_enforceBounds) {
+            updateCurrentLayoutBounds(getBounds(), true);
+        }
+	}
+
+	public void zoomPerformed() {
+	    if(DEBUG) {System.out.println("RenderBox Zoom Performed");}
+        if(_enforceBounds) {
+            updateCurrentLayoutBounds(getBounds(), true);
+        }
+	}
+
+	// ------- Layout Management -------
 	
 	/**
 	 * SetActiveLayout
@@ -423,6 +800,24 @@ public class RenderBox extends ActiveDisplay {
 	}
 	
 	/**
+	 * IsRunningActivity
+	 */
+	public boolean isRunningActivity() {
+	    if(DEBUG) {System.out.println("isRunningActivity?: " + _director.isRunning());}
+	    return _director.isRunning();
+	}
+	
+	// TODO: add isRunningBackgroundActivity?
+	
+	public Activity getCurrentActivity() {
+	    return _director.getCurrentActivity();
+	}
+	
+	public String getCurrentLayoutName() {
+	    return _director.getActive();
+	}
+	
+	/**
 	 * AddActivity
 	 */
 	public void addActivity(String name, Activity a) {
@@ -451,6 +846,7 @@ public class RenderBox extends ActiveDisplay {
 			pedge.setPathElement(false);
 		}
 		repaint();
+		updateDisplay.runNow();
 	}
 	
 	public void highlightPath(Path p) {
@@ -475,6 +871,7 @@ public class RenderBox extends ActiveDisplay {
 			}
 		}
 		repaint();
+		updateDisplay.runNow();
 	}
 	
 	/** Randomly place the vertices of a graph on the drawing surface. */
@@ -488,6 +885,9 @@ public class RenderBox extends ActiveDisplay {
 		_director.setActive(ACT_RANDOM);
 		_director.runNow();
 		_director.setActive(prev_activity);
+        if(_enforceBounds) {
+            updateCurrentLayoutBounds(getBounds(), false);
+        }
 	}
 	
 	public void doSemiRandomLayout() {
@@ -498,9 +898,18 @@ public class RenderBox extends ActiveDisplay {
 		_director.setActive(ACT_SEMIRANDOM);
 		_director.runNow();
 		_director.setActive(prev_activity);
+        if(_enforceBounds) {
+            updateCurrentLayoutBounds(getBounds(), false);
+        }
 	}
 	
 	public void doCenterLayout() {
+	    // TODO
+	    // show abs rectangle of window before
+		Rectangle r1 = getAbsRectangle(getBounds());
+		if(DEBUG) {System.out.println("R-Before: " + r1);}
+	    // TODO
+	    
 		if(_empty) {
 			return;
 		}
@@ -516,8 +925,35 @@ public class RenderBox extends ActiveDisplay {
 		}
 		x = x / (double) ct;
 		y = y / (double) ct;
-		panToAbs(new java.awt.geom.Point2D.Double(x, y));
+		if(DEBUG) {System.out.println("Centering to " + x + "," + y);}
+        Point2D p_new = new Point2D.Double(x, y); 
+        
+        // TODO - ANIM here
+        if(_animateLayout) {
+            animatePanAndZoomToAbs(p_new, 1.0, 1000);
+        }
+        else {
+            // TODO - can't figure out why this fails when
+            // we zoom out
+            // zoomAbs(p_new, 1.0);
+            // panToAbs(p_new);
+            // repaint();
+            
+            animatePanAndZoomToAbs(p_new, 1.0, 20);
+        }
+        
+        if(_enforceBounds) {
+        //    updateCurrentLayoutBounds(getBounds(), false);
+        }
 		repaint();
+
+		// TODO
+	    // show abs rectangle of window after
+		Rectangle r2 = getAbsRectangle(getBounds());
+		if(DEBUG) {System.out.println("R-After: " + r2);}
+	    // TODO
+
+	
 	}
 	
 	/**
@@ -690,13 +1126,16 @@ public class RenderBox extends ActiveDisplay {
 		}
 		
 		public void itemEntered(VisualItem item, MouseEvent e) {
+		    if(DEBUG) {System.out.println("Item Entered");}
 			PElement p = (PElement) item.getEntity();
 			nv2d.graph.GraphElement gElement = p.getNV2DGraphElement();
-
 			((Display)e.getSource()).setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 			item.setHighlighted(true);
+//			_registry.touch(item.getItemClass());
 			_parent.setToolTipText(PopupProp.createHtml(gElement));	// turn off tooltips
-			repaint();
+//			repaint();
+			
+			updateDisplay.runNow();
 		}
 		
 		public void itemPressed(VisualItem item, MouseEvent e) {
@@ -733,24 +1172,30 @@ public class RenderBox extends ActiveDisplay {
 			_lastItemClicked = item;
 			maybeShowPopup(e);
 			repaint();
+			updateDisplay.runNow();
 		}
 		
 		public void itemReleased(VisualItem item, MouseEvent e) {
 			maybeShowPopup(e);
 			repaint();
+			updateDisplay.runNow();
 		}
 		
 		public void itemExited(VisualItem item, MouseEvent e) {
+		    if(DEBUG) {System.out.println("Item Exited");}
 			((Display)e.getSource()).setCursor(Cursor.getDefaultCursor());
 			item.setHighlighted(false);
+//			_registry.touch(item.getItemClass());
 			_parent.setToolTipText(null);	// turn off tooltips
-			repaint();
+//			repaint();
+			updateDisplay.runNow();
 		}
 		
 		private void maybeShowPopup(MouseEvent e) {
 			if (e.isPopupTrigger()) {
 				_vertexMenu.getMenu().show(e.getComponent(), e.getX(), e.getY());
 				repaint();
+				updateDisplay.runNow();
 			}
 		}
 		
@@ -789,6 +1234,7 @@ public class RenderBox extends ActiveDisplay {
 			_clearPath.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
 					clearHighlightedPaths();
+					updateDisplay.runNow();
 				}
 			});
 			
@@ -796,6 +1242,7 @@ public class RenderBox extends ActiveDisplay {
 			_setStartPoint.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
 					actionPerformedSetStartPoint(e);
+					updateDisplay.runNow();
 				}
 			});
 			
@@ -803,6 +1250,13 @@ public class RenderBox extends ActiveDisplay {
 			_setEndPoint.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
 					actionPerformedSetEndPoint(e);
+					updateDisplay.runNow();
+					
+//					ActionList a = new ActionList(_registry, 1000, 20);
+//					a.add(new RepaintAction());
+//					a.add(new Colorizer());
+//					a.add(new LegendColorizer(_ctl));
+//					a.runNow();
 				}
 			});
 		}
@@ -873,6 +1327,7 @@ public class RenderBox extends ActiveDisplay {
 
 		clearHighlightedPaths();
 		highlightPath(p);
+		updateDisplay.runNow();
 	}
 
 	private void actionPerformedSetStartPoint(ActionEvent e) {

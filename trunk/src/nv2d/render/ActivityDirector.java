@@ -284,6 +284,10 @@ public class ActivityDirector {
     }
     
     
+    public Activity getCurrentActivity() {
+        return _activities.get(_activeName);
+    }
+    
     /**
      * isActiveSet
      * 
