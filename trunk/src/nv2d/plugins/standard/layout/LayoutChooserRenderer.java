@@ -5,14 +5,21 @@ import java.awt.Component;
 import javax.swing.ListCellRenderer;
 import javax.swing.JLabel;
 import javax.swing.JList;
+import javax.swing.ImageIcon;
 
 public class LayoutChooserRenderer extends JLabel implements ListCellRenderer {
     private Font font;
+
+	private String [] layouts;
+	private ImageIcon [] icons;
 
     public LayoutChooserRenderer(String[] layouts, ImageIcon[] icons) {
         this.setOpaque(true);
         this.setHorizontalAlignment(CENTER);
         this.setVerticalAlignment(CENTER);
+
+		this.layouts = layouts;
+		this.icons = icons;
     }
 
     /**

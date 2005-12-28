@@ -48,6 +48,7 @@ public class NPluginManager {
 		"nv2d.plugins.standard.DefaultImporter",
 		"nv2d.plugins.standard.GraphmlImporter",
 		"nv2d.plugins.standard.SNA",
+		"nv2d.plugins.standard.Exporter",
 		"nv2d.plugins.standard.NFileIO",
 		"nv2d.plugins.standard.Orgstudies",
 		"nv2d.plugins.standard.layout.LayoutPlugin"
