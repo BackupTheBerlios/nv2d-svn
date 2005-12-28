@@ -22,10 +22,10 @@ package nv2d.graph;
 
 import java.util.Set;
 
-public abstract class AbstractVertex
+public abstract class AbstractMetaVertex
 		extends AbstractGraphElement
 		implements Vertex, Graph {
-	public AbstractVertex(String id) {
+	public AbstractMetaVertex(String id) {
 		super(id);
 	}
 
