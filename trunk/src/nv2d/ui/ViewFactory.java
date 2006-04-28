@@ -78,8 +78,8 @@ public class ViewFactory {
 		_consolePane = new JScrollPane(outTxt);
 		_err = new NPrintStream(System.err);
 		_out = new NPrintStream(System.out);
-		System.setOut(_out);
-		System.setErr(_err);
+		// System.setOut(_out);
+		// System.setErr(_err);
 		_err.addNotifyClient(errTxt);
 		_out.addNotifyClient(outTxt);
 		
