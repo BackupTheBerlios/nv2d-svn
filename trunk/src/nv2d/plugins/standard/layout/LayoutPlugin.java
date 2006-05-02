@@ -320,6 +320,7 @@ public class LayoutPlugin implements NV2DPlugin {
 		_layoutMenu.add(l_circle);
 		
 		// TODO
+		/*
 		final JMenuItem l_sa = new JMenuItem(LAYOUT_SimAnneal);
 		l_sa.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -328,7 +329,7 @@ public class LayoutPlugin implements NV2DPlugin {
 			}
 		});
 		_layoutMenu.add(l_sa);
-		
+		*/
 		final JMenuItem l_rt = new JMenuItem(LAYOUT_RadTree);
 		l_rt.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -347,6 +348,7 @@ public class LayoutPlugin implements NV2DPlugin {
 		});
 		_layoutMenu.add(l_grid);
 		
+		/*
 		final JMenuItem l_pi = new JMenuItem(LAYOUT_FRplusFD);
 		l_pi.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -365,6 +367,7 @@ public class LayoutPlugin implements NV2DPlugin {
 			}
 		});
 		_layoutMenu.add(l_test);
+		*/
 		
 		return _layoutMenu;
 	} // -- end menu
@@ -458,6 +461,7 @@ public class LayoutPlugin implements NV2DPlugin {
 
 		    }
 	    }
+	    /*
 	    // --- Simulated Layout ---
 	    else if (name.equals(ACT_SIMULATED_ANNEALING) || name.equals(LAYOUT_SimAnneal)) {
 	        if(DEBUG) {System.out.println("Choosing Simulated Annealing");}
@@ -475,6 +479,7 @@ public class LayoutPlugin implements NV2DPlugin {
 		        _sideBarPanel.validate();
 		    }
 	    }
+	    */
 	    // --- Radial Tree Layout ---
 	    else if (name.equals(ACT_RADIAL_TREE) || name.equals(LAYOUT_RadTree)) {
 	        LayoutActionList rt_actions = (LayoutActionList)_layoutLists.get(LAYOUT_RadTree);
@@ -511,7 +516,7 @@ public class LayoutPlugin implements NV2DPlugin {
 		        _sideBarPanel.validate();
 		    }
 	    }
-	    
+	    /*
 	    // --- Pipeline FR+FD Layout ---
 	    else if (name.equals(ACT_PIPELINE) || name.equals(LAYOUT_FRplusFD)) {
 		    _renderbox.addActivity(ACT_PIPELINE, (LayoutActionList)_layoutLists.get(LAYOUT_FRplusFD));
@@ -529,23 +534,24 @@ public class LayoutPlugin implements NV2DPlugin {
 		        _sideBarPanel.validate();
 		    }
 	    }
-//	    // --- TEST Layout ---
-//	    else if (name.equals(ACT_TEST) || name.equals(LAYOUT_TEST)) {
-//		    _renderbox.addActivity(ACT_TEST, (LayoutActionList)_layoutLists.get(LAYOUT_TEST));
-//		    _renderbox.setActiveLayout(ACT_TEST);
-//		    _renderbox.updateCurrentLayoutBounds(_renderbox.getBounds(), false);
-//		    if(start) {
-//		        _renderbox.startLayout();
-//		    }
-//
-//		    if((currentLayout != null && !currentLayout.equals(ACT_TEST)) || requirePanelUpdate) {
-//		        _sideBarPanel.remove(_layoutSettingsPanel);
-//		        // TODO - make sidepanel
-//		        _layoutSettingsPanel = new FRSettingsPanel(this);
-//		        _sideBarPanel.add(_layoutSettingsPanel, BorderLayout.SOUTH);
-//		        _sideBarPanel.validate();
-//		    }
-//	    }
+	    // --- TEST Layout ---
+	    else if (name.equals(ACT_TEST) || name.equals(LAYOUT_TEST)) {
+		    _renderbox.addActivity(ACT_TEST, (LayoutActionList)_layoutLists.get(LAYOUT_TEST));
+		    _renderbox.setActiveLayout(ACT_TEST);
+		    _renderbox.updateCurrentLayoutBounds(_renderbox.getBounds(), false);
+		    if(start) {
+		        _renderbox.startLayout();
+		    }
+
+		    if((currentLayout != null && !currentLayout.equals(ACT_TEST)) || requirePanelUpdate) {
+		        _sideBarPanel.remove(_layoutSettingsPanel);
+		        // TODO - make sidepanel
+		        _layoutSettingsPanel = new FRSettingsPanel(this);
+		        _sideBarPanel.add(_layoutSettingsPanel, BorderLayout.SOUTH);
+		        _sideBarPanel.validate();
+		    }
+	    }
+	    */
 	    
 	    
 	} // -- end setLayout
@@ -1237,8 +1243,12 @@ public class LayoutPlugin implements NV2DPlugin {
 //	    ImageIcon[] icons = new ImageIcon[5];
 
 //	    String[] layout_actions = {LayoutPlugin.ACT_FORCE_DIRECTED, LayoutPlugin.ACT_FRUCH_REIN, LayoutPlugin.LAYOUT_Circle};
-	    String[] layout_names = {LayoutPlugin.LAYOUT_ForceDir, LayoutPlugin.LAYOUT_WForceDir, LayoutPlugin.LAYOUT_FruchRein, LayoutPlugin.LAYOUT_Circle, LayoutPlugin.LAYOUT_SimAnneal, LayoutPlugin.LAYOUT_RadTree, LayoutPlugin.LAYOUT_Grid, LayoutPlugin.LAYOUT_FRplusFD, LayoutPlugin.LAYOUT_KamKawai, LayoutPlugin.LAYOUT_ISOM};
-	    ImageIcon[] icons = new ImageIcon[10];
+	    String[] layout_names = {LayoutPlugin.LAYOUT_ForceDir, LayoutPlugin.LAYOUT_WForceDir, 
+	            LayoutPlugin.LAYOUT_FruchRein, LayoutPlugin.LAYOUT_Circle, LayoutPlugin.LAYOUT_RadTree, 
+	            LayoutPlugin.LAYOUT_Grid}; //, LayoutPlugin.LAYOUT_SimAnneal,LayoutPlugin.LAYOUT_FRplusFD, 
+	            //LayoutPlugin.LAYOUT_KamKawai, LayoutPlugin.LAYOUT_ISOM};
+	    ImageIcon[] icons = new ImageIcon[6];
+	    //ImageIcon[] icons = new ImageIcon[10];
 
 	    boolean USE_BUTTONS = false;
 	    
@@ -1263,11 +1273,12 @@ public class LayoutPlugin implements NV2DPlugin {
 		        icons[3] = LayoutUtil.createImageIcon("images/" + IMG_NAME_CIRCLE + ".gif");
 		        icons[4] = LayoutUtil.createImageIcon("images/" + IMG_NAME_FORCEDIR + ".gif");
 		        icons[5] = LayoutUtil.createImageIcon("images/" + IMG_NAME_FORCEDIR + ".gif");
+		        /*
 		        icons[6] = LayoutUtil.createImageIcon("images/" + IMG_NAME_FORCEDIR + ".gif");
 		        icons[7] = LayoutUtil.createImageIcon("images/" + IMG_NAME_FORCEDIR + ".gif");
 		        icons[8] = LayoutUtil.createImageIcon("images/" + IMG_NAME_FORCEDIR + ".gif");
 		        icons[9] = LayoutUtil.createImageIcon("images/" + IMG_NAME_FORCEDIR + ".gif");
-		        
+		        */
 		        // Create the combo box.
 		        Integer[] intArray = new Integer[layout_names.length];
 		        for (int i = 0; i < layout_names.length; i++) {
@@ -1315,13 +1326,21 @@ public class LayoutPlugin implements NV2DPlugin {
 	        else if(type.equals(LayoutPlugin.LAYOUT_Circle)) {
 	            layoutList.setSelectedIndex(3);
 	        }
+	        else if(type.equals(LayoutPlugin.LAYOUT_RadTree)) {
+	            layoutList.setSelectedIndex(4);
+	        }
+	        else if(type.equals(LayoutPlugin.LAYOUT_Grid)) {
+	            layoutList.setSelectedIndex(5);
+	        }
+	        /*
+	        // TODO - complete these
 	        else if(type.equals(LayoutPlugin.LAYOUT_SimAnneal)) {
 	            layoutList.setSelectedIndex(4);
 	        }
 	        else if(type.equals(LayoutPlugin.LAYOUT_FRplusFD)) {
 	            layoutList.setSelectedIndex(5);
 	        }
-	        // TODO - complete these
+	        */
 	    }
 
 	    private AbstractButton createLayoutButton(AbstractButton button, String name, String label, Border normalBorder) {
@@ -1330,7 +1349,7 @@ public class LayoutPlugin implements NV2DPlugin {
 
 	        // Set the image or, if that's invalid, equivalent text.
 	        ImageIcon icon = LayoutUtil.createImageIcon("images/" + name + ".gif");
-	        ImageIcon selectedIcon = LayoutUtil.createImageIcon("images/sel_" + name + ".gif");
+	        //ImageIcon selectedIcon = LayoutUtil.createImageIcon("images/sel_" + name + ".gif");
 	        if (icon != null) {
 	            button.setIcon(icon);
 	            //button.setSelectedIcon(selectedIcon);
@@ -1928,7 +1947,7 @@ public class LayoutPlugin implements NV2DPlugin {
 	
 	        // Set the image or, if that's invalid, equivalent text.
 	        ImageIcon icon = LayoutUtil.createImageIcon("images/" + imgname + ".gif");
-	        ImageIcon selectedIcon = LayoutUtil.createImageIcon("images/sel_" + imgname + ".gif");
+	        //ImageIcon selectedIcon = LayoutUtil.createImageIcon("images/sel_" + imgname + ".gif");
 	        if (icon != null) {
 	            button.setIcon(icon);
 	            //button.setSelectedIcon(selectedIcon);

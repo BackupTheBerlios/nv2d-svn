@@ -243,9 +243,10 @@ public class NMenu extends JMenuBar {
 		_viewVis.add(_viewLength);
 		// filter submenu
 		_viewFilter.add(_viewFilterDegree);
+		// TODO: prentice - removed for jarsign-free version
 		// save image option
-		_view.add(new JSeparator());
-		_view.add(_viewSaveImage);
+		//_view.add(new JSeparator());
+		//_view.add(_viewSaveImage);
 		_viewFilterDegree.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				_viewFilterDegreeActionPerformed(e);
@@ -291,12 +292,12 @@ public class NMenu extends JMenuBar {
 				_viewRenderBoxActionPerformed(e);
 			}
 		});
-		_viewSaveImage.addActionListener(new ActionListener() {
+		/*_viewSaveImage.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				_viewSaveImageActionPerformed(e);
 			}
 		});
-		
+		*/
 		// initialize settings menu
 		_settings = new JMenu("Settings");
 		_settingsAntialias = new JCheckBoxMenuItem("Antialias", _renderbox.getRenderSettings().getBoolean(RenderSettings.ANTIALIAS));

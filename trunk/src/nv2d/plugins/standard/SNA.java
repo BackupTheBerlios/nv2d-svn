@@ -80,8 +80,8 @@ public class SNA implements NV2DPlugin  {
 	public static final String DATUM_BETWEENNESS = "Betweenness";
 	public static final String DATUM_CLOSENESS = "Closeness";
 	public static final String DATUM_DEGREE = "Degree";
-	public static final String DATUM_INDEGREE = "In-Degree";
-	public static final String DATUM_OUTDEGREE = "Out-Degree";
+	public static final String DATUM_INDEGREE = "In Degree";
+	public static final String DATUM_OUTDEGREE = "Out Degree";
 
 	public static double MAX_VERTEX_RADIUS = 3.0;
 	public static double MIN_VERTEX_RADIUS = 1.0;

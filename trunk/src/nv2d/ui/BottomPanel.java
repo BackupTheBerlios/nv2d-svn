@@ -20,6 +20,8 @@
 
 package nv2d.ui;
 
+import javax.swing.JPanel;
+
 import nv2d.graph.Graph;
 import nv2d.graph.Vertex;
 
@@ -99,7 +101,11 @@ public class BottomPanel extends javax.swing.JPanel {
             vnames = new Object [0];
         }
         _dfVertices = new javax.swing.JComboBox();
-        _dfDegree = new javax.swing.JComboBox(new Object [] {"1 degree", "2 degrees", "3 degrees", "4 degrees", "5 degrees", "6 degrees"});
+        
+        // TODO: once a graph is loaded, may want to update this combo box, optionally
+        // removing the "All Vertices" entry if num vertices > DegreeFilterUI.THRESHHOLD
+        _dfDegree = new javax.swing.JComboBox(new Object [] {"1 degree", "2 degrees", "3 degrees", "4 degrees", "5 degrees", "6 degrees", "All Vertices"});
+        
         _doFilter = new javax.swing.JButton();
 
         setLayout(new java.awt.FlowLayout(java.awt.FlowLayout.LEFT));
@@ -180,12 +186,15 @@ public class BottomPanel extends javax.swing.JPanel {
 		
 		Object [] fargs = new Object[2];
 		Vertex selectedVertex = (Vertex) _dfVertices.getSelectedItem();
-		int selectedDegree = (int) _dfDegree.getSelectedIndex();
+		// TODO - prentice - changed back to String for sake of NumberFormatException below
+		//int selectedDegree = (int) _dfDegree.getSelectedIndex();
+		String selectedDegree = (String) _dfDegree.getSelectedItem();
 		Integer degree = null;
 
 		try {
-			// degree = Integer.valueOf(selectedDegree.substring(0, 1));
-			degree = new Integer(selectedDegree + 1);
+		    // TODO: prentice - switched these
+			 degree = Integer.valueOf(selectedDegree.substring(0, 1));
+			//degree = new Integer(selectedDegree + 1);
 		} catch (NumberFormatException exception) {
 			// show all nodes
 			degree = new Integer(-1);
