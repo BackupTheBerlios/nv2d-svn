@@ -68,9 +68,10 @@ public class NPluginManager {
 	
 	public NPluginManager() {
 		_securityList = new HashSet();
-		addSecureLocation("www.netvis.org");
+		// TODO
+		/*addSecureLocation("www.netvis.org");
 		addSecureLocation("web.mit.edu/bshi");
-		addSecureLocation("web.mit.edu/prentice");
+		addSecureLocation("web.mit.edu/prentice");*/
 	}
 	
 	public void addSecureLocation(String loc) {

@@ -87,12 +87,13 @@ public class ViewFactory {
 		_historyPane = new HistoryUI(_ctl.getHistory());
 
 		JEditorPane editorPane = null;
-		try {
-			String url = "http://web.mit.edu/bshi/Public/nv2d/";
-			editorPane = new JEditorPane(url);
+	    // TODO - temp fix for no jar signing
+		//try {
+			//String url = "http://web.mit.edu/bshi/Public/nv2d/";
+			editorPane = new JEditorPane(); //url);
 			editorPane.setEditable(false);
-		} catch (java.io.IOException e) {
-		}
+		//} catch (java.io.IOException e) {
+		//}
 		
 		if(null != editorPane) {
 			JScrollPane scrollPane = new JScrollPane(editorPane);
